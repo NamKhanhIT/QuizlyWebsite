@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trang Danh Sách Môn Thi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "content-light": "#ffffff",
+              "content-dark": "#1a2836",
+              "text-light-primary": "#0d141b",
+              "text-dark-primary": "#f8fafc",
+              "text-light-secondary": "#4c739a",
+              "text-dark-secondary": "#94a3b8",
+              "border-light": "#e7edf3",
+              "border-dark": "#334155"
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary">
+<div class="relative flex h-auto min-h-screen w-full flex-col">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 w-full border-b border-border-light dark:border-border-dark bg-content-light/80 dark:bg-content-dark/80 backdrop-blur-sm">
+<div class="container mx-auto px-4">
+<div class="flex h-16 items-center justify-between whitespace-nowrap">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-text-light-primary dark:text-text-dark-primary">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">Thi Trắc Nghiệm</h2>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal" href="#">IT</a>
+<a class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-medium leading-normal" href="#">Ngoại Ngữ</a>
+<a class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-medium leading-normal" href="#">Kinh Tế</a>
+</nav>
+<div class="flex flex-1 justify-end gap-3 items-center">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Đăng nhập</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary/10 text-primary text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Đăng ký</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-8">
+<div class="flex flex-col lg:flex-row gap-8">
+<!-- Left Sidebar - Filters -->
+<aside class="w-full lg:w-1/4 lg:max-w-xs">
+<div class="sticky top-24 flex flex-col gap-6">
+<h3 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary">Bộ lọc</h3>
+<div class="flex flex-col gap-3">
+<details class="flex flex-col rounded-lg border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark px-[15px] py-[7px] group" open="">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-2 list-none">
+<p class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal">Độ khó</p>
+<span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="flex flex-col pt-2 pb-1">
+<label class="flex items-center gap-x-3 py-2">
+<input class="h-5 w-5 rounded border-border-light dark:border-border-dark bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<p class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-normal leading-normal">Dễ</p>
+</label>
+<label class="flex items-center gap-x-3 py-2">
+<input checked="" class="h-5 w-5 rounded border-border-light dark:border-border-dark bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<p class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-normal leading-normal">Trung bình</p>
+</label>
+<label class="flex items-center gap-x-3 py-2">
+<input class="h-5 w-5 rounded border-border-light dark:border-border-dark bg-transparent text-primary checked:bg-primary checked:border-primary focus:ring-0 focus:ring-offset-0" type="checkbox"/>
+<p class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-normal leading-normal">Khó</p>
+</label>
+</div>
+</details>
+<details class="flex flex-col rounded-lg border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark px-[15px] py-[7px] group">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-2 list-none">
+<p class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal">Trạng thái</p>
+<span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pt-2 pb-1 text-text-light-secondary dark:text-text-dark-secondary text-sm font-normal leading-normal">Nội dung trạng thái ở đây</div>
+</details>
+<details class="flex flex-col rounded-lg border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark px-[15px] py-[7px] group">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-2 list-none">
+<p class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal">Mức giá</p>
+<span class="material-symbols-outlined text-text-light-secondary dark:text-text-dark-secondary group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pt-2 pb-1 text-text-light-secondary dark:text-text-dark-secondary text-sm font-normal leading-normal">Nội dung mức giá ở đây</div>
+</details>
+</div>
+<div class="flex flex-col gap-3">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Áp dụng bộ lọc</span>
+</button>
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-4 bg-transparent text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/10">
+<span class="truncate">Xóa bộ lọc</span>
+</button>
+</div>
+</div>
+</aside>
+<!-- Right Content Area - Subject List -->
+<div class="flex-1">
+<!-- Breadcrumbs & Heading -->
+<div class="mb-6">
+<div class="flex flex-wrap gap-2 mb-4">
+<a class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-medium leading-normal" href="#">Trang chủ</a>
+<span class="text-text-light-secondary dark:text-text-dark-secondary text-sm font-medium leading-normal">/</span>
+<span class="text-text-light-primary dark:text-text-dark-primary text-sm font-medium leading-normal">Công nghệ thông tin</span>
+</div>
+<div class="flex flex-wrap justify-between items-baseline gap-3">
+<div class="flex flex-col gap-2">
+<h1 class="text-text-light-primary dark:text-text-dark-primary text-3xl font-bold leading-tight tracking-[-0.03em]">Danh sách môn thi: Công nghệ thông tin</h1>
+<p class="text-text-light-secondary dark:text-text-dark-secondary text-base font-normal leading-normal">Khám phá các môn thi trong lĩnh vực Công nghệ thông tin.</p>
+</div>
+</div>
+</div>
+<!-- Sort Dropdown -->
+<div class="flex justify-end mb-6">
+<div class="relative">
+<select class="appearance-none w-48 bg-content-light dark:bg-content-dark border border-border-light dark:border-border-dark text-text-light-primary dark:text-text-dark-primary text-sm rounded-lg focus:ring-primary focus:border-primary block p-2.5 pr-8">
+<option selected="">Sắp xếp theo: Mới nhất</option>
+<option value="1">Phổ biến nhất</option>
+<option value="2">Giá: Thấp đến cao</option>
+<option value="3">Giá: Cao đến thấp</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-light-secondary dark:text-text-dark-secondary">
+<span class="material-symbols-outlined text-base">unfold_more</span>
+</div>
+</div>
+</div>
+<!-- Subject Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="Abstract code on a screen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAXisPjsHCn_0wdJVTPYypsmxhQDzdxd_BHK9zu5u65UU5FyX6L8trmBj4VxkEEK1bmNWux_2rAUdWiCv2jE4SuIrzrrkk4KlRGSPivsl9ED5EvqmtyrPPtiZnc_1bzEmFPRcgulbfjjIyETzz7FpvgMN1j1oFZM4TMqqPJeQB9gK_FeWrsEYbGbCVS-BBmphsm7nXV39vNSNsox3dH3tzsADnUlW9Lkw3kfX8AJvgU2FsaH_a5u3S1JrSS2LbPsG9l4vEOi2AUnqLA");'></div>
+<div class="p-5 flex flex-col flex-grow">
+<h4 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary mb-2">Lập trình C/C++</h4>
+<div class="flex items-center gap-4 text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">signal_cellular_alt</span>
+<span>Trung bình</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>40 câu</span>
+</div>
+</div>
+<div class="mt-auto flex justify-between items-center">
+<span class="text-lg font-bold text-green-500">Miễn phí</span>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">Vào thi</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="Java programming language logo" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDPT_88ssXTZtLBtLQsazslRA7irbwEzSZp2mQxgFHOBhwi8lfIJ3lJbMODPpaUJ9BZH9RLQwNbyjkW18ki3PCR_nmYW_FPmxr9Dg4iq_HNXfuQ4uK9r69Cf6yHfCXfFSnhLN9krudVpk-59yI32T8GcZ3DCKpNMY2tU2WiV-b-N-DsOSRid08099ODTagOJ-ca6344h_lxlVSriaMCbDoN4eP0F-1SZhxwWO2u1BNYdhZwr0IYY5yZEMjMzhuzWrILG7LEmWcmNUiZ");'></div>
+<div class="p-5 flex flex-col flex-grow">
+<h4 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary mb-2">Lập trình Java</h4>
+<div class="flex items-center gap-4 text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">signal_cellular_alt</span>
+<span>Khó</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>60 câu</span>
+</div>
+</div>
+<div class="mt-auto flex justify-between items-center">
+<span class="text-lg font-bold text-primary">50.000đ</span>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">Xem chi tiết</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="Abstract network and nodes visualization" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDy26pK2FZGZFDzyMJkwEa1fdHM-VmJmh4hqExkWmldUGaTZJg-H_4k4qrf7Xr2CfRAJYp8VAzJXEyjFd68laifBA_Hoyl4LRfLRQ4AyxXAGQpO5allyhtCCwpOzNEYI92aZaqYLFbyzPopONxaXdkJ7F4Hcw64eDcSGWatl6PLMhdlqnEUvHRY1_sOrhx8yjoCFVNZyTakKL83NCAtPPU3_1ld2xgmly3hejXDl0S4UI6fTt0gi4w_GPdnOVAO0_l3Aa8JSZPrV2uT");'></div>
+<div class="p-5 flex flex-col flex-grow">
+<h4 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary mb-2">Mạng máy tính</h4>
+<div class="flex items-center gap-4 text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">signal_cellular_alt</span>
+<span>Trung bình</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>50 câu</span>
+</div>
+</div>
+<div class="mt-auto flex justify-between items-center">
+<span class="text-lg font-bold text-green-500">Miễn phí</span>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">Vào thi</button>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="Abstract blue and purple geometric shapes" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBUJwNlc4eeIPwJbcCobkMthfFIOhAbUPgsPwnL3e0NXwEZ_P_f4mef6WQqJYWECIfyv6GUH3-OdgxUmq57wGKdg2LFqEW0C2qLXnbfZwL7rra6tOa76PFTdve4ah_iH7MWNZMnhZMUfTd83ZV7xvCM1axfRY8ROrhNOzSH46xbzuPS11Gg1F8iNg_8JFHeo1W67pnINa5ZiGEg1pPWDAXwCAOfPUXTKOgyVQ1ixdp0FxYiFz2DwyfrhK8Qt1j5qJdn2xXvsv---Q0_");'></div>
+<div class="p-5 flex flex-col flex-grow">
+<h4 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary mb-2">Toán rời rạc</h4>
+<div class="flex items-center gap-4 text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">signal_cellular_alt</span>
+<span>Dễ</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>25 câu</span>
+</div>
+</div>
+<div class="mt-auto flex justify-between items-center">
+<span class="text-lg font-bold text-green-500">Miễn phí</span>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">Vào thi</button>
+</div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="Person working on a laptop with code on multiple screens" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAXxVZfZaQ3DTZsm3b1ULgFkQqTDHhtEWT3C9tZIOhKe5-kyjvXZ8oL8a1nGA9_zrBrvSYS_sRbFwCQak4z_-ytAzynk8-QyLoBDGjRCcCltADDj8wfKKtLW1B7CBBGgs0_JBOIf_daRc4_3kFgu2sUZCo0bJba-l7xRqFeUgTf1o0aqVoS7TKT0gASKM1i9cxnRfm411wk8RUqEaTOGhpub3LqiNZOhZRoe1gwTJ8WhYwM2Ou0ja-cRGcV9hfnf3RxUHRhSXSJl3Hx");'></div>
+<div class="p-5 flex flex-col flex-grow">
+<h4 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary mb-2">Cấu trúc dữ liệu &amp; Giải thuật</h4>
+<div class="flex items-center gap-4 text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">signal_cellular_alt</span>
+<span>Khó</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>50 câu</span>
+</div>
+</div>
+<div class="mt-auto flex justify-between items-center">
+<span class="text-lg font-bold text-primary">75.000đ</span>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">Xem chi tiết</button>
+</div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-content-light dark:bg-content-dark overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="Database schema diagram on a screen" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuC3zMB20UXkJJOvjFHjg1KmvC3VViRQuHhqeatom5pERi-ee17TpqhR75WYknnGu3oKtWFSK9ryH24N-20ehZS9nE2Roby6updKJFF2QB_b4OrH7UhStF2xMsqLSSfjC9hNc39l46qXRQNzHDT2zkldxhUdvsq7X2rqa8prc7j1w0zhC1-tdwEAB0vhWPUvivmSbiKVJ4uLqA4Dcmqw3TBUeG8wHF-IYNtjLo2LtjP20xvZgNbHi4zF-XaQgXr3BPsnz3YHSBFe1f_y");'></div>
+<div class="p-5 flex flex-col flex-grow">
+<h4 class="text-lg font-bold text-text-light-primary dark:text-text-dark-primary mb-2">Cơ sở dữ liệu</h4>
+<div class="flex items-center gap-4 text-text-light-secondary dark:text-text-dark-secondary text-sm mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">signal_cellular_alt</span>
+<span>Trung bình</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base">quiz</span>
+<span>40 câu</span>
+</div>
+</div>
+<div class="mt-auto flex justify-between items-center">
+<span class="text-lg font-bold text-green-500">Miễn phí</span>
+<button class="flex items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">Vào thi</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<nav aria-label="Pagination" class="flex items-center justify-center pt-10 mt-6">
+<a class="relative inline-flex items-center rounded-l-lg p-3 text-sm text-text-light-secondary dark:text-text-dark-secondary hover:bg-primary/10" href="#">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</a>
+<a class="relative z-10 inline-flex items-center bg-primary px-4 py-2 text-sm font-semibold text-white" href="#">1</a>
+<a class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-text-light-primary dark:text-text-dark-primary ring-1 ring-inset ring-border-light dark:ring-border-dark hover:bg-primary/10" href="#">2</a>
+<a class="relative hidden items-center px-4 py-2 text-sm font-semibold text-text-light-primary dark:text-text-dark-primary ring-1 ring-inset ring-border-light dark:ring-border-dark hover:bg-primary/10 md:inline-flex" href="#">3</a>
+<span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-text-light-secondary dark:text-text-dark-secondary ring-1 ring-inset ring-border-light dark:ring-border-dark">...</span>
+<a class="relative hidden items-center px-4 py-2 text-sm font-semibold text-text-light-primary dark:text-text-dark-primary ring-1 ring-inset ring-border-light dark:ring-border-dark hover:bg-primary/10 md:inline-flex" href="#">8</a>
+<a class="relative inline-flex items-center rounded-r-lg p-3 text-sm text-text-light-secondary dark:text-text-dark-secondary hover:bg-primary/10" href="#">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+</main>
+</div>
+</body></html>

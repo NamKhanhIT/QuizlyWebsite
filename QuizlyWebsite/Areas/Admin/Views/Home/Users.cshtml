@@ -1,0 +1,45 @@
+@model List<QuizlyWebsite.Models.TbUser>
+
+@{
+    ViewData["Title"] = "Quản Lý Ngườ i Dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-3xl font-bold mb-6">Danh Sách Người Dùng</h2>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Tên Đăng Nhập</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Email</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Họ Tên</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Vai Trò</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Ngày Tạo</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Hành Động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                    <td class="px-6 py-4 font-semibold">@user.Username</td>
+                    <td class="px-6 py-4">@user.Email</td>
+                    <td class="px-6 py-4">@user.FullName</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full @(user.Role == "Admin" ? "bg-red-100 text-red-800" : "bg-blue-100 text-blue-800")">
+                            @user.Role
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm">@user.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"</td>
+                    <td class="px-6 py-4 text-sm">
+                        <div class="flex gap-2">
+                            <button class="text-primary hover:underline">Chỉnh Sửa</button>
+                            <button class="text-danger hover:underline">Khóa</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,131 @@
+@model QuizlyWebsite.Models.TbUser
+
+@{
+    ViewData["Title"] = "Hồ Sơ Cá Nhân";
+}
+
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <!-- Profile Header -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
+        <!-- Banner -->
+        <div class="h-32 bg-gradient-to-r from-primary to-blue-600"></div>
+
+        <!-- Profile Info -->
+        <div class="px-8 py-6 -mt-16 relative z-10">
+            <div class="flex gap-6 items-end">
+                <img src="@(Model.AvatarUrl ?? "https://via.placeholder.com/120")" alt="@Model.FullName" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover">
+                <div class="flex-1 pb-2">
+                    <h1 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50">@Model.FullName</h1>
+                    <p class="text-[#4c739a] dark:text-slate-400">@Model.Email</p>
+                    <div class="flex gap-2 mt-2">
+                        <span class="inline-block text-xs font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">
+                            @Model.Role
+                        </span>
+                        <span class="inline-block text-xs font-semibold bg-success/20 text-success px-3 py-1 rounded-full">
+                            Tham gia từ @Model.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"
+                        </span>
+                    </div>
+                </div>
+                <button class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    Chỉnh Sửa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
+            <p class="text-3xl font-black text-primary mb-2">0</p>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400">Bài Thi Hoàn Thành</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
+            <p class="text-3xl font-black text-success mb-2">0%</p>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400">Tỷ Lệ Đạt</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
+            <p class="text-3xl font-black text-warning mb-2">0</p>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400">Điểm Cao Nhất</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
+            <p class="text-3xl font-black text-primary mb-2">0</p>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400">Huy Hiệu</p>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+        <div class="flex border-b border-gray-200 dark:border-gray-700">
+            <button class="tab-btn flex-1 py-4 px-6 text-center font-semibold border-b-2 border-primary text-primary" data-tab="activity">
+                Hoạt Động Gần Đây
+            </button>
+            <button class="tab-btn flex-1 py-4 px-6 text-center font-semibold border-b-2 border-transparent text-[#4c739a] dark:text-slate-400 hover:text-primary" data-tab="achievements">
+                Thành Tựu
+            </button>
+            <button class="tab-btn flex-1 py-4 px-6 text-center font-semibold border-b-2 border-transparent text-[#4c739a] dark:text-slate-400 hover:text-primary" data-tab="settings">
+                Cài Đặt
+            </button>
+        </div>
+
+        <div class="p-6">
+            <!-- Activity Tab -->
+            <div class="tab-content" id="activity" style="display: block;">
+                <p class="text-center text-[#4c739a] dark:text-slate-400 py-8">Chưa có hoạt động nào</p>
+            </div>
+
+            <!-- Achievements Tab -->
+            <div class="tab-content" id="achievements" style="display: none;">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    @for (int i = 0; i < 8; i++)
+                    {
+                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-50">
+                            <div class="text-4xl mb-2">🏆</div>
+                            <p class="text-xs font-semibold">Huy Hiệu #@(i+1)</p>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings" style="display: none;">
+                <div class="max-w-md space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Mật Khẩu Hiện Tại</label>
+                        <input type="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="Nhập mật khẩu hiện tại">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Mật Khẩu Mới</label>
+                        <input type="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="Nhập mật khẩu mới">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Xác Nhận Mật Khẩu</label>
+                        <input type="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="Xác nhận mật khẩu mới">
+                    </div>
+                    <button class="w-full bg-primary text-white font-semibold py-2 rounded-lg hover:bg-primary-dark transition">Cập Nhật Mật Khẩu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+                
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('border-primary', 'text-primary');
+                    b.classList.add('border-transparent', 'text-[#4c739a]', 'dark:text-slate-400');
+                });
+                btn.classList.add('border-primary', 'text-primary');
+                btn.classList.remove('border-transparent', 'text-[#4c739a]', 'dark:text-slate-400');
+
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(tabName).style.display = 'block';
+            });
+        });
+    </script>
+}

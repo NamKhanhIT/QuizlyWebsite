@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quản lý Bộ đề</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark">
+<div class="flex min-h-screen w-full font-display">
+<!-- SideNavBar -->
+<aside class="flex h-screen w-64 flex-col bg-[#111a22] p-4 sticky top-0">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Admin user avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBqBWvDWNPQdG__kP0QUxwD0eyAzn87AzNHBMM8k0mCZtNh5vL8dKEggcN1ItNF_wnmQFlbUj-uS95xtPEM_1M_e5lH-uid8ir0bX_EgiaoYvAldByrVdaLp19USIhK0nsDeD0iYsPlgiKwTrjQzrXyIge7VAPiu7E3Dfk6lgWCNQcQTJQv4s_QGEG2i2P_Z6DLikjoWejRuHqm5D9UDHjsLvJIRL1QgqsI9H7MYYhsq3YeKeq4o_uyUY8guo1xI_lIn84wpVTrIpCo");'></div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-medium leading-normal">Admin</h1>
+<p class="text-[#92adc9] text-sm font-normal leading-normal">admin@example.com</p>
+</div>
+</div>
+<div class="flex flex-col gap-2 mt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">dashboard</span>
+<p class="text-sm font-medium leading-normal">Tổng quan</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">category</span>
+<p class="text-sm font-medium leading-normal">Danh mục</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">book</span>
+<p class="text-sm font-medium leading-normal">Môn học</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary text-white" href="#">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">view_list</span>
+<p class="text-sm font-medium leading-normal">Bộ đề</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">help_center</span>
+<p class="text-sm font-medium leading-normal">Câu hỏi</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">group</span>
+<p class="text-sm font-medium leading-normal">Người dùng</p>
+</a>
+</div>
+</div>
+<div class="flex flex-col gap-1 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">settings</span>
+<p class="text-sm font-medium leading-normal">Cài đặt</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg" href="#">
+<span class="material-symbols-outlined text-white">logout</span>
+<p class="text-sm font-medium leading-normal">Đăng xuất</p>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-8">
+<div class="w-full max-w-7xl mx-auto">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 mb-6">
+<a class="text-gray-500 dark:text-[#92adc9] text-sm font-medium leading-normal hover:text-primary" href="#">Trang chủ</a>
+<span class="text-gray-500 dark:text-[#92adc9] text-sm font-medium leading-normal">/</span>
+<a class="text-gray-500 dark:text-[#92adc9] text-sm font-medium leading-normal hover:text-primary" href="#">Quản trị</a>
+<span class="text-gray-500 dark:text-[#92adc9] text-sm font-medium leading-normal">/</span>
+<span class="text-gray-900 dark:text-white text-sm font-medium leading-normal">Bộ đề</span>
+</div>
+<!-- PageHeading -->
+<div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+<div class="flex min-w-72 flex-col gap-1">
+<p class="text-gray-900 dark:text-white text-3xl font-bold leading-tight">Quản lý Bộ đề</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-base font-normal leading-normal">Thêm, sửa, xóa và quản lý tất cả các bộ đề trong hệ thống.</p>
+</div>
+<button class="flex items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-white text-xl">add_circle</span>
+<span class="truncate">Thêm Bộ đề mới</span>
+</button>
+</div>
+<!-- Filters and Search -->
+<div class="bg-white dark:bg-[#111a22] p-4 rounded-xl shadow-sm mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<div class="md:col-span-1">
+<!-- SearchBar -->
+<label class="flex flex-col min-w-40 h-11 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-gray-500 dark:text-[#92adc9] flex bg-gray-100 dark:bg-[#233648] items-center justify-center pl-3.5 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-900 dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary border-none bg-gray-100 dark:bg-[#233648] h-full placeholder:text-gray-500 dark:placeholder:text-[#92adc9] px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Tìm kiếm theo tên bộ đề..." value=""/>
+</div>
+</label>
+</div>
+<div class="md:col-span-2 flex items-center gap-3">
+<!-- Chips -->
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-gray-100 dark:bg-[#233648] px-4 hover:bg-gray-200 dark:hover:bg-opacity-80 transition-colors">
+<p class="text-gray-800 dark:text-white text-sm font-medium leading-normal">Môn học</p>
+<span class="material-symbols-outlined text-gray-600 dark:text-white text-xl">expand_more</span>
+</button>
+<button class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-gray-100 dark:bg-[#233648] px-4 hover:bg-gray-200 dark:hover:bg-opacity-80 transition-colors">
+<p class="text-gray-800 dark:text-white text-sm font-medium leading-normal">Độ khó</p>
+<span class="material-symbols-outlined text-gray-600 dark:text-white text-xl">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-white dark:bg-[#111a22] rounded-xl shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-[#233648] dark:text-gray-400">
+<tr>
+<th class="px-6 py-4 font-semibold" scope="col">Tên bộ đề</th>
+<th class="px-6 py-4 font-semibold" scope="col">Môn học</th>
+<th class="px-6 py-4 font-semibold" scope="col">Độ khó</th>
+<th class="px-6 py-4 font-semibold" scope="col">Thời gian</th>
+<th class="px-6 py-4 font-semibold" scope="col">Giá</th>
+<th class="px-6 py-4 font-semibold" scope="col">Trạng thái</th>
+<th class="px-6 py-4 font-semibold text-right" scope="col">Hành động</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b bg-white dark:bg-[#111a22] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">Đề thi thử THPT Quốc Gia 2024 - Môn Toán</th>
+<td class="px-6 py-4">Toán học</td>
+<td class="px-6 py-4"><span class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">Khó</span></td>
+<td class="px-6 py-4">90 phút</td>
+<td class="px-6 py-4">50,000đ</td>
+<td class="px-6 py-4"><span class="bg-blue-100 text-primary text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-primary/20 dark:text-blue-300">Trả phí</span></td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">edit</span></button>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-red-500">delete</span></button>
+</td>
+</tr>
+<tr class="border-b bg-white dark:bg-[#111a22] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">Kiểm tra 15 phút - Ngữ văn lớp 12</th>
+<td class="px-6 py-4">Ngữ văn</td>
+<td class="px-6 py-4"><span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Dễ</span></td>
+<td class="px-6 py-4">15 phút</td>
+<td class="px-6 py-4">Miễn phí</td>
+<td class="px-6 py-4"><span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Miễn phí</span></td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">edit</span></button>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-red-500">delete</span></button>
+</td>
+</tr>
+<tr class="border-b bg-white dark:bg-[#111a22] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">Đề thi giữa kỳ I - Vật Lý 11</th>
+<td class="px-6 py-4">Vật Lý</td>
+<td class="px-6 py-4"><span class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Trung bình</span></td>
+<td class="px-6 py-4">45 phút</td>
+<td class="px-6 py-4">20,000đ</td>
+<td class="px-6 py-4"><span class="bg-blue-100 text-primary text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-primary/20 dark:text-blue-300">Trả phí</span></td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">edit</span></button>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-red-500">delete</span></button>
+</td>
+</tr>
+<tr class="border-b bg-white dark:bg-[#111a22] dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+<th class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white" scope="row">Tổng hợp từ vựng TOEIC - Part 5</th>
+<td class="px-6 py-4">Tiếng Anh</td>
+<td class="px-6 py-4"><span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Dễ</span></td>
+<td class="px-6 py-4">30 phút</td>
+<td class="px-6 py-4">Miễn phí</td>
+<td class="px-6 py-4"><span class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Miễn phí</span></td>
+<td class="px-6 py-4 text-right">
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-gray-600 dark:text-gray-300">edit</span></button>
+<button class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"><span class="material-symbols-outlined text-xl text-red-500">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<nav aria-label="Table navigation" class="flex items-center flex-wrap justify-between p-4">
+<span class="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto">Showing <span class="font-semibold text-gray-900 dark:text-white">1-4</span> of <span class="font-semibold text-gray-900 dark:text-white">100</span></span>
+<ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
+<li><a class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-[#233648] dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#2e4458] dark:hover:text-white" href="#">Previous</a></li>
+<li><a class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-[#233648] dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#2e4458] dark:hover:text-white" href="#">1</a></li>
+<li><a aria-current="page" class="flex items-center justify-center px-3 h-8 text-primary border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-[#233648] dark:text-white" href="#">2</a></li>
+<li><a class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-[#233648] dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#2e4458] dark:hover:text-white" href="#">3</a></li>
+<li><a class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-[#233648] dark:border-gray-700 dark:text-gray-400 dark:hover:bg-[#2e4458] dark:hover:text-white" href="#">Next</a></li>
+</ul>
+</nav>
+</div>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,0 +1,35 @@
+@model List<QuizlyWebsite.Models.TbCategory>
+
+@{
+    ViewData["Title"] = "Quản Lý Danh Mục";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">Danh Sách Danh Mục</h2>
+    <button class="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+        <span class="material-symbols-outlined">add</span> Thêm Danh Mục
+    </button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @foreach (var category in Model)
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-lg font-bold">@category.Title</h3>
+                <div class="flex gap-2">
+                    <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-primary">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                    </button>
+                    <button class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg text-danger">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Tạo: @category.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"
+            </p>
+        </div>
+    }
+</div>

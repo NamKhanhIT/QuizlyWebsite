@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trang Kết Quả + Xem Lại Đáp Án</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "success": "#28a745",
+              "error": "#dc3545",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-800 dark:text-slate-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-20 flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-10 py-3 bg-white/80 dark:bg-background-dark/80 backdrop-blur-sm">
+<div class="flex items-center gap-4 text-slate-900 dark:text-slate-50">
+<div class="size-6 text-primary">
+<svg fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M21.0858 10.0858L13.9142 2.91421C14.5695 3.56948 14.1994 4.99381 13.1001 6.78272C12.4269 8.07817 11.4797 9.27246 10.3261 10.3261C9.17246 11.4797 8.07817 12.4269 6.78272 13.1001C4.99381 14.1994 3.56948 14.5695 2.91421 13.9142L10.0858 21.0858C10.741 21.741 12.1654 21.3709 13.9543 20.2716C15.0497 19.6084 16.244 18.6612 17.3976 17.5076C18.5512 16.354 19.4984 15.1597 20.1616 14.0643C21.2609 12.2754 21.631 10.851 21.0858 10.0858Z"></path>
+<path d="M14.9501 5.36424C14.726 6.01594 14.3808 6.70861 13.9521 7.40628C13.2325 8.57718 12.2343 9.83204 11.0332 11.0332C9.83204 12.2343 8.57718 13.2325 7.40628 13.9521C6.70861 14.3808 6.01594 14.726 5.36424 14.9501L10.7877 20.3736C10.8001 20.3803 10.9497 20.4655 11.4364 20.3608C11.9722 20.2458 12.6911 19.9395 13.5331 19.422C14.5531 18.7952 15.6867 17.8991 16.7929 16.7929C17.8991 15.6867 18.7952 14.5531 19.422 13.5331C19.9395 12.6911 20.2458 11.9722 20.3608 11.4364C20.4655 10.9497 20.3803 10.8001 20.3736 10.7877L14.9501 5.36424Z"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 dark:text-slate-50 text-lg font-bold leading-tight tracking-[-0.015em]">Trắc Nghiệm Trực Tuyến</h2>
+</div>
+<div class="flex flex-1 justify-end gap-4 sm:gap-6 items-center">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Về Trang Chủ</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCrZmxkZ-ZJawU0b8DIMhnJ6-HU5iqiOdS5WGW82KsEYE1hFfxsWsXkOlpPirNeO_iZOj0EygGh8xTR3xt12RCHvVOLp2pwh6OXxsQaN2435jmFQytdXBf8TWZf1c3Q90kg41GTP0ldkJSU63fSBhy3cYn1oUYvjdFs-0vX9jvBU-M1ED_ejgjtBxGj871-AObgi1FWcJWzPFDbLwL_Oc-3l6ocYynV5Zs5cYUKYWhNJHkMCLv1GB511fPR4be7Zf5dVpKp7I8uGQ3t");'></div>
+</div>
+</header>
+<main class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-6 lg:px-10 flex flex-1 justify-center py-8">
+<div class="layout-content-container flex flex-col w-full max-w-7xl">
+<!-- PageHeading -->
+<div class="flex flex-wrap justify-between gap-3 p-4 mb-4">
+<h1 class="text-slate-900 dark:text-slate-50 text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Kết quả bài thi: Lịch sử Việt Nam</h1>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Summary & Navigation -->
+<aside class="lg:col-span-1 lg:sticky lg:top-24 h-fit">
+<div class="flex flex-col gap-6 bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
+<div class="flex flex-col gap-4 text-center items-center">
+<h3 class="text-lg font-bold text-slate-900 dark:text-slate-50">Điểm của bạn</h3>
+<div class="relative size-40">
+<svg class="size-full" height="36" viewbox="0 0 36 36" width="36" xmlns="http://www.w3.org/2000/svg">
+<circle class="stroke-slate-200 dark:stroke-slate-700" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<g class="origin-center -rotate-90 transform">
+<circle class="stroke-success" cx="18" cy="18" fill="none" r="16" stroke-dasharray="100" stroke-dashoffset="20" stroke-width="3"></circle>
+</g>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-3xl font-bold text-slate-900 dark:text-slate-50">80%</span>
+<span class="text-sm text-slate-500 dark:text-slate-400">8/10 câu</span>
+</div>
+</div>
+</div>
+<!-- DescriptionList -->
+<div class="border-t border-slate-200 dark:border-slate-800 pt-4">
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Số câu đúng</p>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-semibold leading-normal text-right text-success">8</p>
+</div>
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Số câu sai</p>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-semibold leading-normal text-right text-error">2</p>
+</div>
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Chưa trả lời</p>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-semibold leading-normal text-right">0</p>
+</div>
+<div class="flex justify-between gap-x-6 py-2">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal">Thời gian hoàn thành</p>
+<p class="text-slate-800 dark:text-slate-200 text-sm font-semibold leading-normal text-right">15:30</p>
+</div>
+</div>
+<!-- ButtonGroup -->
+<div class="flex flex-col sm:flex-row lg:flex-col gap-3 items-stretch pt-4 border-t border-slate-200 dark:border-slate-800">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-11 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-base">download</span>
+<span class="truncate">Tải PDF</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-11 px-4 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] w-full hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-base">print</span>
+<span class="truncate">In kết quả</span>
+</button>
+</div>
+<!-- Question Navigation Grid -->
+<div class="border-t border-slate-200 dark:border-slate-800 pt-4">
+<h4 class="font-bold text-md mb-3 text-slate-900 dark:text-slate-50">Xem lại đáp án</h4>
+<div class="grid grid-cols-5 gap-2">
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-1">1</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-2">2</a>
+<a class="flex items-center justify-center size-10 rounded bg-error/20 text-error font-bold hover:bg-error/30 transition-colors" href="#cau-3">3</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-4">4</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-5">5</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-6">6</a>
+<a class="flex items-center justify-center size-10 rounded bg-error/20 text-error font-bold hover:bg-error/30 transition-colors" href="#cau-7">7</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-8">8</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-9">9</a>
+<a class="flex items-center justify-center size-10 rounded bg-success/20 text-success font-bold hover:bg-success/30 transition-colors" href="#cau-10">10</a>
+</div>
+</div>
+</div>
+</aside>
+<!-- Right Column: Detailed Review -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- Question Card 1 (Correct) -->
+<div class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 scroll-mt-24" id="cau-1">
+<p class="font-bold text-lg mb-4 text-slate-900 dark:text-slate-50">Câu 1: Triều đại nào của Việt Nam đã đặt quốc hiệu là "Đại Cồ Việt"?</p>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 p-3 rounded-lg border border-success bg-success/10">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">A. Triều Đinh</p>
+<span class="text-xs font-semibold text-success/80">Đáp án đúng &amp; Lựa chọn của bạn</span>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">B. Triều Lý</p>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">C. Triều Trần</p>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">D. Triều Lê</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+<details>
+<summary class="font-semibold text-primary cursor-pointer hover:underline">Xem giải thích chi tiết</summary>
+<p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Năm 968, sau khi dẹp loạn 12 sứ quân và thống nhất đất nước, Đinh Bộ Lĩnh lên ngôi Hoàng đế, đặt quốc hiệu là Đại Cồ Việt, đóng đô tại Hoa Lư (Ninh Bình). Đây là nhà nước trung ương tập quyền đầu tiên của Việt Nam.</p>
+</details>
+</div>
+</div>
+<!-- Question Card 2 (Correct) -->
+<div class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 scroll-mt-24" id="cau-2">
+<p class="font-bold text-lg mb-4 text-slate-900 dark:text-slate-50">Câu 2: Tác phẩm "Bình Ngô đại cáo" được sáng tác bởi ai?</p>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">A. Lê Lợi</p>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-success bg-success/10">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">B. Nguyễn Trãi</p>
+<span class="text-xs font-semibold text-success/80">Đáp án đúng &amp; Lựa chọn của bạn</span>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">C. Trần Hưng Đạo</p>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">D. Nguyễn Du</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+<details>
+<summary class="font-semibold text-primary cursor-pointer hover:underline">Xem giải thích chi tiết</summary>
+<p class="mt-2 text-sm text-slate-600 dark:text-slate-300">"Bình Ngô đại cáo" do Nguyễn Trãi thừa lệnh vua Lê Lợi soạn thảo vào năm 1428, được coi là bản tuyên ngôn độc lập thứ hai của Việt Nam, tuyên cáo kết thúc cuộc kháng chiến chống quân Minh và khẳng định chủ quyền của quốc gia Đại Việt.</p>
+</details>
+</div>
+</div>
+<!-- Question Card 3 (Incorrect) -->
+<div class="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800 scroll-mt-24" id="cau-3">
+<p class="font-bold text-lg mb-4 text-slate-900 dark:text-slate-50">Câu 3: Kinh đô của nhà Nguyễn được đặt tại đâu?</p>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 p-3 rounded-lg border border-error bg-error/10">
+<span class="material-symbols-outlined text-error">cancel</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">A. Thăng Long (Hà Nội)</p>
+<span class="text-xs font-semibold text-error/80">Lựa chọn của bạn</span>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">B. Hoa Lư (Ninh Bình)</p>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-success bg-success/10">
+<span class="material-symbols-outlined text-success">check_circle</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">C. Phú Xuân (Huế)</p>
+<span class="text-xs font-semibold text-success/80">Đáp án đúng</span>
+</div>
+<div class="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-400 dark:text-slate-500">radio_button_unchecked</span>
+<p class="flex-1 text-slate-800 dark:text-slate-200">D. Tây Đô (Thanh Hóa)</p>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+<details open="">
+<summary class="font-semibold text-primary cursor-pointer hover:underline">Xem giải thích chi tiết</summary>
+<p class="mt-2 text-sm text-slate-600 dark:text-slate-300">Năm 1802, sau khi thống nhất đất nước, vua Gia Long (Nguyễn Ánh) đã chọn Phú Xuân (Huế ngày nay) làm kinh đô cho triều đại nhà Nguyễn. Kinh thành Huế được xây dựng từ đó và trở thành trung tâm chính trị, văn hóa của cả nước cho đến năm 1945.</p>
+</details>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

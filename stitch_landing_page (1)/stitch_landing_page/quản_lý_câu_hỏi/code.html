@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quản lý Câu hỏi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex h-screen">
+<!-- SideNavBar -->
+<aside class="flex flex-col w-64 bg-[#111a22] text-white">
+<div class="flex items-center gap-3 p-4 border-b border-gray-700">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Admin profile picture" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCU4OFmy_rTADpaneIvwZr92BZaTxn7U3Jv9xSC6xmIfm4zV-hvDtcMNp3wjxng3jG7z4Xy0I8hc9FQxyUF06n7B4giLsE0spqOUKqImexp2QueQfPp8QGrrS9QZh57jjs6qcaI1ZvaWCFCP16xiITFIQV21ixqgWq9qgN7GQlNwgnKMq3MZRW5iFuh0TPxiP4t8vnS46oUu9i0RAnSNeAPQoHdNbIVd6DuB6NcKh6GDsMQem8WIge7XL__1PmwykpYMy335UV-T_mY");'></div>
+<div class="flex flex-col">
+<h1 class="text-white text-base font-medium leading-normal">Admin</h1>
+<p class="text-[#92adc9] text-sm font-normal leading-normal">admin@example.com</p>
+</div>
+</div>
+<nav class="flex-1 px-2 py-4 space-y-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="text-sm font-medium">Quản lý Đề thi</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#233648]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">help</span>
+<span class="text-sm font-medium">Quản lý Câu hỏi</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Quản lý Người dùng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition-colors" href="#">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="text-sm font-medium">Analytics</span>
+</a>
+</nav>
+<div class="px-2 py-4 border-t border-gray-700">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Cài đặt</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#233648] transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="text-sm font-medium">Đăng xuất</span>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<div class="flex-1 p-6 overflow-y-auto">
+<!-- Breadcrumbs -->
+<div class="flex flex-wrap gap-2 mb-6">
+<a class="text-[#92adc9] text-sm font-medium leading-normal" href="#">Trang chủ</a>
+<span class="text-[#92adc9] text-sm font-medium leading-normal">/</span>
+<a class="text-[#92adc9] text-sm font-medium leading-normal" href="#">Quản lý Đề thi</a>
+<span class="text-[#92adc9] text-sm font-medium leading-normal">/</span>
+<span class="text-white text-sm font-medium leading-normal">Quản lý Câu hỏi</span>
+</div>
+<!-- PageHeading -->
+<div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+<div class="flex min-w-72 flex-col gap-2">
+<p class="text-white text-3xl font-black leading-tight tracking-[-0.033em]">Quản lý Câu hỏi</p>
+<p class="text-[#92adc9] text-base font-normal leading-normal">Xem, thêm, sửa đổi hoặc xóa các câu hỏi cho một bộ đề thi.</p>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 gap-2 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+<span class="truncate">Thêm Câu hỏi mới</span>
+</button>
+</div>
+<!-- Main Section with Table -->
+<div class="bg-[#111a22] rounded-xl p-4 md:p-6">
+<!-- ToolBar -->
+<div class="flex flex-col md:flex-row justify-between gap-4 px-0 py-3">
+<div class="flex gap-2 items-center">
+<div class="relative w-full md:w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#92adc9]">search</span>
+<input class="w-full h-10 pl-10 pr-4 bg-[#192633] border border-[#324d67] rounded-lg text-white placeholder:text-[#92adc9] focus:ring-primary focus:border-primary" placeholder="Tìm câu hỏi..." type="text"/>
+</div>
+<button class="flex items-center justify-center p-2 text-white bg-[#192633] border border-[#324d67] rounded-lg h-10 w-10">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="flex items-center justify-center p-2 text-white bg-[#192633] border border-[#324d67] rounded-lg h-10 w-10">
+<span class="material-symbols-outlined">ios_share</span>
+</button>
+</div>
+<div class="flex gap-2">
+<select class="h-10 px-4 bg-[#192633] border border-[#324d67] rounded-lg text-white focus:ring-primary focus:border-primary">
+<option>Đề thi giữa kỳ môn Lý</option>
+<option>Đề thi cuối kỳ môn Hóa</option>
+<option>Đề ôn tập Lịch sử 2024</option>
+</select>
+</div>
+</div>
+<!-- Table -->
+<div class="mt-4 @container">
+<div class="flex overflow-hidden rounded-lg border border-[#324d67] bg-[#111a22]">
+<table class="flex-1 w-full text-left">
+<thead>
+<tr class="bg-[#192633]">
+<th class="px-4 py-3 text-left text-white text-sm font-medium leading-normal w-1/12">ID</th>
+<th class="px-4 py-3 text-left text-white text-sm font-medium leading-normal w-5/12">Nội dung câu hỏi</th>
+<th class="px-4 py-3 text-left text-white text-sm font-medium leading-normal w-3/12">Đáp án đúng</th>
+<th class="px-4 py-3 text-left text-white text-sm font-medium leading-normal w-2/12">Chỉnh sửa lần cuối</th>
+<th class="px-4 py-3 text-left text-white text-sm font-medium leading-normal w-1/12">Hành động</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-t border-t-[#324d67]">
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">#001</td>
+<td class="h-[72px] px-4 py-2 text-white text-sm font-normal leading-normal">Công thức tính lực là gì?</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">F = ma</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">2023-10-27</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-bold leading-normal tracking-[0.015em]">
+<div class="flex gap-2">
+<button class="p-1 text-primary hover:text-white"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-1 text-red-500 hover:text-red-400"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="border-t border-t-[#324d67]">
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">#002</td>
+<td class="h-[72px] px-4 py-2 text-white text-sm font-normal leading-normal">Hành tinh nào được mệnh danh là Hành tinh Đỏ?</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">Sao Hỏa</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">2023-10-26</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-bold leading-normal tracking-[0.015em]">
+<div class="flex gap-2">
+<button class="p-1 text-primary hover:text-white"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-1 text-red-500 hover:text-red-400"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="border-t border-t-[#324d67]">
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">#003</td>
+<td class="h-[72px] px-4 py-2 text-white text-sm font-normal leading-normal">Nhiệt độ sôi của nước ở mực nước biển là bao nhiêu?</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">100°C</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">2023-10-25</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-bold leading-normal tracking-[0.015em]">
+<div class="flex gap-2">
+<button class="p-1 text-primary hover:text-white"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-1 text-red-500 hover:text-red-400"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="border-t border-t-[#324d67]">
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">#004</td>
+<td class="h-[72px] px-4 py-2 text-white text-sm font-normal leading-normal">Ai là tác giả của 'Romeo và Juliet'?</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">William Shakespeare</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">2023-10-24</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-bold leading-normal tracking-[0.015em]">
+<div class="flex gap-2">
+<button class="p-1 text-primary hover:text-white"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-1 text-red-500 hover:text-red-400"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<tr class="border-t border-t-[#324d67]">
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">#005</td>
+<td class="h-[72px] px-4 py-2 text-white text-sm font-normal leading-normal">Cái gì được gọi là nhà máy năng lượng của tế bào?</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">Ty thể</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-normal leading-normal">2023-10-23</td>
+<td class="h-[72px] px-4 py-2 text-[#92adc9] text-sm font-bold leading-normal tracking-[0.015em]">
+<div class="flex gap-2">
+<button class="p-1 text-primary hover:text-white"><span class="material-symbols-outlined">edit</span></button>
+<button class="p-1 text-red-500 hover:text-red-400"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

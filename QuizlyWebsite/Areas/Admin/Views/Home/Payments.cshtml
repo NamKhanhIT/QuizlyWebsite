@@ -1,0 +1,44 @@
+@model List<QuizlyWebsite.Models.TbPayment>
+
+@{
+    ViewData["Title"] = "Quản Lý Thanh Toán";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-3xl font-bold mb-6">Thanh Toán & Doanh Thu</h2>
+
+<!-- Revenue Summary -->
+<div class="bg-gradient-to-r from-primary/20 to-blue-100 dark:from-primary/30 dark:to-blue-900/30 rounded-lg p-6 mb-6">
+    <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">Tổng Doanh Thu</p>
+    <p class="text-4xl font-black text-primary">@ViewData["TotalRevenue"]</p>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Người Dùng</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Đề Thi</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Số Tiền</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Trạng Thái</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Ngày</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payment in Model)
+            {
+                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                    <td class="px-6 py-4 font-semibold">@payment.User.FullName</td>
+                    <td class="px-6 py-4">@payment.Exam?.Title ?? "N/A"</td>
+                    <td class="px-6 py-4 font-semibold">@payment.Amount?.ToString("C") ?? "0 VND"</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full @(payment.Status == "Completed" ? "bg-success/20 text-success" : payment.Status == "Pending" ? "bg-warning/20 text-warning" : "bg-danger/20 text-danger")">
+                            @payment.Status
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm">@payment.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A"</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

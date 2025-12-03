@@ -1,0 +1,150 @@
+/* ===== ANIMATIONS ===== */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+/* ===== GLOBAL STYLES ===== */
+* {
+    @apply transition-colors duration-300;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+/* ===== UTILITIES ===== */
+.animate-slideDown {
+    animation: slideDown 0.3s ease-out;
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.btn-hover-glow:hover {
+    @apply shadow-lg shadow-primary/50;
+}
+
+.card-shadow {
+    @apply shadow-md hover:shadow-xl transition-shadow;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-200 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full hover:bg-gray-500;
+}
+
+/* ===== LOADING STATE ===== */
+.loading {
+    animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.shimmer {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* ===== FORM STYLES ===== */
+input:focus,
+textarea:focus,
+select:focus {
+    @apply outline-none ring-2 ring-primary ring-offset-0;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+    @apply ring-primary;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    body {
+        @apply text-sm;
+    }
+
+    .hidden-mobile {
+        @apply hidden;
+    }
+}
+
+/* ===== DARK MODE ===== */
+.dark {
+    @apply bg-gray-900 text-white;
+}
+
+/* ===== TABLE ENHANCEMENTS ===== */
+table tbody tr {
+    @apply border-b border-gray-200 dark:border-gray-700;
+}
+
+table tbody tr:hover {
+    @apply bg-gray-50 dark:bg-gray-700/30;
+}
+
+/* ===== BADGE STYLES ===== */
+.badge {
+    @apply inline-block text-xs font-semibold px-3 py-1 rounded-full;
+}
+
+.badge-primary {
+    @apply bg-primary/20 text-primary;
+}
+
+.badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400;
+}
+
+.badge-danger {
+    @apply bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400;
+}
+
+.badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400;
+}

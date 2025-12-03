@@ -1,0 +1,177 @@
+@model QuizlyWebsite.Models.TbExam
+
+@{
+    ViewData["Title"] = "Làm Bài Thi - " + Model.Title;
+}
+
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <!-- Top Bar with Timer -->
+    <div class="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 sticky top-20 z-30">
+        <div>
+            <h2 class="text-lg font-bold text-[#0d141b] dark:text-slate-50">@Model.Title</h2>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400">@Model.QuestionCount câu hỏi</p>
+        </div>
+        
+        <!-- Timer -->
+        <div class="text-right">
+            <div class="text-3xl font-black text-primary" id="timer">@Model.Duration:00</div>
+            <p class="text-xs text-[#4c739a] dark:text-slate-400">Thời gian còn lại</p>
+        </div>
+
+        <!-- Exit Button -->
+        <a href="/quiz/list" class="text-gray-600 dark:text-gray-400 hover:text-danger">
+            <span class="material-symbols-outlined">close</span>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Questions List Sidebar -->
+        <div class="lg:col-span-1 order-2 lg:order-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                <h3 class="font-bold mb-4">Câu Hỏi (@Model.TbQuestions.Count)</h3>
+                <div class="grid grid-cols-5 gap-2">
+                    @for (int i = 0; i < Model.TbQuestions.Count; i++)
+                    {
+                        <button class="question-btn w-full aspect-square rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-primary hover:text-white transition font-semibold text-sm" 
+                                data-question="@(i + 1)">
+                            @(i + 1)
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Quiz Area -->
+        <div class="lg:col-span-3 order-1 lg:order-2">
+            <form id="quizForm" method="post" action="/quiz/submit">
+                @{
+                    var questionsList = Model.TbQuestions.ToList();
+                }
+                @foreach (var question in questionsList)
+                {
+                    var questionIndex = questionsList.IndexOf(question) + 1;
+                    <div class="question-section bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 mb-6 hidden" data-question-num="@questionIndex">
+                        <!-- Question Header -->
+                        <div class="mb-8">
+                            <h3 class="text-sm font-semibold text-primary mb-2">Câu @questionIndex/@Model.TbQuestions.Count</h3>
+                            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full">
+                                <div class="bg-primary h-2 rounded-full transition-all" style="width: @(questionIndex * 100 / Model.TbQuestions.Count)%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Question Content -->
+                        <h4 class="text-lg font-bold text-[#0d141b] dark:text-slate-50 mb-6">@Html.Raw(question.Content)</h4>
+
+                        <!-- Options -->
+                        <div class="space-y-3">
+                            @{
+                                var options = new[] { question.OptionA, question.OptionB, question.OptionC, question.OptionD };
+                                var optionLabels = new[] { "A", "B", "C", "D" };
+                            }
+
+                            @for (int i = 0; i < options.Length; i++)
+                            {
+                                <label class="flex items-start gap-4 p-4 border-2 border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition option-label">
+                                    <input type="radio" name="answers_@question.Id" value="@optionLabels[i]" class="mt-1 cursor-pointer">
+                                    <div>
+                                        <p class="font-semibold text-[#0d141b] dark:text-slate-50">@optionLabels[i]</p>
+                                        <p class="text-[#4c739a] dark:text-slate-400">@options[i]</p>
+                                    </div>
+                                </label>
+                            }
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex justify-between gap-4 mt-8">
+                            <button type="button" class="prev-btn px-6 py-2 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition" style="display: none;">
+                                <span class="material-symbols-outlined align-middle mr-2">arrow_back</span> Trước
+                            </button>
+                            <div class="flex-1"></div>
+                            <button type="button" class="next-btn px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                                Tiếp Theo <span class="material-symbols-outlined align-middle ml-2">arrow_forward</span>
+                            </button>
+                            <button type="submit" class="submit-btn px-6 py-2 bg-success text-white rounded-lg hover:bg-green-600 transition" style="display: none;">
+                                <span class="material-symbols-outlined align-middle mr-2">check</span> Nộp Bài
+                            </button>
+                        </div>
+                    </div>
+                }
+
+                <input type="hidden" name="examId" value="@Model.Id">
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentQuestion = 1;
+        let totalQuestions = @Model.TbQuestions.Count;
+        let timeLeft = @Model.Duration * 60;
+
+        // Timer
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            const interval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerEl.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    document.getElementById('quizForm').submit();
+                }
+
+                if (timeLeft <= 300) {
+                    timerEl.classList.add('text-danger', 'animate-pulse');
+                }
+            }, 1000);
+        }
+
+        function showQuestion(num) {
+            document.querySelectorAll('.question-section').forEach(el => el.classList.add('hidden'));
+            document.querySelector(`[data-question-num="${num}"]`).classList.remove('hidden');
+            
+            const prevBtn = document.querySelector('.question-section:not(.hidden) .prev-btn');
+            const nextBtn = document.querySelector('.question-section:not(.hidden) .next-btn');
+            const submitBtn = document.querySelector('.question-section:not(.hidden) .submit-btn');
+
+            if (prevBtn) prevBtn.style.display = num === 1 ? 'none' : 'block';
+            if (nextBtn) nextBtn.style.display = num === totalQuestions ? 'none' : 'block';
+            if (submitBtn) submitBtn.style.display = num === totalQuestions ? 'block' : 'none';
+
+            currentQuestion = num;
+            document.querySelectorAll('.question-btn').forEach(btn => btn.classList.remove('bg-primary', 'text-white'));
+            document.querySelector(`[data-question="${num}"]`).classList.add('bg-primary', 'text-white');
+        }
+
+        document.querySelectorAll('.question-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                showQuestion(parseInt(btn.dataset.question));
+            });
+        });
+
+        document.querySelectorAll('.next-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentQuestion < totalQuestions) {
+                    showQuestion(currentQuestion + 1);
+                }
+            });
+        });
+
+        document.querySelectorAll('.prev-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (currentQuestion > 1) {
+                    showQuestion(currentQuestion - 1);
+                }
+            });
+        });
+
+        // Initialize
+        showQuestion(1);
+        startTimer();
+    </script>
+}

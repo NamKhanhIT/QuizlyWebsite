@@ -1,0 +1,146 @@
+﻿@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<!-- Hero Section -->
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-16 md:py-24">
+    <div class="relative py-16 md:py-24 overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900/50">
+        <div class="absolute inset-0 z-0 opacity-20 dark:opacity-10">
+            <div class="absolute -top-20 -left-20 size-64 bg-primary/20 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -right-20 size-80 bg-purple-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-96 bg-teal-400/10 rounded-full blur-3xl"></div>
+        </div>
+        <div class="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
+            <div class="flex flex-col gap-4">
+                <h1 class="text-[#0d141b] dark:text-slate-50 text-4xl font-black leading-tight tracking-[-0.033em] sm:text-5xl md:text-6xl max-w-3xl mx-auto animate-fade-in">
+                    Thắc Nghiệm Thông Minh, Học Tập Hiệu Quả
+                </h1>
+                <p class="text-[#4c739a] dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
+                    Tham gia vào thế giới của những câu hỏi vui nhộn và thách thức. Chơi, học, và cạnh tranh!
+                </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="/quiz/list" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em] btn-glow hover:bg-primary-dark transition">
+                    <span class="truncate">Khám Phá Bộ Đề</span>
+                </a>
+                <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white/70 dark:bg-background-dark/50 backdrop-blur-sm text-[#0d141b] dark:text-slate-50 text-base font-bold leading-normal tracking-[0.015em] border border-slate-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800">
+                    <span class="truncate">Tìm Hiểu Thêm</span>
+                </button>
+            </div>
+            
+            <!-- Category Quick Links -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-8 w-full max-w-4xl">
+                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
+                    <span class="material-symbols-outlined text-primary text-3xl">science</span>
+                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Khoa Học</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
+                    <span class="material-symbols-outlined text-primary text-3xl">history_edu</span>
+                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Lịch Sử</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
+                    <span class="material-symbols-outlined text-primary text-3xl">language</span>
+                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Ngôn Ngữ</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
+                    <span class="material-symbols-outlined text-primary text-3xl">public</span>
+                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Địa Lý</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <div class="flex flex-col gap-10">
+        <div class="flex flex-col gap-4 text-center">
+            <h2 class="text-[#0d141b] dark:text-slate-50 tracking-light text-[32px] font-bold leading-tight md:text-4xl md:font-black md:tracking-[-0.033em] max-w-[720px] mx-auto">
+                Khám Phá Những Tính Năng Tuyệt Vời
+            </h2>
+            <p class="text-[#4c739a] dark:text-slate-400 text-base font-normal leading-normal max-w-[720px] mx-auto">
+                Nền tảng của chúng tôi được thiết kế để trở nên trực quan, hấp dẫn và mạnh mẽ cho bất kỳ ai.
+            </p>
+        </div>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4 p-0">
+            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
+                <div class="text-primary text-2xl">
+                    <span class="material-symbols-outlined">public</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Chủ Đề Rộng Rãi</h3>
+                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
+                        Khám phá các bộ đề từ khoa học, lịch sử đến văn hóa đại chúng và hơn thế nữa.
+                    </p>
+                </div>
+            </div>
+            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
+                <div class="text-primary text-2xl">
+                    <span class="material-symbols-outlined">task_alt</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Phản Hồi Tức Thời</h3>
+                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
+                        Nhận kết quả của bạn ngay lập tức sau khi hoàn thành bộ đề và học hỏi từ sai lầm.
+                    </p>
+                </div>
+            </div>
+            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
+                <div class="text-primary text-2xl">
+                    <span class="material-symbols-outlined">groups</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Cạnh Tranh Với Bạn Bè</h3>
+                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
+                        Thách đấu bạn bè của bạn để thắng điểm và xem ai có điểm cao nhất trên bảng xếp hạng.
+                    </p>
+                </div>
+            </div>
+            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
+                <div class="text-primary text-2xl">
+                    <span class="material-symbols-outlined">emoji_events</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Thành Tựu & Huy Hiệu</h3>
+                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
+                        Kiếm được huy hiệu và thành tựu khi bạn tiến bộ và hoàn thành thách thức.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-gradient-to-r from-primary/10 to-blue-100 dark:from-blue-900/20 dark:to-primary/10 rounded-xl p-8 md:p-12">
+        <div class="text-center">
+            <div class="text-4xl font-black text-primary mb-2">5000+</div>
+            <p class="text-[#4c739a] dark:text-slate-400">Bộ Đề Thi</p>
+        </div>
+        <div class="text-center border-l border-r border-slate-300 dark:border-gray-700">
+            <div class="text-4xl font-black text-primary mb-2">50000+</div>
+            <p class="text-[#4c739a] dark:text-slate-400">Người Dùng Hoạt Động</p>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-black text-primary mb-2">1M+</div>
+            <p class="text-[#4c739a] dark:text-slate-400">Câu Hỏi</p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <div class="bg-primary/20 dark:bg-primary/30 rounded-xl p-8 md:p-12 text-center flex flex-col items-center gap-6 my-10">
+        <h2 class="text-3xl md:text-4xl font-black text-[#0d141b] dark:text-slate-50 max-w-lg">
+            Sẵn Sàng Khám Phá Thiên Tài Của Bạn?
+        </h2>
+        <p class="text-[#4c739a] dark:text-slate-300 max-w-md">
+            Tham gia hàng ngàn người dùng và bắt đầu hành trình trắc nghiệm của bạn ngay hôm nay. Hoàn toàn miễn phí để bắt đầu!
+        </p>
+        <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em] btn-glow hover:bg-primary-dark transition">
+            <span class="truncate">Bắt Đầu Miễn Phí</span>
+        </a>
+    </div>
+</div>
+

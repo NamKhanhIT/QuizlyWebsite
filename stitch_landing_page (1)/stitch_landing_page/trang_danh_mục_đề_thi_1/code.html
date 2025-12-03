@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trang Danh Mục Đề Thi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#2b8cee",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922",
+          },
+          fontFamily: {
+            "display": ["Lexend", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.5rem",
+            "lg": "1rem",
+            "xl": "1.5rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-8 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 w-full">
+<!-- TopNavBar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-700 px-4 md:px-10 py-3">
+<div class="flex items-center gap-4 text-slate-900 dark:text-slate-50">
+<div class="size-6 text-primary">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-slate-900 dark:text-slate-50 text-lg font-bold leading-tight tracking-[-0.015em]">Trắc Nghiệm Online</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8">
+<div class="flex items-center gap-9">
+<a class="text-slate-900 dark:text-slate-200 text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">Trang Chủ</a>
+<a class="text-primary dark:text-primary text-sm font-bold leading-normal" href="#">Danh Mục</a>
+<a class="text-slate-900 dark:text-slate-200 text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">Luyện Thi</a>
+<a class="text-slate-900 dark:text-slate-200 text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">Blog</a>
+</div>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Đăng Ký</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-10 px-4 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
+<span class="truncate">Đăng Nhập</span>
+</button>
+</div>
+</div>
+<div class="md:hidden">
+<button class="p-2 rounded-lg text-slate-900 dark:text-slate-50">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-1 py-10 md:py-16">
+<!-- PageHeading -->
+<div class="flex flex-wrap justify-between gap-3 p-4 text-center">
+<div class="flex w-full flex-col gap-3">
+<p class="text-slate-900 dark:text-slate-50 text-4xl font-black leading-tight tracking-[-0.033em]">Khám Phá Các Danh Mục Đề Thi</p>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal max-w-2xl mx-auto">Chọn lĩnh vực bạn quan tâm để bắt đầu ôn luyện và kiểm tra kiến thức của mình một cách hiệu quả nhất.</p>
+</div>
+</div>
+<!-- Grid Container -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 mt-8">
+<!-- Category Card 1: IT -->
+<div class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center items-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="flex items-center justify-center size-16 rounded-full bg-primary/10 text-primary">
+<span class="material-symbols-outlined !text-4xl">code_blocks</span>
+</div>
+<div class="flex flex-col gap-2">
+<h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold leading-tight">Công nghệ thông tin</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1 self-center">12 Môn học</p>
+</div>
+<button class="mt-2 flex w-full max-w-xs cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Xem các môn học</span>
+</button>
+</div>
+<!-- Category Card 2: Economics -->
+<div class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center items-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="flex items-center justify-center size-16 rounded-full bg-green-500/10 text-green-500">
+<span class="material-symbols-outlined !text-4xl">trending_up</span>
+</div>
+<div class="flex flex-col gap-2">
+<h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold leading-tight">Kinh tế</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1 self-center">8 Môn học</p>
+</div>
+<button class="mt-2 flex w-full max-w-xs cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Xem các môn học</span>
+</button>
+</div>
+<!-- Category Card 3: Business Administration -->
+<div class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center items-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="flex items-center justify-center size-16 rounded-full bg-orange-500/10 text-orange-500">
+<span class="material-symbols-outlined !text-4xl">business_center</span>
+</div>
+<div class="flex flex-col gap-2">
+<h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold leading-tight">Quản trị kinh doanh</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1 self-center">15 Môn học</p>
+</div>
+<button class="mt-2 flex w-full max-w-xs cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Xem các môn học</span>
+</button>
+</div>
+<!-- Category Card 4: Pedagogy -->
+<div class="flex flex-col gap-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 text-center items-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+<div class="flex items-center justify-center size-16 rounded-full bg-purple-500/10 text-purple-500">
+<span class="material-symbols-outlined !text-4xl">school</span>
+</div>
+<div class="flex flex-col gap-2">
+<h2 class="text-slate-900 dark:text-slate-50 text-xl font-bold leading-tight">Sư phạm</h2>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal bg-slate-100 dark:bg-slate-800 rounded-full px-3 py-1 self-center">10 Môn học</p>
+</div>
+<button class="mt-2 flex w-full max-w-xs cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Xem các môn học</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="flex flex-col gap-6 px-5 py-10 text-center @container border-t border-slate-200 dark:border-slate-800 mt-10">
+<div class="flex flex-wrap items-center justify-center gap-x-6 gap-y-4 @[480px]:flex-row @[480px]:justify-around">
+<a class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal min-w-40 hover:text-primary dark:hover:text-primary" href="#">Về chúng tôi</a>
+<a class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal min-w-40 hover:text-primary dark:hover:text-primary" href="#">Điều khoản dịch vụ</a>
+<a class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal min-w-40 hover:text-primary dark:hover:text-primary" href="#">Chính sách bảo mật</a>
+<a class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal min-w-40 hover:text-primary dark:hover:text-primary" href="#">Liên hệ</a>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">© 2024 Trắc Nghiệm Online. All rights reserved.</p>
+</footer>
+</div>
+</div>
+</div>
+</div>
+</body></html>

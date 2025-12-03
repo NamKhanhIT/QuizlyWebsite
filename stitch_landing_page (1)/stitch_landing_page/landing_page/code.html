@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quizly - Landing Page</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+            },
+            fontFamily: {
+              "display": ["Lexend", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#0d141b] dark:text-slate-50">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#e7edf3] dark:border-gray-700 px-4 md:px-10 py-3">
+<div class="flex items-center gap-4">
+<div class="text-primary text-2xl">
+<span class="material-symbols-outlined">data_usage</span>
+</div>
+<h2 class="text-[#0d141b] dark:text-slate-50 text-lg font-bold leading-tight tracking-[-0.015em]">Quizly</h2>
+</div>
+<div class="hidden md:flex flex-1 justify-end gap-8">
+<nav class="flex items-center gap-9">
+<a class="text-[#0d141b] dark:text-slate-50 text-sm font-medium leading-normal" href="#">Features</a>
+<a class="text-[#0d141b] dark:text-slate-50 text-sm font-medium leading-normal" href="#">Testimonials</a>
+<a class="text-[#0d141b] dark:text-slate-50 text-sm font-medium leading-normal" href="#">About Us</a>
+</nav>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#e7edf3] dark:bg-background-dark dark:hover:bg-gray-700 text-[#0d141b] dark:text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Log In</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-slate-50 text-sm font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Sign Up</span>
+</button>
+</div>
+</div>
+<div class="md:hidden">
+<button class="text-[#0d141b] dark:text-slate-50">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main class="flex flex-col gap-10 md:gap-16 lg:gap-20">
+<div class="w-full relative py-16 md:py-24 overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900/50">
+<div class="absolute inset-0 z-0 opacity-20 dark:opacity-10">
+<div class="absolute -top-20 -left-20 size-64 bg-primary/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-20 -right-20 size-80 bg-purple-500/20 rounded-full blur-3xl"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-96 bg-teal-400/10 rounded-full blur-3xl"></div>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
+<div class="flex flex-col gap-4">
+<h1 class="text-[#0d141b] dark:text-slate-50 text-4xl font-black leading-tight tracking-[-0.033em] sm:text-5xl md:text-6xl max-w-3xl mx-auto">Spark Your Curiosity, Unleash Your Genius.</h1>
+<p class="text-[#4c739a] dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">Dive into a universe of knowledge with fun, challenging quizzes. Play, learn, and compete!</p>
+</div>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Explore Quizzes</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white/70 dark:bg-background-dark/50 backdrop-blur-sm text-[#0d141b] dark:text-slate-50 text-base font-bold leading-normal tracking-[0.015em] border border-slate-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800">
+<span class="truncate">Create Your Own</span>
+</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-8 w-full max-w-4xl">
+<div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-3xl">science</span>
+<span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Science</span>
+</div>
+<div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-3xl">history_edu</span>
+<span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">History</span>
+</div>
+<div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-3xl">theaters</span>
+<span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Movies</span>
+</div>
+<div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm">
+<span class="material-symbols-outlined text-primary text-3xl">public</span>
+<span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Geography</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-10 px-4 py-10 @container">
+<div class="flex flex-col gap-4 text-center">
+<h1 class="text-[#0d141b] dark:text-slate-50 tracking-light text-[32px] font-bold leading-tight @[480px]:text-4xl @[480px]:font-black @[480px]:tracking-[-0.033em] max-w-[720px] mx-auto">Discover a World of Features</h1>
+<p class="text-[#4c739a] dark:text-slate-400 text-base font-normal leading-normal max-w-[720px] mx-auto">Our platform is designed to be intuitive, engaging, and powerful, whether you're a student, a teacher, or just looking for fun.</p>
+</div>
+<div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4 p-0">
+<div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col">
+<div class="text-primary text-2xl">
+<span class="material-symbols-outlined">public</span>
+</div>
+<div class="flex flex-col gap-1">
+<h2 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Wide Range of Topics</h2>
+<p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">Explore quizzes from science and history to pop culture and beyond. There's something for everyone.</p>
+</div>
+</div>
+<div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col">
+<div class="text-primary text-2xl">
+<span class="material-symbols-outlined">task_alt</span>
+</div>
+<div class="flex flex-col gap-1">
+<h2 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Instant Feedback</h2>
+<p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">Get your results immediately after completing a quiz and learn from your mistakes.</p>
+</div>
+</div>
+<div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col">
+<div class="text-primary text-2xl">
+<span class="material-symbols-outlined">groups</span>
+</div>
+<div class="flex flex-col gap-1">
+<h2 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Compete with Friends</h2>
+<p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">Challenge your friends to beat your score and see who comes out on top on the leaderboards.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-6 py-10">
+<h4 class="text-[#4c739a] dark:text-slate-400 text-sm font-bold leading-normal tracking-[0.015em] px-4 py-2 text-center uppercase">What Our Users Say</h4>
+<div class="relative flex overflow-x-auto [-ms-scrollbar-style:none] [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="flex items-stretch p-4 gap-8">
+<div class="flex h-full flex-1 flex-col gap-4 text-center rounded-lg min-w-64 pt-4 bg-[#ffffff] dark:bg-gray-800 p-6 border border-[#cfdbe7] dark:border-gray-700">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full flex flex-col self-center size-24" data-alt="Profile picture of Sarah J." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCFNrdzl8CgEzUVsRBgI7D5h8YD6Q9tjtV3owsN7wRfqAg6ZE7R3Zl1HS3-UtOBMykg7plmdA9ltKZFRuUEd1MvFuJMLiQ3WZjzh4gyI3pvrexcXqh32fAAVniit7Jd6Z2mK8XAEn14bUmLaHne-t6Z4pdfN4Ra1jSvXSnwxv7vNv1vPGezz7XkM7xEh9-AMiqXylIjzMxEB94uZVGqz0c0PSFoK26SIRtrZgA3UtkVLxJDAGqUn1zIoAQRhUhOYQhjk2AXa7enGI-E");'></div>
+<div>
+<p class="text-[#0d141b] dark:text-slate-50 text-base font-medium leading-normal">Sarah J., Student</p>
+<p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal mt-2">"This platform made studying for my exams so much more fun and effective! I love the variety of quizzes available."</p>
+</div>
+</div>
+<div class="flex h-full flex-1 flex-col gap-4 text-center rounded-lg min-w-64 pt-4 bg-[#ffffff] dark:bg-gray-800 p-6 border border-[#cfdbe7] dark:border-gray-700">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full flex flex-col self-center size-24" data-alt="Profile picture of David L." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDriiWc1YlQXjgwxHt585W4mEdxbj5yTH6ci_AzfDlvFXfZDO2O5fblPEATzOzvalDILjuhS0DJVqG0oWZKZUjV7OLGSKM8xUM2F9wDfKfX5wGmlgfsGzhGwq_nWmG59GR9JCF8hxiNQjBIk7bL0vVTCA8w-1x85F6oSX_ZJSJhsbtji8uUFW7xNeOj3gCJwXaGFKBLa4KUODH__pboAIEhn_EPDzSaCpyj_zn57MjbAXS8ltNIiDDdvf4y1hZ_DaETB7hKifCWNwGd");'></div>
+<div>
+<p class="text-[#0d141b] dark:text-slate-50 text-base font-medium leading-normal">David L., Teacher</p>
+<p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal mt-2">"I use this site to create engaging review quizzes for my students. The instant feedback feature is fantastic!"</p>
+</div>
+</div>
+<div class="flex h-full flex-1 flex-col gap-4 text-center rounded-lg min-w-64 pt-4 bg-[#ffffff] dark:bg-gray-800 p-6 border border-[#cfdbe7] dark:border-gray-700">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full flex flex-col self-center size-24" data-alt="Profile picture of Emily R." style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD5v59EzME6nRSm7ATpV1UTLvt7fqEk_7KzNbX-jCbirCMFsUx18UXf_jXvzSiSUgrPtR_DtlRwubu7g1ZoATf0j_jJQNVsDr8yE_R-TczpTcU52fcHyWXxbjic__zVad943eatMOhexiM4UhicOMbBiDDEIJRIEoHdJMTNeKd3IwXj654APUetIeWcLHKSQMCeBs_atZim1_9FEVI0GUEicGE9EM9j5os2vIOyrh0adHYeQl7MBbTo5aYGiOtRE5ZXP3NjUjhkdlXk");'></div>
+<div>
+<p class="text-[#0d141b] dark:text-slate-50 text-base font-medium leading-normal">Emily R., Corporate Trainer</p>
+<p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal mt-2">"An excellent tool for team-building and training exercises. It's user-friendly and highly customizable."</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-primary/20 dark:bg-primary/30 rounded-xl p-8 md:p-12 text-center flex flex-col items-center gap-6 my-10">
+<h2 class="text-3xl md:text-4xl font-black text-[#0d141b] dark:text-slate-50 max-w-lg">Ready to Discover Your Inner Genius?</h2>
+<p class="text-[#4c739a] dark:text-slate-300 max-w-md">Join thousands of users and start your quizzing adventure today. It's free to get started!</p>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em]">
+<span class="truncate">Get Started for Free</span>
+</button>
+</div>
+</main>
+<footer class="w-full py-8 mt-10 border-t border-[#cfdbe7] dark:border-gray-700">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 px-4">
+<div class="flex items-center gap-4">
+<div class="text-primary text-2xl">
+<span class="material-symbols-outlined">data_usage</span>
+</div>
+<h2 class="text-[#0d141b] dark:text-slate-50 text-lg font-bold">Quizly</h2>
+</div>
+<nav class="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-[#4c739a] dark:text-slate-400">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Contact Us</a>
+<a class="hover:text-primary" href="#">FAQ</a>
+</nav>
+<p class="text-sm text-[#4c739a] dark:text-slate-400">© 2024 Quizly. All rights reserved.</p>
+</div>
+</footer>
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,128 @@
+@{
+    ViewData["Title"] = "Đăng Ký";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 to-blue-100/10 dark:from-primary/5 dark:to-blue-900/5 px-4 py-10">
+    <div class="w-full max-w-md">
+        <!-- Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-black text-primary mb-2">Quizly</h1>
+                <p class="text-[#4c739a] dark:text-slate-400">Tạo tài khoản mới</p>
+            </div>
+
+            <!-- Form -->
+            <form method="post" action="/register">
+                <!-- Error Messages -->
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+                {
+                    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-3 mb-6">
+                        @foreach (var modelState in ViewData.ModelState.Values)
+                        {
+                            @foreach (var error in modelState.Errors)
+                            {
+                                <p class="text-sm">@error.ErrorMessage</p>
+                            }
+                        }
+                    </div>
+                }
+
+                <!-- Full Name -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">badge</span>
+                        Họ Tên
+                    </label>
+                    <input type="text" name="fullName" placeholder="Nhập họ và tên của bạn" 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <!-- Username -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">person</span>
+                        Tên Đăng Nhập
+                    </label>
+                    <input type="text" name="username" placeholder="Chọn tên đăng nhập" 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        required>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">mail</span>
+                        Email
+                    </label>
+                    <input type="email" name="email" placeholder="Nhập địa chỉ email" 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        required>
+                </div>
+
+                <!-- Password -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">lock</span>
+                        Mật Khẩu
+                    </label>
+                    <input type="password" name="password" placeholder="Tối thiểu 6 ký tự" 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        required>
+                    <p class="text-xs text-[#4c739a] dark:text-slate-400 mt-1">Mật khẩu phải chứa ít nhất 6 ký tự</p>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">lock_check</span>
+                        Xác Nhận Mật Khẩu
+                    </label>
+                    <input type="password" name="confirmPassword" placeholder="Nhập lại mật khẩu" 
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        required>
+                </div>
+
+                <!-- Terms & Conditions -->
+                <div class="mb-6">
+                    <label class="flex items-start gap-2 text-sm text-[#4c739a] dark:text-slate-400">
+                        <input type="checkbox" name="terms" class="w-4 h-4 rounded mt-1" required>
+                        <span>Tôi đồng ý với <a href="#" class="text-primary hover:underline">Điều khoản Dịch vụ</a> và <a href="#" class="text-primary hover:underline">Chính sách Bảo mật</a></span>
+                    </label>
+                </div>
+
+                <!-- Register Button -->
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-dark transition transform hover:scale-105 duration-200 shadow-lg hover:shadow-xl mb-3">
+                    <span class="material-symbols-outlined align-middle mr-2">person_add</span>
+                    Đăng Ký Tài Khoản
+                </button>
+
+                <!-- Login Link -->
+                <p class="text-center text-sm text-[#4c739a] dark:text-slate-400">
+                    Đã có tài khoản?
+                    <a href="/account/login" class="text-primary font-semibold hover:underline">Đăng Nhập</a>
+                </p>
+            </form>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="text-center mt-6 text-sm text-[#4c739a] dark:text-slate-400">
+            <p>Quizly © 2024 - Nền tảng thi trực tuyến hàng đầu</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Password strength indicator
+        const passwordInput = document.querySelector('input[name="password"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const strength = this.value.length >= 8 ? 'strong' : 
+                               this.value.length >= 6 ? 'medium' : 'weak';
+                console.log('Password strength:', strength);
+            });
+        }
+    </script>
+}

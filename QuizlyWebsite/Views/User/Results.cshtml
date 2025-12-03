@@ -1,0 +1,56 @@
+@model List<QuizlyWebsite.Models.TbExamResult>
+
+@{
+    ViewData["Title"] = "Kết Quả Bài Thi";
+}
+
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-8">Kết Quả Bài Thi</h1>
+
+    @if (Model.Any())
+    {
+        <div class="space-y-4">
+            @foreach (var result in Model)
+            {
+                <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 card-hover">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h3 class="font-bold text-lg text-[#0d141b] dark:text-slate-50 mb-2">@result.Exam.Title</h3>
+                            <p class="text-sm text-[#4c739a] dark:text-slate-400 mb-3">
+                                Thực hiện vào @result.FinishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A"
+                            </p>
+                            <div class="flex gap-4">
+                                <span class="text-sm font-semibold">
+                                    <span class="text-success">@result.CorrectAnswers</span> / @result.TotalQuestions câu đúng
+                                </span>
+                                <span class="text-sm font-semibold">
+                                    Thời gian: @((result.FinishedAt?.Subtract(result.StartedAt ?? DateTime.Now))?.TotalMinutes.ToString("F0") ?? "0") phút
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-4xl font-black text-primary">@result.Score?.ToString("F1") ?? "0.0"</p>
+                            <p class="text-xs text-[#4c739a] dark:text-slate-400">Điểm</p>
+                            <p class="text-xs font-semibold mt-2 @(result.Status == "Passed" ? "text-success" : "text-danger")">
+                                @result.Status
+                            </p>
+                            <a href="/quiz/result/@result.Id" class="text-xs text-primary hover:underline mt-2 block">
+                                Xem Chi Tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <span class="material-symbols-outlined text-6xl text-gray-300">assignment</span>
+            <p class="mt-4 text-gray-500">Chưa có kết quả bài thi nào</p>
+            <a href="/quiz/list" class="inline-block mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                Bắt Đầu Làm Bài
+            </a>
+        </div>
+    }
+</div>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quản lý Môn học</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#2b8cee",
+            "background-light": "#f6f7f8",
+            "background-dark": "#101922",
+          },
+          fontFamily: {
+            "display": ["Inter", "sans-serif"]
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex min-h-screen w-full">
+<!-- SideNavBar -->
+<aside class="flex w-64 flex-col bg-white/5 p-4 text-white dark:bg-black/10">
+<div class="flex items-center gap-3 p-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD9KSw-PFqwC2bpmdO-L9iYuAeVEj3GCWXrZ3Clhcw7p2PvkUZ-rV7MXmB1L5LoVaNOPnHC-35c2Swr-WTPiXVXlAv8vTLdM79hpfpwBs0B0DCJJ-_nhw3AmcGhLQ16Qf8SFOMcJx08G_qRGJh6T5-6o0G9Dd_OBZdVy5Z5skQO4PsP4THZ9Y6044gpb9E3bgo8uEKLSXCgTJY8OIgFflQsCimvsJ9HIcdPOSq56WW7XVRHGLpHOhoOICzvt0IAXN7Quqv2TwkJZO_W");'></div>
+<div class="flex flex-col">
+<h1 class="text-sm font-medium leading-normal text-slate-800 dark:text-white">Admin</h1>
+<p class="text-xs font-normal leading-normal text-slate-500 dark:text-slate-400">admin@example.com</p>
+</div>
+</div>
+<nav class="mt-4 flex flex-col gap-2">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">dashboard</span>
+<p class="text-sm font-medium leading-normal">Tổng quan</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">category</span>
+<p class="text-sm font-medium leading-normal">Danh mục</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg bg-primary/20 px-3 py-2 text-primary dark:text-primary" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">book</span>
+<p class="text-sm font-medium leading-normal">Môn học</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">quiz</span>
+<p class="text-sm font-medium leading-normal">Bộ đề</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">help_center</span>
+<p class="text-sm font-medium leading-normal">Câu hỏi</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">group</span>
+<p class="text-sm font-medium leading-normal">Người dùng</p>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<p class="text-sm font-medium leading-normal">Cài đặt</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300" href="#">
+<span class="material-symbols-outlined text-2xl">logout</span>
+<p class="text-sm font-medium leading-normal">Đăng xuất</p>
+</a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 p-8">
+<div class="mx-auto max-w-7xl">
+<!-- PageHeading -->
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="flex flex-col gap-1">
+<h1 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Quản lý Môn học</h1>
+<p class="text-slate-600 dark:text-slate-400">Thêm, sửa, và xoá các môn học trong hệ thống.</p>
+</div>
+<button class="flex h-10 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg bg-primary px-4 text-sm font-bold text-white shadow-md transition-colors hover:bg-primary/90">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span class="truncate">Thêm Môn học mới</span>
+</button>
+</div>
+<!-- Toolbar & Table Container -->
+<div class="mt-8 rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900/50">
+<!-- Toolbar -->
+<div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 p-4 dark:border-slate-800">
+<!-- TextField (Search) -->
+<div class="flex flex-1 items-center min-w-[280px]">
+<div class="relative w-full">
+<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400">search</span>
+</div>
+<input class="form-input h-10 w-full rounded-lg border-slate-300 bg-slate-100 pl-10 text-slate-900 placeholder:text-slate-500 focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400" placeholder="Tìm kiếm theo tên môn học..." value=""/>
+</div>
+</div>
+<!-- Chips (Filter) -->
+<div class="flex items-center gap-3">
+<button class="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg border border-slate-300 bg-transparent px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+<span>Lọc theo Danh mục</span>
+<span class="material-symbols-outlined text-lg">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="min-w-full table-auto text-left">
+<thead class="border-b border-slate-200 text-xs uppercase text-slate-500 dark:border-slate-800 dark:text-slate-400">
+<tr>
+<th class="px-6 py-4 font-medium">STT</th>
+<th class="px-6 py-4 font-medium">Tên Môn học</th>
+<th class="px-6 py-4 font-medium">Danh mục</th>
+<th class="px-6 py-4 font-medium">Mô tả</th>
+<th class="px-6 py-4 font-medium text-right">Hành động</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200 text-sm text-slate-700 dark:divide-slate-800 dark:text-slate-300">
+<tr>
+<td class="px-6 py-4">1</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">Toán cao cấp</td>
+<td class="px-6 py-4">Khoa học tự nhiên</td>
+<td class="px-6 py-4 max-w-xs truncate">Các khái niệm nâng cao về giải tích và đại số.</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4">2</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">Vật lý đại cương</td>
+<td class="px-6 py-4">Khoa học tự nhiên</td>
+<td class="px-6 py-4 max-w-xs truncate">Nguyên lý cơ bản của cơ học, nhiệt học và điện từ.</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4">3</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">Lập trình C++</td>
+<td class="px-6 py-4">Công nghệ thông tin</td>
+<td class="px-6 py-4 max-w-xs truncate">Giới thiệu về lập trình hướng đối tượng với C++.</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4">4</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">Kinh tế vĩ mô</td>
+<td class="px-6 py-4">Kinh tế</td>
+<td class="px-6 py-4 max-w-xs truncate">Nghiên cứu các yếu tố kinh tế ở cấp độ quốc gia.</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4">5</td>
+<td class="px-6 py-4 font-medium text-slate-900 dark:text-white">Lịch sử thế giới</td>
+<td class="px-6 py-4">Khoa học xã hội</td>
+<td class="px-6 py-4 max-w-xs truncate">Tổng quan các sự kiện lịch sử quan trọng toàn cầu.</td>
+<td class="px-6 py-4 text-right">
+<div class="flex items-center justify-end gap-2">
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex flex-wrap items-center justify-between gap-4 border-t border-slate-200 p-4 dark:border-slate-800">
+<p class="text-sm text-slate-600 dark:text-slate-400">Hiển thị <span class="font-semibold text-slate-900 dark:text-white">1-5</span> trên <span class="font-semibold text-slate-900 dark:text-white">20</span></p>
+<div class="flex items-center gap-2">
+<button class="flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+<span>Trước</span>
+</button>
+<button class="flex h-9 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+<span>Sau</span>
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

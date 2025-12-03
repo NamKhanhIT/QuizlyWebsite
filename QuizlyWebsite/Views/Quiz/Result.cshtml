@@ -1,0 +1,133 @@
+@model QuizlyWebsite.Models.TbExamResult
+
+@{
+    ViewData["Title"] = "Kết Quả Bài Thi";
+}
+
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <!-- Result Header -->
+    <div class="bg-gradient-to-r from-primary/20 to-blue-100 dark:from-primary/30 dark:to-blue-900/30 rounded-xl p-8 md:p-12 text-center mb-8">
+        <div class="mb-6">
+            @{
+                var isPassed = Model.Score >= 50;
+                var resultColor = isPassed ? "text-success" : "text-danger";
+                var resultIcon = isPassed ? "check_circle" : "cancel";
+                var resultText = isPassed ? "Đạt" : "Không Đạt";
+            }
+            <span class="material-symbols-outlined text-6xl @resultColor">@resultIcon</span>
+        </div>
+        
+        <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-2">@resultText</h1>
+        <p class="text-xl text-[#4c739a] dark:text-slate-400 mb-4">@Model.Exam.Title</p>
+
+        <!-- Score Display -->
+        <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <p class="text-3xl font-black text-primary">@Model.Score?.ToString("F1") ?? "0.0"</p>
+                <p class="text-xs text-[#4c739a] dark:text-slate-400">Điểm</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <p class="text-3xl font-black text-success">@Model.CorrectAnswers</p>
+                <p class="text-xs text-[#4c739a] dark:text-slate-400">Đúng</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <p class="text-3xl font-black text-danger">@(Model.TotalQuestions - Model.CorrectAnswers)</p>
+                <p class="text-xs text-[#4c739a] dark:text-slate-400">Sai</p>
+            </div>
+        </div>
+
+        <!-- Time Info -->
+        <div class="mt-6 text-sm text-[#4c739a] dark:text-slate-400">
+            <p>Thực hiện từ @Model.StartedAt?.ToString("HH:mm:ss") đến @Model.FinishedAt?.ToString("HH:mm:ss")</p>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex gap-4 justify-center mb-12">
+        <a href="/quiz/detail/@Model.ExamId" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+            <span class="material-symbols-outlined align-middle mr-2">refresh</span> Làm Lại
+        </a>
+        <a href="/quiz/list" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+            <span class="material-symbols-outlined align-middle mr-2">arrow_back</span> Danh Sách Bộ Đề
+        </a>
+    </div>
+
+    <!-- Review Section -->
+    <div class="max-w-4xl mx-auto">
+        <h2 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50 mb-6">Chi Tiết Câu Trả Lời</h2>
+
+        @foreach (var detail in Model.TbExamResultDetails)
+        {
+            var isCorrect = detail.IsCorrect ?? false;
+            <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-4">
+                <!-- Question -->
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-[#0d141b] dark:text-slate-50 mb-2">
+                            @Html.Raw(detail.Question.Content)
+                        </h3>
+                        
+                        <!-- Options -->
+                        <div class="space-y-2 ml-4">
+                            @{
+                                var options = new[] { detail.Question.OptionA, detail.Question.OptionB, detail.Question.OptionC, detail.Question.OptionD };
+                                var optionLabels = new[] { "A", "B", "C", "D" };
+                            }
+
+                            @for (int i = 0; i < options.Length; i++)
+                            {
+                                var isSelected = detail.SelectedOption?.ToString() == optionLabels[i];
+                                var isCorrectOption = detail.Question.CorrectOption?.ToString() == optionLabels[i];
+                                var optionClass = "";
+
+                                if (isCorrectOption)
+                                    optionClass = "bg-success/20 border-success text-success";
+                                else if (isSelected && !isCorrect)
+                                    optionClass = "bg-danger/20 border-danger text-danger";
+                                else
+                                    optionClass = "border-gray-300 dark:border-gray-600";
+
+                                <div class="flex items-center gap-3 p-3 border rounded-lg @optionClass">
+                                    <span class="font-semibold">@optionLabels[i]:</span>
+                                    <span>@options[i]</span>
+                                    @if (isCorrectOption)
+                                    {
+                                        <span class="material-symbols-outlined text-sm ml-auto">check_circle</span>
+                                    }
+                                    @if (isSelected && !isCorrect)
+                                    {
+                                        <span class="material-symbols-outlined text-sm ml-auto">cancel</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Status Badge -->
+                    <div class="flex-shrink-0">
+                        @if (isCorrect)
+                        {
+                            <div class="flex flex-col items-center gap-2 bg-success/20 text-success rounded-lg p-3">
+                                <span class="material-symbols-outlined">check_circle</span>
+                                <span class="text-xs font-semibold">Đúng</span>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="flex flex-col items-center gap-2 bg-danger/20 text-danger rounded-lg p-3">
+                                <span class="material-symbols-outlined">cancel</span>
+                                <span class="text-xs font-semibold">Sai</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Add any additional scripts for result page here
+    </script>
+}

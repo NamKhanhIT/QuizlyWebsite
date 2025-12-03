@@ -1,0 +1,171 @@
+@model List<QuizlyWebsite.Models.TbExam>
+
+@{
+    ViewData["Title"] = "Danh Sách Bộ Đề Thi";
+}
+
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <!-- Header -->
+    <div class="mb-10">
+        <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-3">Bộ Đề Thi</h1>
+        <p class="text-[#4c739a] dark:text-slate-400">Tìm và làm bài thi trực tuyến từ hàng ngàn bộ đề</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Sidebar Filters -->
+        <div class="lg:col-span-1">
+            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="font-bold text-lg mb-4">Bộ Lọc</h3>
+                
+                <!-- Search -->
+                <div class="mb-6">
+                    <label class="text-sm font-semibold block mb-2">Tìm Kiếm</label>
+                    <input type="text" id="searchInput" placeholder="Tên bộ đề..." 
+                           class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+                </div>
+
+                <!-- Categories -->
+                <div class="mb-6">
+                    <label class="text-sm font-semibold block mb-3">Danh Mục</label>
+                    @foreach (var cat in (ViewData["Categories"] as List<QuizlyWebsite.Models.TbCategory>) ?? new())
+                    {
+                        <label class="flex items-center mb-2 cursor-pointer">
+                            <input type="checkbox" class="categoryFilter mr-2" value="@cat.Id">
+                            <span class="text-sm">@cat.Title</span>
+                        </label>
+                    }
+                </div>
+
+                <!-- Difficulty -->
+                <div class="mb-6">
+                    <label class="text-sm font-semibold block mb-3">Độ Khó</label>
+                    <label class="flex items-center mb-2 cursor-pointer">
+                        <input type="checkbox" class="difficultyFilter mr-2" value="Dễ">
+                        <span class="text-sm">Dễ</span>
+                    </label>
+                    <label class="flex items-center mb-2 cursor-pointer">
+                        <input type="checkbox" class="difficultyFilter mr-2" value="Trung bình">
+                        <span class="text-sm">Trung Bình</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" class="difficultyFilter mr-2" value="Khó">
+                        <span class="text-sm">Khó</span>
+                    </label>
+                </div>
+
+                <!-- Premium -->
+                <div>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="premiumFilter" class="mr-2">
+                        <span class="text-sm">Chỉ Bộ Đề Premium</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz List -->
+        <div class="lg:col-span-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @foreach (var exam in Model)
+                {
+                    <a href="/quiz/detail/@exam.Id" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition card-hover">
+                        <!-- Header -->
+                        <div class="bg-gradient-to-r from-primary/20 to-blue-100 dark:from-primary/30 dark:to-blue-900/30 p-4">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <span class="inline-block text-xs font-semibold bg-primary text-white px-3 py-1 rounded-full mb-2">
+                                        @exam.Subject.Category.Title
+                                    </span>
+                                    <h3 class="font-bold text-lg text-[#0d141b] dark:text-slate-50">@exam.Title</h3>
+                                </div>
+                                @if (exam.IsPremium == true)
+                                {
+                                    <span class="text-yellow-500 text-2xl" title="Premium">★</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-4 space-y-3">
+                            <p class="text-sm text-[#4c739a] dark:text-slate-400">
+                                <span class="material-symbols-outlined text-sm align-middle">category</span>
+                                @exam.Subject.Title
+                            </p>
+
+                            <div class="flex gap-4 text-sm">
+                                <div class="flex items-center gap-1 text-[#4c739a] dark:text-slate-400">
+                                    <span class="material-symbols-outlined text-sm">help</span>
+                                    @exam.QuestionCount câu
+                                </div>
+                                <div class="flex items-center gap-1 text-[#4c739a] dark:text-slate-400">
+                                    <span class="material-symbols-outlined text-sm">schedule</span>
+                                    @exam.Duration phút
+                                </div>
+                            </div>
+
+                            <!-- Difficulty Badge -->
+                            <div>
+                                @{
+                                    var diffColor = exam.Difficulty == "Dễ" ? "bg-success/20 text-success" : 
+                                                   exam.Difficulty == "Trung bình" ? "bg-warning/20 text-warning" :
+                                                   "bg-danger/20 text-danger";
+                                }
+                                <span class="text-xs font-semibold px-2 py-1 rounded @diffColor">
+                                    @exam.Difficulty
+                                </span>
+                            </div>
+
+                            <!-- Rating -->
+                            <div class="flex items-center gap-1">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    if (i < Math.Floor(exam.AvgRating ?? 0))
+                                    {
+                                        <span class="text-yellow-400 text-sm">★</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-gray-300 text-sm">★</span>
+                                    }
+                                }
+                                <span class="text-xs text-[#4c739a] dark:text-slate-400">(@exam.TotalReviews)</span>
+                            </div>
+
+                            <!-- Button -->
+                            <button class="w-full bg-primary text-white font-semibold py-2 rounded-lg hover:bg-primary-dark transition mt-4">
+                                Bắt Đầu
+                            </button>
+                        </div>
+                    </a>
+                }
+            </div>
+
+            @if (Model.Count == 0)
+            {
+                <div class="text-center py-16">
+                    <span class="material-symbols-outlined text-6xl text-gray-300">search_off</span>
+                    <p class="mt-4 text-gray-500">Không tìm thấy bộ đề nào</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            function filterExams() {
+                // Implement filtering logic here
+                console.log("Filtering exams...");
+            }
+
+            $(".categoryFilter, .difficultyFilter, #premiumFilter").change(function () {
+                filterExams();
+            });
+
+            $("#searchInput").on("keyup", function () {
+                filterExams();
+            });
+        });
+    </script>
+}

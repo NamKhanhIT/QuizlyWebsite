@@ -1,0 +1,66 @@
+@model List<QuizlyWebsite.Models.TbUserPurchase>
+
+@{
+    ViewData["Title"] = "Lịch Sử Mua";
+}
+
+<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-8">Lịch Sử Mua Hàng</h1>
+
+    @if (Model.Any())
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Bộ Đề</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Ngày Mua</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Hết Hạn</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var purchase in Model)
+                    {
+                        <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">@purchase.Exam.Title</td>
+                            <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@purchase.PurchasedAt?.ToString("dd/MM/yyyy") ?? "N/A"</td>
+                            <td class="px-6 py-4">
+                                @if (purchase.ExpiredAt.HasValue)
+                                {
+                                    if (purchase.ExpiredAt > DateTime.Now)
+                                    {
+                                        <span class="text-success font-semibold">@purchase.ExpiredAt.Value.ToString("dd/MM/yyyy")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger font-semibold">Đã hết hạn</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-success font-semibold">Vĩnh viễn</span>
+                                }
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="/quiz/detail/@purchase.ExamId" class="text-primary hover:underline text-sm font-semibold">
+                                    Xem Bộ Đề
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-16 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <span class="material-symbols-outlined text-6xl text-gray-300">shopping_cart</span>
+            <p class="mt-4 text-gray-500">Chưa mua bộ đề nào</p>
+            <a href="/quiz/list" class="inline-block mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition">
+                Khám Phá Bộ Đề
+            </a>
+        </div>
+    }
+</div>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trang Blogs và Tin tức</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Newsreader', serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-[#101922] dark:text-slate-200">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- TopNavBar -->
+<header class="sticky top-0 z-50 w-full bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800">
+<div class="max-w-6xl mx-auto px-4">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-4 text-[#0d141b] dark:text-slate-50">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold font-display leading-tight tracking-[-0.015em]">QuizPlatform</h2>
+</div>
+<nav class="hidden md:flex flex-1 justify-center gap-8">
+<a class="text-sm font-medium leading-normal text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors" href="#">Trang chủ</a>
+<a class="text-sm font-medium leading-normal text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors" href="#">Trắc nghiệm</a>
+<a class="text-sm font-bold leading-normal text-primary" href="#">Blogs &amp; Tin tức</a>
+<a class="text-sm font-medium leading-normal text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors" href="#">Về chúng tôi</a>
+</nav>
+<div class="hidden md:flex items-center gap-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Đăng nhập</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-slate-200 dark:bg-slate-800 text-[#0d141b] dark:text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+<span class="truncate">Đăng ký</span>
+</button>
+</div>
+<div class="md:hidden">
+<button class="p-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 px-4 py-8 md:py-12">
+<div class="layout-content-container flex flex-col max-w-6xl mx-auto">
+<!-- PageHeading -->
+<div class="flex flex-wrap justify-between gap-6 p-4 items-center">
+<div class="flex min-w-72 flex-col gap-2">
+<p class="text-[#0d141b] dark:text-slate-50 text-4xl md:text-5xl font-black font-display leading-tight tracking-[-0.033em]">Blogs &amp; Tin Tức</p>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">Khám phá các bài viết, mẹo học tập và tin tức mới nhất từ chúng tôi.</p>
+</div>
+</div>
+<!-- SearchBar and Chips -->
+<div class="flex flex-col md:flex-row gap-4 px-4 py-6">
+<div class="flex-1">
+<label class="flex flex-col min-w-40 h-12 w-full">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-500 dark:text-slate-400 flex bg-slate-100 dark:bg-slate-800 items-center justify-center pl-4 rounded-l-lg border border-r-0 border-slate-300 dark:border-slate-700">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#0d141b] dark:text-slate-100 focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-l-0 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 text-base font-normal leading-normal" placeholder="Tìm kiếm bài viết..." value=""/>
+</div>
+</label>
+</div>
+<div class="flex gap-2 p-1 overflow-x-auto">
+<div class="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-primary/20 dark:bg-primary/30 text-primary dark:text-primary-300 px-4">
+<p class="text-sm font-medium leading-normal">Tất cả</p>
+</div>
+<div class="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors px-4">
+<p class="text-sm font-medium leading-normal">Mẹo học tập</p>
+</div>
+<div class="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors px-4">
+<p class="text-sm font-medium leading-normal">Tin tức ngành</p>
+</div>
+<div class="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors px-4">
+<p class="text-sm font-medium leading-normal">Phát triển bản thân</p>
+</div>
+<div class="flex h-10 shrink-0 cursor-pointer items-center justify-center gap-x-2 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors px-4">
+<p class="text-sm font-medium leading-normal">Cập nhật</p>
+</div>
+</div>
+</div>
+<!-- Featured Article -->
+<div class="p-4">
+<div class="grid md:grid-cols-2 gap-8 items-center bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-800">
+<div class="bg-center bg-no-repeat aspect-video md:aspect-square bg-cover" data-alt="Abstract image representing effective study habits with bright colors" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCfkGX31X9PkC4uPGIr-VlNiW9WoDG_WohDZMgsbbv8ewxM1CdJmQM536ynBjJULxLPIaPpD5R50uhSJk1l-Ma-o1Tbcdh0IG16a-eJANGRV16b096rNhBG6F4CIWi8vy8b8YiY99m66cEkAKAq6DBgGNFd1d8cvKk1xL2P5-912w1Ijd4I1el7tw_TYvm6ISqgv79AP6KbFbKE_ptKzAI5D4Qa5Dhs09ik4Y4qXrh3j8bf6-3uVoE4ll6eupf5C-r4hJxmL3IWEcfv");'></div>
+<div class="p-8 flex flex-col gap-4">
+<span class="text-sm font-semibold text-primary">MẸO HỌC TẬP</span>
+<h2 class="text-3xl font-bold font-display text-[#0d141b] dark:text-slate-50 leading-tight">5 Phương Pháp Học Tập Hiệu Quả Đã Được Khoa Học Chứng Minh</h2>
+<p class="text-slate-600 dark:text-slate-400 leading-relaxed">Khám phá những kỹ thuật đã được chứng minh giúp bạn ghi nhớ lâu hơn, hiểu sâu hơn và đạt điểm cao hơn trong các kỳ thi sắp tới.</p>
+<div class="flex items-center gap-3 mt-2">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Avatar of author Jane Doe" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCEh-r_U7lAPBzZSHqzBZYllRDY1i1P8-skF6-HF4RFA0lYXd038jNvprOvKGM13Mxe3iwxRcAu9UJCcKggcixJXyMci0t8z7qdfVT950Dtv00c3WS6ksPc4yp5Uxbh5wrprl3NLSY0nSVS8QUrUaYLk2xIEBUB1OPW6uYlTbjXARFxh3eRZJZp5rAU0YyQaMR1Tj3vGJOQZRysTmuBZT4PBoVKfRsRt8UykBSWky2zut_S-57FeUsgKbe5SGQM_qO0lJBBk3nxa5Gx");'></div>
+<div>
+<p class="font-semibold text-sm">Bởi Mai Anh</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">15 tháng 7, 2024</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- SectionHeader -->
+<h2 class="text-[#0d141b] dark:text-slate-50 text-[22px] font-bold font-display leading-tight tracking-[-0.015em] px-4 pb-3 pt-8">Bài Viết Mới Nhất</h2>
+<!-- Article Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 p-4">
+<!-- Article Card 1 -->
+<div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="A person looking at a screen with code and charts, representing industry news" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOKUldwJGQF1jtKJiweXQ-HGZEVqhHSNAW0Uv1HS_WBKSgVVtekLUtX5oDdPFEVrcjbqqSY99z7lbJUjLZ-_1JZrd5K7iLIv_oMbtmnj2SR53zvqyo-niTgeBDRPKVbL3hKrY218V0DrefkcCJOJzmldm2qDMT-PZoGQ_WmWpiUm9Lw2MNoIQ94YlEh0d5g-swUwivzUNkbOC-rR5rUHsFG6ZZeOCEZJxPSUNmXPIAtdfUDnqqcU5oT8qbSN0C7ISHhbloiaHoHAfh");'></div>
+<div class="p-6 flex flex-col flex-1">
+<p class="text-xs font-semibold text-primary mb-2">TIN TỨC NGÀNH</p>
+<h3 class="text-lg font-bold font-display mb-3 text-[#0d141b] dark:text-slate-50 leading-snug group-hover:text-primary transition-colors">Xu Hướng EdTech 2024: Cá Nhân Hóa Lộ Trình Học Tập</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400 flex-1">Công nghệ giáo dục đang thay đổi nhanh chóng. Hãy cùng tìm hiểu cách AI và dữ liệu lớn đang định hình tương lai của việc học.</p>
+<div class="flex items-center gap-3 mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="Avatar of author John Smith" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCY4xfUUSCX03RVCTxarahfCL2-Ng-lQ3KA8aprGQbn8X-5ZQHGGldw3jareAgi-iYm5XAlg2rfuKB1qG4pQWm5NqO5kONhmUrpBGTHZ4hVDQ08H0yKdlHUPxKiLp9y6jpiCTNkc7_gmVnkrvuciG7qzpJiT-Uu-r5k0a_PqBTtl90MGYL0LFw2VzlaOZKALHRx4rW-9cS3zg3HoeAILxo-6dcrV5Fii_mMMz9NtZhyu2uloDVkM_AjQ70WyUkQsHyPh4cdDlD59SJn");'></div>
+<div>
+<p class="font-semibold text-xs">Bởi Trần Hùng</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">12 tháng 7, 2024</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Article Card 2 -->
+<div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="A person meditating, symbolizing personal development" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBWh1G3juIgKqkDXA6kc0mncgQMkG4WuJv5RoAJqQM28z1nA48-hHKlcT132S3XRUm5heHI48syUCK0c0dYNpMT8G6UlMgDt_wCNsY_EYBmDQ0TmTnd63DTH6PvRyJltkcCZNifew_04hQNuT6YuKSVdNVSwEw4xTv6AMG0w0-cB_DC4sPpqmLNSfdDkSBva7hHkftXvkEJ-Z_ZBogeJIFPF3YSTqvGkYJVDcckga4OpHC5hNC9Yjeonk8ZvHS6eeaLTPQIizXDcmdg");'></div>
+<div class="p-6 flex flex-col flex-1">
+<p class="text-xs font-semibold text-primary mb-2">PHÁT TRIỂN BẢN THÂN</p>
+<h3 class="text-lg font-bold font-display mb-3 text-[#0d141b] dark:text-slate-50 leading-snug group-hover:text-primary transition-colors">Kỹ Năng Quản Lý Thời Gian Cho Người Bận Rộn</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400 flex-1">Học cách ưu tiên công việc, tránh sao nhãng và tận dụng tối đa 24 giờ mỗi ngày để cân bằng giữa học tập và cuộc sống.</p>
+<div class="flex items-center gap-3 mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="Avatar of author Emily White" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCQBh92fe_y6CrsxKFoNfMGKwYiOc1pxoNZW0cEG9MhaSehOisVOhMGB4FO1whD4Zc9sXbyXp5bIqz4G0a3gEHmWhcVIHnOGmBtpyUf5OOmVrYcbK-1E6vpSiEgbLz9ZWQmMduXdsV9IIurTEImXp_h0jj2f9kccIaXaEYqC8Zblb57NTsLTc-Y2op3i-X4UhCs5pVl0aqHpU-Bfrj4fnIo1pKhz46EBG83IWVLIhwRH8GHvvQ7phrcJHPHL4SfPw1zTtitQoabbeso");'></div>
+<div>
+<p class="font-semibold text-xs">Bởi Lê Thảo</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">10 tháng 7, 2024</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Article Card 3 -->
+<div class="flex flex-col bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 group transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="bg-center bg-no-repeat aspect-video bg-cover" data-alt="A laptop showing the QuizPlatform interface update" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAUxxGjJrTsA_y-Kr1M9BBxhAFnC8jloXvZ6SQABzURRqF1BEY_4etx8JJDhqO32XKQQj82E3eEYkh9ZgFZWcE2b078BxwejJHXvnQ4EBYQLzAfz10DC364Mmf5ZpaNBW4Wxj8VHKdZcY-eFm4GEaPho20GvNrf4prUep5QS9CexHGpf3UQImDKSSJqzLZbt8UnvdgzTFg5BAqGRwhO9TpFtYcH5eIwmaDaIlQ0GHS70fhkP5Lsrrb--Vi1AZMxYLaYZAMxHzSp-3Qp");'></div>
+<div class="p-6 flex flex-col flex-1">
+<p class="text-xs font-semibold text-primary mb-2">CẬP NHẬT NỀN TẢNG</p>
+<h3 class="text-lg font-bold font-display mb-3 text-[#0d141b] dark:text-slate-50 leading-snug group-hover:text-primary transition-colors">Tính Năng Mới: Chế Độ Luyện Tập Theo Chủ Đề</h3>
+<p class="text-sm text-slate-600 dark:text-slate-400 flex-1">Chúng tôi vừa ra mắt tính năng mới giúp bạn tập trung ôn luyện những chủ đề cụ thể. Hãy trải nghiệm ngay hôm nay!</p>
+<div class="flex items-center gap-3 mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8" data-alt="Avatar of author David Green" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuABrkjnhX7T1BauYD0Gstk0re23wfHpXeIkpszjMev0Qb7W_Z1JpgwcSeRt_e9ii713HZcn28btWlij0d707RPAzrmIXJz3dCxBfxiZ1at5I1KkvMS-ewOfs1BFj9Gl4OJtkvHYTxDyc93eH_57juA86xem9VLU_JekyJDlPFO5l7zDy6UsM2AbotKvdpzHvOfCzxHycLZT8GZriOh2TUnW16gePK6XmGRg0XcNitnQDA_wSnntVtu712Vp_DmKKDtoXptzZT8v-oK0");'></div>
+<div>
+<p class="font-semibold text-xs">Bởi Minh Quang</p>
+<p class="text-xs text-slate-500 dark:text-slate-400">8 tháng 7, 2024</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="flex justify-center p-4 mt-8">
+<nav class="flex items-center gap-2">
+<button class="flex items-center justify-center size-10 rounded-lg text-slate-500 bg-slate-200 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors" disabled="">
+<span class="material-symbols-outlined text-xl">chevron_left</span>
+</button>
+<button class="flex items-center justify-center size-10 rounded-lg text-white bg-primary">1</button>
+<button class="flex items-center justify-center size-10 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">2</button>
+<button class="flex items-center justify-center size-10 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">3</button>
+<span class="text-slate-500">...</span>
+<button class="flex items-center justify-center size-10 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">10</button>
+<button class="flex items-center justify-center size-10 rounded-lg text-slate-600 dark:text-slate-300 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors">
+<span class="material-symbols-outlined text-xl">chevron_right</span>
+</button>
+</nav>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 mt-12">
+<div class="max-w-6xl mx-auto px-4 py-8">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-2">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path></svg>
+</div>
+<h2 class="text-lg font-bold font-display text-[#0d141b] dark:text-slate-50">QuizPlatform</h2>
+</div>
+<p class="text-sm text-slate-600 dark:text-slate-400">Nền tảng trắc nghiệm trực tuyến giúp bạn chinh phục mọi kỳ thi.</p>
+</div>
+<div>
+<h3 class="font-bold mb-4">Sản phẩm</h3>
+<ul class="space-y-2 text-sm">
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Trắc nghiệm</a></li>
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Luyện đề</a></li>
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Thống kê</a></li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold mb-4">Công ty</h3>
+<ul class="space-y-2 text-sm">
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Về chúng tôi</a></li>
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Blogs</a></li>
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Liên hệ</a></li>
+</ul>
+</div>
+<div>
+<h3 class="font-bold mb-4">Pháp lý</h3>
+<ul class="space-y-2 text-sm">
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Điều khoản dịch vụ</a></li>
+<li><a class="text-slate-600 dark:text-slate-400 hover:text-primary" href="#">Chính sách bảo mật</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-8 border-t border-slate-200 dark:border-slate-800 pt-6 text-center text-sm text-slate-500 dark:text-slate-400">
+<p>© 2024 QuizPlatform. Đã đăng ký bản quyền.</p>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

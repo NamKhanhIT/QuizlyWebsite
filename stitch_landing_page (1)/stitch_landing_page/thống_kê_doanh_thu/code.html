@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Thống kê Doanh thu</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark">
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="flex w-64 flex-col bg-[#111a22] p-4 text-white">
+<div class="flex h-full flex-col justify-between">
+<div class="flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="Admin user avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB8cLwHPzTTeyomiMNUtK4d6TbWdHFL8oLo2OWaQ7sMiUaiQpxu3p2gWyXjxg4GmBnRpzRfmm2Johi7y0VLQNkptDLZi2zG6SFq8pHp5UNntW8py9oBPf7QjJ1yzLOCmOIEW6L8fKTmqRt6WvXe5c0k-lSQ9FuG6JvmHpmgITfQbQW0L8us5yBjrar8_AzpVPovPyL5wwxXvR5l37dzEhdlMuWcl-btfC6vTreB8Qn13fNP7IHRNV9507UL4CpWXf4SbCjyKCo8-zrn");'></div>
+<div class="flex flex-col">
+<h1 class="text-base font-medium leading-normal text-white">Admin</h1>
+<p class="text-sm font-normal leading-normal text-[#92adc9]">admin@example.com</p>
+</div>
+</div>
+<nav class="mt-4 flex flex-col gap-2">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<p class="text-sm font-medium leading-normal">Tổng quan</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">category</span>
+<p class="text-sm font-medium leading-normal">Danh mục</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">book</span>
+<p class="text-sm font-medium leading-normal">Môn học</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">quiz</span>
+<p class="text-sm font-medium leading-normal">Bộ đề</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">group</span>
+<p class="text-sm font-medium leading-normal">Người dùng</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg bg-[#233648] px-3 py-2 text-white" href="#">
+<span class="material-symbols-outlined fill text-primary">payments</span>
+<p class="text-sm font-medium leading-normal text-primary">Doanh thu</p>
+</a>
+</nav>
+</div>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">settings</span>
+<p class="text-sm font-medium leading-normal">Cài đặt</p>
+</a>
+<a class="flex items-center gap-3 rounded-lg px-3 py-2 text-white hover:bg-[#233648]" href="#">
+<span class="material-symbols-outlined">logout</span>
+<p class="text-sm font-medium leading-normal">Đăng xuất</p>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto">
+<div class="p-6 md:p-8 lg:p-10">
+<!-- PageHeading & CalendarPicker -->
+<div class="flex flex-wrap items-start justify-between gap-6">
+<div class="flex flex-col gap-3">
+<h1 class="text-4xl font-black leading-tight tracking-[-0.033em] text-gray-900 dark:text-white">Thống kê Doanh thu</h1>
+<p class="text-base font-normal leading-normal text-gray-600 dark:text-[#92adc9]">Xem chi tiết các chỉ số tài chính và hiệu suất bán hàng.</p>
+</div>
+<div class="flex min-w-72 max-w-[336px] flex-1 flex-col rounded-xl border border-gray-200 dark:border-[#324d67] bg-white dark:bg-[#111a22]">
+<div class="flex items-center justify-between p-1">
+<button class="flex size-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-[#233648]">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<p class="flex-1 text-center text-base font-bold leading-tight text-gray-900 dark:text-white">Tháng 8 2024</p>
+<button class="flex size-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-[#233648]">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+<div class="grid grid-cols-7 p-2">
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">S</p>
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">M</p>
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">T</p>
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">W</p>
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">T</p>
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">F</p>
+<p class="flex h-12 w-full items-center justify-center pb-0.5 text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-white">S</p>
+<button class="col-start-4 h-12 w-full text-sm font-medium leading-normal text-gray-700 dark:text-white"><div class="flex size-full items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-[#233648]">1</div></button>
+<button class="h-12 w-full text-sm font-medium leading-normal text-gray-700 dark:text-white"><div class="flex size-full items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-[#233648]">2</div></button>
+<button class="h-12 w-full text-sm font-medium leading-normal text-gray-700 dark:text-white"><div class="flex size-full items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-[#233648]">3</div></button>
+<button class="h-12 w-full text-sm font-medium leading-normal text-gray-700 dark:text-white"><div class="flex size-full items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-[#233648]">4</div></button>
+<button class="h-12 w-full rounded-l-full bg-primary/20 text-sm font-medium leading-normal text-primary dark:bg-[#233648]"><div class="flex size-full items-center justify-center rounded-full bg-primary text-white">5</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">6</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">7</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">8</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">9</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">10</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">11</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">12</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">13</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">14</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">15</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">16</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">17</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">18</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">19</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">20</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">21</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">22</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">23</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">24</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">25</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">26</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">27</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">28</div></button>
+<button class="h-12 w-full bg-primary/20 text-sm font-medium leading-normal text-gray-700 dark:bg-[#233648] dark:text-white"><div class="flex size-full items-center justify-center rounded-full">29</div></button>
+<button class="h-12 w-full rounded-r-full bg-primary/20 text-sm font-medium leading-normal text-primary dark:bg-[#233648]"><div class="flex size-full items-center justify-center rounded-full bg-primary text-white">30</div></button>
+</div>
+</div>
+</div>
+<!-- Stats Cards -->
+<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22]">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-white">Tổng Doanh thu</p>
+<p class="text-2xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">150.000.000đ</p>
+<p class="text-base font-medium leading-normal text-[#0bda5b]">+12.5%</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22]">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-white">Giao dịch Mới</p>
+<p class="text-2xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">1,205</p>
+<p class="text-base font-medium leading-normal text-[#0bda5b]">+5.2%</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22]">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-white">Doanh thu Trung bình / Người dùng</p>
+<p class="text-2xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">124,481đ</p>
+<p class="text-base font-medium leading-normal text-[#fa6238]">-1.8%</p>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22]">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-white">Gói Bán chạy nhất</p>
+<p class="text-2xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white">Gói Premium</p>
+<p class="text-base font-medium leading-normal text-[#0bda5b]">+8.0%</p>
+</div>
+</div>
+<!-- Charts -->
+<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22] lg:col-span-2">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-white">Biểu đồ Doanh thu theo Thời gian</p>
+<p class="truncate text-[32px] font-bold leading-tight tracking-tight text-gray-900 dark:text-white">95.500.000đ</p>
+<div class="flex gap-1">
+<p class="text-base font-normal leading-normal text-gray-500 dark:text-[#92adc9]">Tháng này</p>
+<p class="text-base font-medium leading-normal text-[#0bda5b]">+15.2%</p>
+</div>
+<div class="flex min-h-[180px] flex-1 flex-col gap-8 py-4">
+<svg fill="none" height="148" preserveaspectratio="none" viewbox="-3 0 478 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25V149H326.769H0V109Z" fill="url(#paint0_linear_1131_5935)"></path>
+<path d="M0 109C18.1538 109 18.1538 21 36.3077 21C54.4615 21 54.4615 41 72.6154 41C90.7692 41 90.7692 93 108.923 93C127.077 93 127.077 33 145.231 33C163.385 33 163.385 101 181.538 101C199.692 101 199.692 61 217.846 61C236 61 236 45 254.154 45C272.308 45 272.308 121 290.462 121C308.615 121 308.615 149 326.769 149C344.923 149 344.923 1 363.077 1C381.231 1 381.231 81 399.385 81C417.538 81 417.538 129 435.692 129C453.846 129 453.846 25 472 25" stroke="#2b8cee" stroke-linecap="round" stroke-width="3"></path>
+<defs>
+<lineargradient gradientunits="userSpaceOnUse" id="paint0_linear_1131_5935" x1="236" x2="236" y1="1" y2="149">
+<stop stop-color="#2b8cee" stop-opacity="0.3"></stop>
+<stop offset="1" stop-color="#2b8cee" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+</svg>
+<div class="flex justify-around">
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Tuần 1</p>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Tuần 2</p>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Tuần 3</p>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Tuần 4</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22]">
+<p class="text-base font-medium leading-normal text-gray-600 dark:text-white">Top 5 Bộ đề Doanh thu cao nhất</p>
+<p class="truncate text-[32px] font-bold leading-tight tracking-tight text-gray-900 dark:text-white">65.000.000đ</p>
+<div class="flex gap-1">
+<p class="text-base font-normal leading-normal text-gray-500 dark:text-[#92adc9]">Tháng này</p>
+<p class="text-base font-medium leading-normal text-[#0bda5b]">+9.8%</p>
+</div>
+<div class="grid min-h-[180px] grid-cols-[auto_1fr] items-center gap-x-4 gap-y-6 py-3">
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Bộ đề D</p>
+<div class="h-2 flex-1 rounded-full bg-gray-200 dark:bg-[#233648]"><div class="h-full rounded-full bg-primary" style="width: 90%;"></div></div>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Bộ đề B</p>
+<div class="h-2 flex-1 rounded-full bg-gray-200 dark:bg-[#233648]"><div class="h-full rounded-full bg-primary" style="width: 50%;"></div></div>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Bộ đề C</p>
+<div class="h-2 flex-1 rounded-full bg-gray-200 dark:bg-[#233648]"><div class="h-full rounded-full bg-primary" style="width: 40%;"></div></div>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Bộ đề E</p>
+<div class="h-2 flex-1 rounded-full bg-gray-200 dark:bg-[#233648]"><div class="h-full rounded-full bg-primary" style="width: 30%;"></div></div>
+<p class="text-[13px] font-bold leading-normal tracking-[0.015em] text-gray-500 dark:text-[#92adc9]">Bộ đề A</p>
+<div class="h-2 flex-1 rounded-full bg-gray-200 dark:bg-[#233648]"><div class="h-full rounded-full bg-primary" style="width: 10%;"></div></div>
+</div>
+</div>
+</div>
+<!-- Recent Transactions Table -->
+<div class="mt-6 rounded-xl border border-gray-200 bg-white p-6 dark:border-[#324d67] dark:bg-[#111a22]">
+<h2 class="text-lg font-bold text-gray-900 dark:text-white">Giao dịch Gần đây</h2>
+<div class="mt-4 overflow-x-auto">
+<table class="w-full text-left text-sm">
+<thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700 dark:text-gray-400">
+<tr>
+<th class="px-6 py-3" scope="col">ID Giao dịch</th>
+<th class="px-6 py-3" scope="col">Người dùng</th>
+<th class="px-6 py-3" scope="col">Sản phẩm</th>
+<th class="px-6 py-3" scope="col">Số tiền</th>
+<th class="px-6 py-3" scope="col">Ngày</th>
+</tr>
+</thead>
+<tbody class="text-gray-700 dark:text-gray-300">
+<tr class="border-b border-gray-200 dark:border-gray-700">
+<td class="whitespace-nowrap px-6 py-4 font-medium">#89452</td>
+<td class="px-6 py-4">nguyenvana@email.com</td>
+<td class="px-6 py-4">Gói Premium</td>
+<td class="px-6 py-4">250.000đ</td>
+<td class="px-6 py-4">29/08/2024</td>
+</tr>
+<tr class="border-b border-gray-200 dark:border-gray-700">
+<td class="whitespace-nowrap px-6 py-4 font-medium">#89451</td>
+<td class="px-6 py-4">tranb@email.com</td>
+<td class="px-6 py-4">Bộ đề Toán Cao cấp</td>
+<td class="px-6 py-4">50.000đ</td>
+<td class="px-6 py-4">29/08/2024</td>
+</tr>
+<tr class="border-b border-gray-200 dark:border-gray-700">
+<td class="whitespace-nowrap px-6 py-4 font-medium">#89450</td>
+<td class="px-6 py-4">lethic@email.com</td>
+<td class="px-6 py-4">Gói Cơ bản</td>
+<td class="px-6 py-4">100.000đ</td>
+<td class="px-6 py-4">28/08/2024</td>
+</tr>
+<tr class="border-b border-gray-200 dark:border-gray-700">
+<td class="whitespace-nowrap px-6 py-4 font-medium">#89449</td>
+<td class="px-6 py-4">phamvand@email.com</td>
+<td class="px-6 py-4">Gói Premium</td>
+<td class="px-6 py-4">250.000đ</td>
+<td class="px-6 py-4">28/08/2024</td>
+</tr>
+<tr>
+<td class="whitespace-nowrap px-6 py-4 font-medium">#89448</td>
+<td class="px-6 py-4">hoangvanf@email.com</td>
+<td class="px-6 py-4">Bộ đề Vật lý Đại cương</td>
+<td class="px-6 py-4">50.000đ</td>
+<td class="px-6 py-4">27/08/2024</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

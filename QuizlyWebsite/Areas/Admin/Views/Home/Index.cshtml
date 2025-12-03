@@ -1,0 +1,48 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<!-- Page Heading -->
+<div class="flex flex-wrap justify-between gap-3 mb-6">
+    <div class="flex min-w-72 flex-col gap-2">
+        <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight">
+            Welcome back, Admin!
+        </p>
+        <p class="text-gray-500 dark:text-[#92adc9]">
+            Here's a summary of your platform's activity.
+        </p>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+    <!-- Card -->
+    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
+        <p>Total Users</p>
+        <p class="text-2xl font-bold">1,234</p>
+        <p class="text-[#0bda5b]">+5.2%</p>
+    </div>
+
+    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
+        <p>Total Exams</p>
+        <p class="text-2xl font-bold">56</p>
+        <p class="text-[#0bda5b]">+1.8%</p>
+    </div>
+
+    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
+        <p>Total Revenue</p>
+        <p class="text-2xl font-bold">$12,890</p>
+        <p class="text-[#0bda5b]">+12.5%</p>
+    </div>
+
+    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
+        <p>Active Sessions</p>
+        <p class="text-2xl font-bold">78</p>
+        <p class="text-red-500">-3.1%</p>
+    </div>
+
+</div>
+
+<!-- Charts + Activity -->
+<!-- (bạn giữ nguyên SVG + Recent Activity list như bản gốc) -->

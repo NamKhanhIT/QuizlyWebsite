@@ -1,0 +1,72 @@
+@model List<QuizlyWebsite.Models.TbExam>
+
+@{
+    ViewData["Title"] = "Quản Lý Đề Thi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header with Add Button -->
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">Danh Sách Đề Thi</h2>
+    <a href="/admin/exam-form" class="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+        <span class="material-symbols-outlined">add</span> Thêm Đề Thi
+    </a>
+</div>
+
+<!-- Table -->
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Tên Đề Thi</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Môn Học</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Số Câu</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Độ Khó</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Giá</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Ngày Tạo</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Hành Động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var exam in Model)
+            {
+                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                    <td class="px-6 py-4 font-semibold">@exam.Title</td>
+                    <td class="px-6 py-4">@exam.Subject.Title</td>
+                    <td class="px-6 py-4">@exam.QuestionCount</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full @(exam.Difficulty == "Dễ" ? "bg-green-100 text-green-800" : exam.Difficulty == "Trung bình" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
+                            @exam.Difficulty
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">@(exam.IsPremium == true ? exam.Price?.ToString("C") ?? "0" : "Miễn Phí")</td>
+                    <td class="px-6 py-4 text-sm">@exam.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"</td>
+                    <td class="px-6 py-4 text-sm">
+                        <div class="flex gap-2">
+                            <a href="/admin/exam-form/@exam.Id" class="text-primary hover:underline">Sửa</a>
+                            <a href="/admin/questions/@exam.Id" class="text-primary hover:underline">Câu Hỏi</a>
+                            <button class="text-danger hover:underline">Xóa</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<div class="flex justify-between items-center mt-6">
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+        Trang @ViewData["CurrentPage"] / @ViewData["TotalPages"]
+    </p>
+    <div class="flex gap-2">
+        @if ((ViewData["CurrentPage"] as int? ?? 1) > 1)
+        {
+            <a href="?page=@((ViewData["CurrentPage"] as int? ?? 1) - 1)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">Trước</a>
+        }
+        @if ((ViewData["CurrentPage"] as int? ?? 1) < (ViewData["TotalPages"] as int? ?? 1))
+        {
+            <a href="?page=@((ViewData["CurrentPage"] as int? ?? 1) + 1)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">Tiếp</a>
+        }
+    </div>
+</div>
