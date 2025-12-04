@@ -1,0 +1,168 @@
+@model QuizlyWebsite.Models.TbExam
+
+@{
+    ViewData["Title"] = Model?.Id > 0 ? "Chỉnh Sửa Đề Thi" : "Thêm Đề Thi Mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <a href="/admin/exams" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">@ViewData["Title"]</h2>
+</div>
+
+<!-- Form -->
+<form method="post" action="@(Model?.Id > 0 ? $"/admin/exam-form/{Model.Id}" : "/admin/exam-form")" class="max-w-4xl">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+        
+        <!-- Error Messages -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="text-sm">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        <!-- Title -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">edit</span>
+                Tên Đề Thi
+            </label>
+            <input type="text" name="title" value="@Model?.Title" placeholder="Nhập tên đề thi" 
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                required>
+        </div>
+
+        <!-- Subject & Category -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">school</span>
+                    Môn Học
+                </label>
+                <select name="subjectId"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                    required>
+                    <option value="">-- Chọn Môn Học --</option>
+                    @foreach (var subject in ViewData["Subjects"] as List<QuizlyWebsite.Models.TbSubject> ?? new List<QuizlyWebsite.Models.TbSubject>())
+                    {
+                        <option value="@subject.Id">@subject.Title</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">category</span>
+                    Danh Mục
+                </label>
+                <select name="categoryId"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                    required>
+                    <option value="">-- Chọn Danh Mục --</option>
+                    @foreach (var category in ViewData["Categories"] as List<QuizlyWebsite.Models.TbCategory> ?? new List<QuizlyWebsite.Models.TbCategory>())
+                    {
+                        <option value="@category.Id">@category.Title</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- Questions & Duration -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">help</span>
+                    Số Câu Hỏi
+                </label>
+                <input type="number" name="questionCount" value="@Model?.QuestionCount" placeholder="0" min="1"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                    required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">schedule</span>
+                    Thời Gian (phút)
+                </label>
+                <input type="number" name="duration" value="@Model?.Duration" placeholder="0" min="1"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                    required>
+            </div>
+        </div>
+
+        <!-- Difficulty -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">speed</span>
+                Độ Khó
+            </label>
+            <div class="flex gap-4">
+                @foreach (var difficulty in new[] { "Dễ", "Trung bình", "Khó" })
+                {
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="difficulty" value="@difficulty" @(Model?.Difficulty == difficulty ? "checked" : "") required>
+                        <span>@difficulty</span>
+                    </label>
+                }
+            </div>
+        </div>
+
+        <!-- Premium & Price -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">card_membership</span>
+                    Loại Đề
+                </label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="isPremium" value="false" @(Model?.IsPremium != true ? "checked" : "") required onchange="document.getElementById('priceSection').style.display='none'">
+                        <span>Miễn Phí</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="isPremium" value="true" @(Model?.IsPremium == true ? "checked" : "") required onchange="document.getElementById('priceSection').style.display='block'">
+                        <span>Premium</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="priceSection" style="@(Model?.IsPremium == true ? "" : "display:none;")">
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">attach_money</span>
+                    Giá (đ)
+                </label>
+                <input type="number" name="price" value="@Model?.Price" placeholder="0" min="0" step="1000"
+                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-6">
+            <label class="flex items-center gap-2">
+                <input type="checkbox" name="active">
+                <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-50">Kích Hoạt Đề Thi</span>
+            </label>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                <span class="material-symbols-outlined align-middle mr-2">save</span>
+                @(Model?.Id > 0 ? "Cập Nhật" : "Tạo Mới")
+            </button>
+            <a href="/admin/exams" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                <span class="material-symbols-outlined align-middle mr-2">close</span>
+                Hủy
+            </a>
+        </div>
+
+    </div>
+</form>

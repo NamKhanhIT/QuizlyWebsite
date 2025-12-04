@@ -1,0 +1,114 @@
+<!-- Sidebar -->
+<aside class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 h-screen sticky top-0 overflow-y-auto">
+    <div class="p-6">
+        <!-- Logo -->
+        <a href="/admin" class="flex items-center gap-2 mb-8">
+            <span class="material-symbols-outlined text-primary text-2xl">dashboard_customize</span>
+            <span class="font-black text-lg text-[#0d141b] dark:text-slate-50">Admin</span>
+        </a>
+
+        <!-- Navigation Menu -->
+        <nav class="space-y-2">
+            <!-- Dashboard -->
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "bg-primary/10 border-l-4 border-primary" : "")">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-medium">Dashboard</span>
+            </a>
+
+            <!-- Exams Management -->
+            <div class="mt-6">
+                <p class="text-xs font-bold text-[#4c739a] dark:text-slate-400 uppercase px-4 mb-2">Quản Lý Đề Thi</p>
+                
+                <a href="/admin/exams" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition @(ViewContext.RouteData.Values["action"]?.ToString() == "Exams" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                    <span class="material-symbols-outlined text-sm">library_books</span>
+                    <span class="text-sm">Danh Sách Đề</span>
+                </a>
+
+                <a href="/admin/exam-form" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    <span class="text-sm">Thêm Đề Mới</span>
+                </a>
+
+                <a href="/admin/questions" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">help</span>
+                    <span class="text-sm">Quản Lý Câu Hỏi</span>
+                </a>
+            </div>
+
+            <!-- Categories -->
+            <div class="mt-6">
+                <p class="text-xs font-bold text-[#4c739a] dark:text-slate-400 uppercase px-4 mb-2">Danh Mục</p>
+                
+                <a href="/admin/subjects" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition @(ViewContext.RouteData.Values["action"]?.ToString() == "Subjects" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                    <span class="material-symbols-outlined text-sm">school</span>
+                    <span class="text-sm">Môn Học</span>
+                </a>
+
+                <a href="/admin/subject-form" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    <span class="text-sm">Thêm Môn Học</span>
+                </a>
+
+                <a href="/admin/categories" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition @(ViewContext.RouteData.Values["action"]?.ToString() == "Categories" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                    <span class="material-symbols-outlined text-sm">category</span>
+                    <span class="text-sm">Danh Sách Danh Mục</span>
+                </a>
+
+                <a href="/admin/category-form" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">add_circle</span>
+                    <span class="text-sm">Thêm Danh Mục</span>
+                </a>
+            </div>
+
+            <!-- Users Management -->
+            <div class="mt-6">
+                <p class="text-xs font-bold text-[#4c739a] dark:text-slate-400 uppercase px-4 mb-2">Người Dùng</p>
+                
+                <a href="/admin/users" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition @(ViewContext.RouteData.Values["action"]?.ToString() == "Users" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                    <span class="material-symbols-outlined text-sm">people</span>
+                    <span class="text-sm">Danh Sách Người Dùng</span>
+                </a>
+
+                <a href="/admin/user-permissions" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">admin_panel_settings</span>
+                    <span class="text-sm">Phân Quyền</span>
+                </a>
+            </div>
+
+            <!-- Payments & Revenue -->
+            <div class="mt-6">
+                <p class="text-xs font-bold text-[#4c739a] dark:text-slate-400 uppercase px-4 mb-2">Tài Chính</p>
+                
+                <a href="/admin/payments" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition @(ViewContext.RouteData.Values["action"]?.ToString() == "Payments" ? "bg-gray-100 dark:bg-gray-700" : "")">
+                    <span class="material-symbols-outlined text-sm">attach_money</span>
+                    <span class="text-sm">Thanh Toán</span>
+                </a>
+
+                <a href="/admin/membership-plans" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">card_membership</span>
+                    <span class="text-sm">Gói Hội Viên</span>
+                </a>
+
+                <a href="/admin/reports" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">assessment</span>
+                    <span class="text-sm">Báo Cáo</span>
+                </a>
+            </div>
+
+            <!-- Settings -->
+            <div class="mt-6">
+                <p class="text-xs font-bold text-[#4c739a] dark:text-slate-400 uppercase px-4 mb-2">Cài Đặt</p>
+                
+                <a href="/admin/settings" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">settings</span>
+                    <span class="text-sm">Cài Đặt Hệ Thống</span>
+                </a>
+
+                <a href="/" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+                    <span class="material-symbols-outlined text-sm">home</span>
+                    <span class="text-sm">Trang Chủ</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+</aside>

@@ -44,8 +44,8 @@
                     <td class="px-6 py-4 text-sm">
                         <div class="flex gap-2">
                             <a href="/admin/exam-form/@exam.Id" class="text-primary hover:underline">Sửa</a>
-                            <a href="/admin/questions/@exam.Id" class="text-primary hover:underline">Câu Hỏi</a>
-                            <button class="text-danger hover:underline">Xóa</button>
+                            <a href="/admin/questions?examId=@exam.Id" class="text-primary hover:underline">Câu Hỏi</a>
+                            <button onclick="deleteExam(@exam.Id)" class="text-danger hover:underline">Xóa</button>
                         </div>
                     </td>
                 </tr>
@@ -70,3 +70,32 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function deleteExam(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa đề thi này?')) return;
+
+            try {
+                const response = await fetch('/admin/delete-exam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Đề thi đã được xóa thành công');
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+    </script>
+}

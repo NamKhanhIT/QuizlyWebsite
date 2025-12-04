@@ -1,0 +1,248 @@
+@{
+    ViewData["Title"] = "Cài Đặt Hệ Thống";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <h2 class="text-3xl font-bold">@ViewData["Title"]</h2>
+</div>
+
+<!-- Settings Tabs -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    
+    <!-- Sidebar Tabs -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 h-fit">
+        <nav class="space-y-2">
+            <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 active:bg-primary active:text-white transition" data-tab="general">
+                <span class="material-symbols-outlined align-middle mr-2">settings</span>
+                Chung
+            </button>
+            <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" data-tab="security">
+                <span class="material-symbols-outlined align-middle mr-2">security</span>
+                Bảo Mật
+            </button>
+            <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" data-tab="email">
+                <span class="material-symbols-outlined align-middle mr-2">mail</span>
+                Email
+            </button>
+            <button class="settings-tab w-full text-left px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" data-tab="maintenance">
+                <span class="material-symbols-outlined align-middle mr-2">maintenance</span>
+                Bảo Trì
+            </button>
+        </nav>
+    </div>
+
+    <!-- Settings Content -->
+    <div class="lg:col-span-3">
+        
+        <!-- General Settings -->
+        <div id="general" class="settings-content bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+            <h3 class="text-xl font-bold mb-6">Cài Đặt Chung</h3>
+            
+            <form method="post" action="/admin/settings">
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">business</span>
+                        Tên Trang Web
+                    </label>
+                    <input type="text" name="siteName" value="Quizly" placeholder="Tên công ty/trang web"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">description</span>
+                        Mô Tả Trang Web
+                    </label>
+                    <textarea name="siteDescription" placeholder="Mô tả ngắn về trang web" rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">Nền tảng luyện thi trực tuyến hàng đầu Việt Nam</textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">language</span>
+                        Ngôn Ngữ Mặc Định
+                    </label>
+                    <select name="defaultLanguage" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                        <option value="vi" selected="selected">Tiếng Việt</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                    <span class="material-symbols-outlined align-middle mr-2">save</span>
+                    Lưu Thay Đổi
+                </button>
+            </form>
+        </div>
+
+        <!-- Security Settings -->
+        <div id="security" class="settings-content bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 hidden">
+            <h3 class="text-xl font-bold mb-6">Cài Đặt Bảo Mật</h3>
+            
+            <form method="post" action="/admin/settings">
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">schedule</span>
+                        Thời Gian Hết Phiên Làm Việc (phút)
+                    </label>
+                    <input type="number" name="sessionTimeout" value="30" min="5" max="480"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">lock</span>
+                        Độ Dài Mật Khẩu Tối Thiểu
+                    </label>
+                    <input type="number" name="minPasswordLength" value="6" min="4" max="20"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <div class="mb-6">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="requirePasswordUpgrade" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                        <span class="ml-3 text-sm font-semibold text-[#0d141b] dark:text-slate-50">
+                            <span class="material-symbols-outlined align-middle mr-1 text-primary">verified_user</span>
+                            Yêu Cầu Mật Khẩu Mạnh (chữ hoa, chữ thường, số, ký tự đặc biệt)
+                        </span>
+                    </label>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">block</span>
+                        Số Lần Đăng Nhập Thất Bại Tối Đa
+                    </label>
+                    <input type="number" name="maxLoginAttempts" value="5" min="1" max="10"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                    <span class="material-symbols-outlined align-middle mr-2">save</span>
+                    Lưu Thay Đổi
+                </button>
+            </form>
+        </div>
+
+        <!-- Email Settings -->
+        <div id="email" class="settings-content bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 hidden">
+            <h3 class="text-xl font-bold mb-6">Cài Đặt Email</h3>
+            
+            <form method="post" action="/admin/settings">
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">mail</span>
+                        Email Quản Trị Viên
+                    </label>
+                    <input type="email" name="adminEmail" placeholder="admin@quizly.com"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">mail</span>
+                        Email Hỗ Trợ Khách Hàng
+                    </label>
+                    <input type="email" name="supportEmail" placeholder="support@quizly.com"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                </div>
+
+                <div class="mb-6">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="enableEmailNotifications" class="w-4 h-4 text-primary rounded focus:ring-primary" checked>
+                        <span class="ml-3 text-sm font-semibold text-[#0d141b] dark:text-slate-50">
+                            <span class="material-symbols-outlined align-middle mr-1 text-primary">notifications_active</span>
+                            Kích Hoạt Thông Báo Email
+                        </span>
+                    </label>
+                </div>
+
+                <div class="mb-6">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="enableRegistrationEmail" class="w-4 h-4 text-primary rounded focus:ring-primary" checked>
+                        <span class="ml-3 text-sm font-semibold text-[#0d141b] dark:text-slate-50">
+                            <span class="material-symbols-outlined align-middle mr-1 text-primary">person_add</span>
+                            Gửi Email Khi Người Dùng Đăng Ký
+                        </span>
+                    </label>
+                </div>
+
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                    <span class="material-symbols-outlined align-middle mr-2">save</span>
+                    Lưu Thay Đổi
+                </button>
+            </form>
+        </div>
+
+        <!-- Maintenance Settings -->
+        <div id="maintenance" class="settings-content bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 hidden">
+            <h3 class="text-xl font-bold mb-6">Chế Độ Bảo Trì</h3>
+            
+            <div class="bg-warning/10 border border-warning/30 text-warning rounded-lg p-4 mb-6">
+                <p class="text-sm font-semibold">⚠️ Khi bật chế độ bảo trì, chỉ quản trị viên mới có thể truy cập trang web.</p>
+            </div>
+
+            <form method="post" action="/admin/settings">
+                <div class="mb-6">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="maintenanceMode" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                        <span class="ml-3 text-sm font-semibold text-[#0d141b] dark:text-slate-50">
+                            <span class="material-symbols-outlined align-middle mr-1 text-primary">construction</span>
+                            Bật Chế Độ Bảo Trì
+                        </span>
+                    </label>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">message</span>
+                        Thông Báo Bảo Trì
+                    </label>
+                    <textarea name="maintenanceMessage" placeholder="Trang web đang được bảo trì. Vui lòng quay lại sau..." rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">Trang web đang được bảo trì. Vui lòng quay lại sau...</textarea>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="font-semibold text-[#0d141b] dark:text-slate-50 mb-3">
+                        <span class="material-symbols-outlined align-middle mr-1 text-primary">backup</span>
+                        Sao Lưu & Khôi Phục
+                    </h4>
+                    <button type="button" class="px-4 py-2 bg-info text-white rounded-lg hover:bg-info-dark transition text-sm font-semibold mr-2">
+                        <span class="material-symbols-outlined align-middle mr-1">backup</span>
+                        Sao Lưu Ngay
+                    </button>
+                    <button type="button" class="px-4 py-2 bg-warning text-white rounded-lg hover:bg-warning-dark transition text-sm font-semibold">
+                        <span class="material-symbols-outlined align-middle mr-1">restore</span>
+                        Khôi Phục Từ Bản Sao
+                    </button>
+                </div>
+
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                    <span class="material-symbols-outlined align-middle mr-2">save</span>
+                    Lưu Thay Đổi
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+document.querySelectorAll('.settings-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // Remove active class from all tabs
+        document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('bg-primary', 'text-white'));
+        this.classList.add('bg-primary', 'text-white');
+
+        // Hide all content
+        document.querySelectorAll('.settings-content').forEach(content => content.classList.add('hidden'));
+
+        // Show selected content
+        const tabName = this.getAttribute('data-tab');
+        document.getElementById(tabName).classList.remove('hidden');
+    });
+});
+</script>

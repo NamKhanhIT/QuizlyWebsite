@@ -1,0 +1,129 @@
+@model List<QuizlyWebsite.Models.TbUser>
+
+@{
+    ViewData["Title"] = "Phân Quyền Người Dùng";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <a href="/admin/users" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Phân Quyền Người Dùng</h2>
+    <p class="text-[#4c739a] dark:text-slate-400 mt-2">Quản lý vai trò và quyền hạn của người dùng</p>
+</div>
+
+<!-- Permissions Grid -->
+<div class="grid grid-cols-1 gap-6">
+    @if (Model?.Count > 0)
+    {
+        @foreach (var user in Model)
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition">
+                <form method="post" action="/admin/users/@user.Id/permissions" class="flex items-center justify-between gap-6">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-bold text-[#0d141b] dark:text-slate-50">@user.FullName</h3>
+                        <p class="text-sm text-[#4c739a] dark:text-slate-400 mt-1">@user.Username</p>
+                        <p class="text-sm text-[#4c739a] dark:text-slate-400">@user.Email</p>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <input type="hidden" name="id" value="@user.Id">
+                        
+                        <!-- Role Selection -->
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs font-semibold text-[#4c739a] dark:text-slate-400">Vai Trò</label>
+                            @{
+                                var userRole = user.Role ?? "User";
+                            }
+                            <select name="role" class="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50">
+                                @if (userRole == "User")
+                                {
+                                    <option value="User" selected>User (Người dùng)</option>
+                                }
+                                else
+                                {
+                                    <option value="User">User (Người dùng)</option>
+                                }
+                                @if (userRole == "Moderator")
+                                {
+                                    <option value="Moderator" selected>Moderator (Kiểm duyệt)</option>
+                                }
+                                else
+                                {
+                                    <option value="Moderator">Moderator (Kiểm duyệt)</option>
+                                }
+                                @if (userRole == "Admin")
+                                {
+                                    <option value="Admin" selected>Admin (Quản trị viên)</option>
+                                }
+                                else
+                                {
+                                    <option value="Admin">Admin (Quản trị viên)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <!-- Current Role Badge -->
+                        <span class="text-xs font-semibold px-3 py-2 rounded-full @(user.Role == "Admin" ? "bg-danger/20 text-danger" : user.Role == "Moderator" ? "bg-warning/20 text-warning" : "bg-primary/20 text-primary")">
+                            @(user.Role ?? "User")
+                        </span>
+
+                        <!-- Save Button -->
+                        <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition font-semibold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">save</span>
+                            Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-700 mb-4 block">admin_panel_settings</span>
+            <p class="text-[#4c739a] dark:text-slate-400">Không có người dùng nào để phân quyền.</p>
+        </div>
+    }
+</div>
+    }
+</div>
+
+<!-- Empty State -->
+@if (!Model.Any())
+{
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-700 mb-4 block">person_off</span>
+        <p class="text-[#4c739a] dark:text-slate-400">Không có người dùng nào để phân quyền.</p>
+    </div>
+}
+
+<!-- Role Descriptions -->
+<div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-blue-600">person</span>
+            <h3 class="font-bold text-blue-600">User (Người Dùng)</h3>
+        </div>
+        <p class="text-sm text-blue-700 dark:text-blue-300">Người dùng bình thường có thể làm bài thi, xem kết quả và mua gói hội viên.</p>
+    </div>
+
+    <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-orange-600">shield_admin</span>
+            <h3 class="font-bold text-orange-600">Moderator (Kiểm Duyệt)</h3>
+        </div>
+        <p class="text-sm text-orange-700 dark:text-orange-300">Kiểm duyệt viên có thể quản lý bộ đề, câu hỏi và xem báo cáo.</p>
+    </div>
+
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6">
+        <div class="flex items-center gap-2 mb-3">
+            <span class="material-symbols-outlined text-red-600">admin_panel_settings</span>
+            <h3 class="font-bold text-red-600">Admin (Quản Trị Viên)</h3>
+        </div>
+        <p class="text-sm text-red-700 dark:text-red-300">Quản trị viên có quyền truy cập toàn bộ chức năng quản lý hệ thống.</p>
+    </div>
+</div>

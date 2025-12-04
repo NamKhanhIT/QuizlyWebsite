@@ -1,0 +1,159 @@
+@model List<QuizlyWebsite.Models.TbQuestion>
+
+@{
+    ViewData["Title"] = "Quản Lý Câu Hỏi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <h2 class="text-3xl font-bold">Quản Lý Câu Hỏi</h2>
+    <p class="text-[#4c739a] dark:text-slate-400 mt-2">Chọn đề thi để xem và quản lý câu hỏi</p>
+</div>
+
+@if (Model?.Count > 0)
+{
+    <!-- Exam Header -->
+    var exam = (dynamic)ViewData["Exam"];
+    <div class="bg-gradient-to-r from-primary to-blue-600 rounded-xl p-6 mb-8 text-white">
+        <div class="flex justify-between items-start">
+            <div>
+                <h3 class="text-2xl font-bold mb-2">@exam?.Title</h3>
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <p class="text-blue-100 text-sm">Tổng Câu Hỏi</p>
+                        <p class="text-2xl font-bold">@Model.Count</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-100 text-sm">Độ Khó</p>
+                        <p class="text-2xl font-bold">@exam?.Difficulty</p>
+                    </div>
+                    <div>
+                        <p class="text-blue-100 text-sm">Thời Gian</p>
+                        <p class="text-2xl font-bold">@exam?.Duration phút</p>
+                    </div>
+                </div>
+            </div>
+            <a href="/admin/question-form?examId=@exam?.Id" class="px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition flex items-center gap-2">
+                <span class="material-symbols-outlined">add</span>
+                Thêm Câu Hỏi
+            </a>
+        </div>
+    </div>
+
+    <!-- Questions Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">STT</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Nội Dung Câu</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Điểm</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold">Đáp Án Đúng</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = 1;
+                    }
+                    @foreach (var question in Model)
+                    {
+                        <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">@(index)</td>
+                            <td class="px-6 py-4 text-[#0d141b] dark:text-slate-50 max-w-md" title="@question.Content">
+                                @(question.Content?.Length > 60 ? question.Content.Substring(0, 60) + "..." : question.Content)
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-semibold px-3 py-1 rounded-full bg-success/20 text-success">
+                                    @(question.Marks ?? 0) điểm
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-[#0d141b] dark:text-slate-50 font-bold text-lg">@(question.CorrectOption ?? "N/A")</td>
+                            <td class="px-6 py-4 text-sm">
+                                <div class="flex gap-3 justify-center">
+                                    <a href="/admin/question-form/@question.Id?examId=@exam?.Id" class="text-primary hover:text-blue-700 font-semibold" title="Chỉnh sửa">
+                                        <span class="material-symbols-outlined text-lg">edit</span>
+                                    </a>
+                                    <button class="text-danger hover:text-red-700 font-semibold" title="Xóa" onclick="deleteQuestion(@question.Id)">
+                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Exams List to Select From -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @{
+            var exams = (List<TbExam>)ViewData["Exams"] ?? new List<TbExam>();
+        }
+        @foreach (var exam in exams)
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition cursor-pointer" onclick="location.href='/admin/questions?examId=@exam.Id'">
+                <div class="flex items-start justify-between mb-4">
+                    <h3 class="text-lg font-bold text-[#0d141b] dark:text-slate-50 flex-1">@exam.Title</h3>
+                    <span class="text-xs font-semibold px-2 py-1 rounded-full bg-primary/20 text-primary">
+                        @(exam.QuestionCount) câu
+                    </span>
+                </div>
+                <p class="text-[#4c739a] dark:text-slate-400 text-sm mb-4">Môn: @exam.Subject?.Title</p>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-warning">schedule</span>
+                        <span>@exam.Duration phút</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm text-info">difficulty</span>
+                        <span>@exam.Difficulty</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (exams.Count == 0)
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+            <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-700 mb-4 block">assignment_question_mark</span>
+            <p class="text-[#4c739a] dark:text-slate-400">Không có đề thi nào. Vui lòng <a href="/admin/exams" class="text-primary hover:underline">tạo đề thi</a> trước.</p>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script>
+        async function deleteQuestion(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) return;
+
+            try {
+                const response = await fetch('/admin/delete-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Câu hỏi đã được xóa thành công');
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+    </script>
+}

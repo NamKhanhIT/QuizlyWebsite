@@ -1,0 +1,173 @@
+@model QuizlyWebsite.Models.TbQuestion
+
+@{
+    ViewData["Title"] = Model?.Id > 0 ? "Chỉnh Sửa Câu Hỏi" : "Thêm Câu Hỏi Mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header -->
+<div class="mb-8">
+    @{
+        var examId = (dynamic)ViewData["ExamId"] ?? ViewContext.HttpContext.Request.Query["examId"].ToString();
+    }
+    <a href="/admin/questions?examId=@examId" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">@ViewData["Title"]</h2>
+</div>
+
+<!-- Form -->
+@{
+    var queryExamId = ViewContext.HttpContext.Request.Query["examId"].ToString();
+    var submitAction = Model?.Id > 0 
+        ? $"/admin/question-form/{Model.Id}?examId={queryExamId}" 
+        : "/admin/question-form";
+}
+<form method="post" action="@submitAction" class="max-w-4xl">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+        
+        <!-- Error Messages -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="text-sm">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        @{
+            var hiddenExamId = ViewData["ExamId"] ?? queryExamId;
+        }
+        <input type="hidden" name="examId" value="@hiddenExamId">
+
+        <!-- Question Content -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">help</span>
+                Nội Dung Câu Hỏi
+            </label>
+            <textarea name="content" placeholder="Nhập nội dung câu hỏi" rows="3"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                required>@Model?.Content</textarea>
+        </div>
+
+        <!-- Question Type -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">category</span>
+                Điểm (Marks)
+            </label>
+            <input type="number" name="marks" placeholder="1" min="0" step="0.5" value="@Model?.Marks"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+        </div>
+
+        <!-- Answer Options -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-3">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">list</span>
+                Các Lựa Chọn
+            </label>
+            <div class="space-y-3">
+                <div class="flex gap-2">
+                    <span class="w-12 px-3 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg font-semibold text-center">A</span>
+                    <input type="text" name="optionA" placeholder="Nhập lựa chọn A"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        value="@Model?.OptionA" required>
+                </div>
+                <div class="flex gap-2">
+                    <span class="w-12 px-3 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg font-semibold text-center">B</span>
+                    <input type="text" name="optionB" placeholder="Nhập lựa chọn B"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        value="@Model?.OptionB" required>
+                </div>
+                <div class="flex gap-2">
+                    <span class="w-12 px-3 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg font-semibold text-center">C</span>
+                    <input type="text" name="optionC" placeholder="Nhập lựa chọn C"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        value="@Model?.OptionC" required>
+                </div>
+                <div class="flex gap-2">
+                    <span class="w-12 px-3 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg font-semibold text-center">D</span>
+                    <input type="text" name="optionD" placeholder="Nhập lựa chọn D"
+                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                        value="@Model?.OptionD" required>
+                </div>
+            </div>
+        </div>
+
+        <!-- Correct Answer -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">check_circle</span>
+                Đáp Án Đúng
+            </label>
+            @{
+                var correctOption = Model?.CorrectOption ?? "";
+            }
+            <select name="correctOption" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" required>
+                <option value="">-- Chọn Đáp Án Đúng --</option>
+                @if (correctOption == "A")
+                {
+                    <option value="A" selected>A</option>
+                }
+                else
+                {
+                    <option value="A">A</option>
+                }
+                @if (correctOption == "B")
+                {
+                    <option value="B" selected>B</option>
+                }
+                else
+                {
+                    <option value="B">B</option>
+                }
+                @if (correctOption == "C")
+                {
+                    <option value="C" selected>C</option>
+                }
+                else
+                {
+                    <option value="C">C</option>
+                }
+                @if (correctOption == "D")
+                {
+                    <option value="D" selected>D</option>
+                }
+                else
+                {
+                    <option value="D">D</option>
+                }
+            </select>
+        </div>
+
+        <!-- Explanation -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">info</span>
+                Ghi Chú (tùy chọn)
+            </label>
+            <textarea name="note" placeholder="Thêm ghi chú" rows="3"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"></textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                <span class="material-symbols-outlined align-middle mr-2">save</span>
+                @(Model?.Id > 0 ? "Cập Nhật" : "Tạo Mới")
+            </button>
+            @{
+                var backExamId = ViewData["ExamId"] ?? ViewContext.HttpContext.Request.Query["examId"].ToString();
+            }
+            <a href="/admin/questions?examId=@backExamId" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                <span class="material-symbols-outlined align-middle mr-2">close</span>
+                Hủy
+            </a>
+        </div>
+
+    </div>
+</form>

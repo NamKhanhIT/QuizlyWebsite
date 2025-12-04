@@ -53,7 +53,10 @@ namespace QuizlyWebsite.Controllers
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("Role", user.Role ?? "User");
 
-            // Redirect to home or intended page
+            // Redirect to admin if admin, else home
+            if ((user.Role ?? "User") == "Admin")
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+            
             return RedirectToAction("Index", "Home");
         }
 

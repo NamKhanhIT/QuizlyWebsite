@@ -1,0 +1,48 @@
+@model TbSubject
+
+@{
+    ViewData["Title"] = Model?.Id > 0 ? "Chỉnh sửa Môn Học" : "Thêm Môn Học Mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <h2 class="text-3xl font-bold">@(Model?.Id > 0 ? "Chỉnh sửa Môn Học" : "Thêm Môn Học Mới")</h2>
+</div>
+
+<!-- Form -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-2xl">
+    <form method="post" class="space-y-6">
+        <!-- Tên Môn Học -->
+        <div>
+            <label class="block text-sm font-semibold mb-3 text-[#0d141b] dark:text-slate-50">Tên Môn Học <span class="text-danger">*</span></label>
+            <input type="text" name="title" value="@Model?.Title" required 
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50" 
+                placeholder="Nhập tên môn học...">
+            @if (ViewData.ModelState["title"]?.Errors.Count > 0)
+            {
+                <span class="text-danger text-sm mt-1">@ViewData.ModelState["title"].Errors[0].ErrorMessage</span>
+            }
+        </div>
+
+        <!-- Mô Tả -->
+        <div>
+            <label class="block text-sm font-semibold mb-3 text-[#0d141b] dark:text-slate-50">Mô Tả</label>
+            <textarea name="description" rows="5"
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50"
+                placeholder="Nhập mô tả môn học...">@Model?.Description</textarea>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-4 pt-4">
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+                <span class="material-symbols-outlined mr-2 align-middle">save</span>
+                @(Model?.Id > 0 ? "Cập Nhật" : "Tạo Mới")
+            </button>
+            <a href="/admin/subjects" class="px-6 py-3 bg-gray-400 text-white rounded-lg font-semibold hover:bg-gray-500 transition">
+                <span class="material-symbols-outlined mr-2 align-middle">close</span>
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>

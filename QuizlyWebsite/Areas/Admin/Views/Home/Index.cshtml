@@ -3,46 +3,133 @@
 }
 
 <!-- Page Heading -->
-<div class="flex flex-wrap justify-between gap-3 mb-6">
+<div class="flex flex-wrap justify-between gap-3 mb-8">
     <div class="flex min-w-72 flex-col gap-2">
-        <p class="text-gray-900 dark:text-white text-4xl font-black leading-tight">
-            Welcome back, Admin!
+        <p class="text-[#0d141b] dark:text-white text-4xl font-black leading-tight">
+            Chào mừng quay lại, Admin!
         </p>
-        <p class="text-gray-500 dark:text-[#92adc9]">
-            Here's a summary of your platform's activity.
+        <p class="text-[#4c739a] dark:text-slate-400">
+            Đây là tóm tắt hoạt động của nền tảng.
         </p>
     </div>
 </div>
 
-<!-- Stats -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 
-    <!-- Card -->
-    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
-        <p>Total Users</p>
-        <p class="text-2xl font-bold">1,234</p>
-        <p class="text-[#0bda5b]">+5.2%</p>
+    <!-- Total Users -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Tổng Người Dùng</p>
+            <span class="material-symbols-outlined text-primary text-2xl">people</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["TotalUsers"] ?? 0)</p>
+        <p class="text-sm text-success mt-2">
+            <span class="material-symbols-outlined align-middle text-sm">trending_up</span>
+            Hoạt động
+        </p>
     </div>
 
-    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
-        <p>Total Exams</p>
-        <p class="text-2xl font-bold">56</p>
-        <p class="text-[#0bda5b]">+1.8%</p>
+    <!-- Total Exams -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Tổng Bộ Đề</p>
+            <span class="material-symbols-outlined text-success text-2xl">library_books</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["TotalExams"] ?? 0)</p>
+        <p class="text-sm text-success mt-2">
+            <span class="material-symbols-outlined align-middle text-sm">trending_up</span>
+            Bộ đề mới
+        </p>
     </div>
 
-    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
-        <p>Total Revenue</p>
-        <p class="text-2xl font-bold">$12,890</p>
-        <p class="text-[#0bda5b]">+12.5%</p>
+    <!-- Total Questions -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Tổng Câu Hỏi</p>
+            <span class="material-symbols-outlined text-warning text-2xl">help</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["TotalQuestions"] ?? 0)</p>
+        <p class="text-sm text-success mt-2">
+            <span class="material-symbols-outlined align-middle text-sm">trending_up</span>
+            Câu hỏi mới
+        </p>
     </div>
 
-    <div class="rounded-xl p-6 bg-white dark:bg-[#111a22] border">
-        <p>Active Sessions</p>
-        <p class="text-2xl font-bold">78</p>
-        <p class="text-red-500">-3.1%</p>
+    <!-- Total Revenue -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Doanh Thu</p>
+            <span class="material-symbols-outlined text-danger text-2xl">attach_money</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(((decimal?)ViewData["TotalRevenue"] ?? 0).ToString("N0"))đ</p>
+        <p class="text-sm text-success mt-2">
+            <span class="material-symbols-outlined align-middle text-sm">trending_up</span>
+            Năm nay
+        </p>
     </div>
 
 </div>
 
-<!-- Charts + Activity -->
-<!-- (bạn giữ nguyên SVG + Recent Activity list như bản gốc) -->
+<!-- Quick Actions -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    
+    <!-- Recent Activity -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h2 class="text-lg font-bold text-[#0d141b] dark:text-slate-50 mb-4">Hành Động Nhanh</h2>
+        <div class="space-y-3">
+            <a href="/admin/exams" class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-primary">library_books</span>
+                    <span class="text-[#0d141b] dark:text-slate-50 font-medium">Quản lý Bộ Đề</span>
+                </div>
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <a href="/admin/users" class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-success">people</span>
+                    <span class="text-[#0d141b] dark:text-slate-50 font-medium">Quản lý Người Dùng</span>
+                </div>
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <a href="/admin/categories" class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-warning">category</span>
+                    <span class="text-[#0d141b] dark:text-slate-50 font-medium">Quản lý Danh Mục</span>
+                </div>
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+            <a href="/admin/payments" class="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition">
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-danger">attach_money</span>
+                    <span class="text-[#0d141b] dark:text-slate-50 font-medium">Quản lý Thanh Toán</span>
+                </div>
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h2 class="text-lg font-bold text-[#0d141b] dark:text-slate-50 mb-4">Trạng Thái Hệ Thống</h2>
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-[#4c739a] dark:text-slate-400">Cơ sở dữ liệu</span>
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-success/20 text-success">Hoạt động</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-[#4c739a] dark:text-slate-400">API Server</span>
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-success/20 text-success">Hoạt động</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-[#4c739a] dark:text-slate-400">Cache System</span>
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-success/20 text-success">Hoạt động</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <span class="text-[#4c739a] dark:text-slate-400">Email Service</span>
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-warning/20 text-warning">Kiểm tra</span>
+            </div>
+        </div>
+    </div>
+
+</div>
