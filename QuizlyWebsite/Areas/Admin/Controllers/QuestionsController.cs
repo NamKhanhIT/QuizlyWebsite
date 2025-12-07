@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -88,19 +89,71 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         [HttpPost]
         [Route("admin/question-form")]
         [Route("admin/question-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, int examId, string content, string optionA, string optionB, string optionC, string optionD, string correctOption, decimal marks)
+        public async Task<IActionResult> FormPost(int? id, int examId, string content, string optionA, string optionB, string optionC, string optionD, string correctOption, decimal? marks)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
+            // Validate exam exists
+            var exam = await _context.TbExams.FindAsync(examId);
+            if (exam == null)
+            {
+                ModelState.AddModelError(string.Empty, "Đề thi không tồn tại");
+                ViewData["ExamId"] = examId;
+                var model = id.HasValue ? await _context.TbQuestions.FindAsync(id) : new TbQuestion { ExamId = examId };
+                if (model != null)
+                {
+                    model.Content = content;
+                    model.OptionA = optionA;
+                    model.OptionB = optionB;
+                    model.OptionC = optionC;
+                    model.OptionD = optionD;
+                    model.CorrectOption = correctOption;
+                    model.Marks = marks;
+                }
+                return View("~/Areas/Admin/Views/Home/QuestionForm.cshtml", model ?? new TbQuestion { ExamId = examId });
+            }
+
+            // Validate required fields
             if (string.IsNullOrWhiteSpace(content))
                 ModelState.AddModelError(nameof(content), "Nội dung câu hỏi không được để trống");
+
+            if (string.IsNullOrWhiteSpace(optionA))
+                ModelState.AddModelError(nameof(optionA), "Lựa chọn A không được để trống");
+
+            if (string.IsNullOrWhiteSpace(optionB))
+                ModelState.AddModelError(nameof(optionB), "Lựa chọn B không được để trống");
+
+            if (string.IsNullOrWhiteSpace(optionC))
+                ModelState.AddModelError(nameof(optionC), "Lựa chọn C không được để trống");
+
+            if (string.IsNullOrWhiteSpace(optionD))
+                ModelState.AddModelError(nameof(optionD), "Lựa chọn D không được để trống");
+
+            if (string.IsNullOrWhiteSpace(correctOption))
+                ModelState.AddModelError(nameof(correctOption), "Vui lòng chọn đáp án đúng");
+
+            if (!string.IsNullOrWhiteSpace(correctOption) && !new[] { "A", "B", "C", "D" }.Contains(correctOption.ToUpper()))
+                ModelState.AddModelError(nameof(correctOption), "Đáp án đúng phải là A, B, C hoặc D");
+
+            if (marks.HasValue && marks < 0)
+                ModelState.AddModelError(nameof(marks), "Điểm không được nhỏ hơn 0");
 
             if (!ModelState.IsValid)
             {
                 ViewData["ExamId"] = examId;
                 var model = id.HasValue ? await _context.TbQuestions.FindAsync(id) : new TbQuestion { ExamId = examId };
-                return View("~/Areas/Admin/Views/Home/QuestionForm.cshtml", model);
+                if (model != null)
+                {
+                    model.Content = content;
+                    model.OptionA = optionA;
+                    model.OptionB = optionB;
+                    model.OptionC = optionC;
+                    model.OptionD = optionD;
+                    model.CorrectOption = correctOption;
+                    model.Marks = marks;
+                }
+                return View("~/Areas/Admin/Views/Home/QuestionForm.cshtml", model ?? new TbQuestion { ExamId = examId });
             }
 
             try
@@ -108,46 +161,62 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 if (id.HasValue && id > 0)
                 {
                     var question = await _context.TbQuestions.FindAsync(id.Value);
-                    if (question == null) return NotFound();
-                    question.Content = content;
-                    question.OptionA = optionA;
-                    question.OptionB = optionB;
-                    question.OptionC = optionC;
-                    question.OptionD = optionD;
-                    question.CorrectOption = correctOption;
-                    question.Marks = marks;
+                    if (question == null)
+                    {
+                        ModelState.AddModelError(string.Empty, "Câu hỏi không tồn tại");
+                        ViewData["ExamId"] = examId;
+                        return View("~/Areas/Admin/Views/Home/QuestionForm.cshtml", new TbQuestion { ExamId = examId });
+                    }
+
+                    question.Content = content?.Trim() ?? string.Empty;
+                    question.OptionA = optionA?.Trim() ?? string.Empty;
+                    question.OptionB = optionB?.Trim() ?? string.Empty;
+                    question.OptionC = optionC?.Trim() ?? string.Empty;
+                    question.OptionD = optionD?.Trim() ?? string.Empty;
+                    question.CorrectOption = correctOption?.ToUpper();
+                    question.Marks = marks ?? 1;
 
                     _context.TbQuestions.Update(question);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Câu hỏi đã được cập nhật";
+                    TempData["Success"] = "Câu hỏi đã được cập nhật thành công";
                 }
                 else
                 {
                     var question = new TbQuestion
                     {
                         ExamId = examId,
-                        Content = content,
-                        OptionA = optionA,
-                        OptionB = optionB,
-                        OptionC = optionC,
-                        OptionD = optionD,
-                        CorrectOption = correctOption,
-                        Marks = marks
+                        Content = content?.Trim() ?? string.Empty,
+                        OptionA = optionA?.Trim() ?? string.Empty,
+                        OptionB = optionB?.Trim() ?? string.Empty,
+                        OptionC = optionC?.Trim() ?? string.Empty,
+                        OptionD = optionD?.Trim() ?? string.Empty,
+                        CorrectOption = correctOption?.ToUpper(),
+                        Marks = marks ?? 1
                     };
 
                     await _context.TbQuestions.AddAsync(question);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Câu hỏi mới đã được tạo";
+                    TempData["Success"] = "Câu hỏi mới đã được tạo thành công";
                 }
 
                 return RedirectToAction("Index", new { examId = examId });
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
+                ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi: " + ex.Message);
                 ViewData["ExamId"] = examId;
                 var model = id.HasValue ? await _context.TbQuestions.FindAsync(id) : new TbQuestion { ExamId = examId };
-                return View("~/Areas/Admin/Views/Home/QuestionForm.cshtml", model);
+                if (model != null)
+                {
+                    model.Content = content;
+                    model.OptionA = optionA;
+                    model.OptionB = optionB;
+                    model.OptionC = optionC;
+                    model.OptionD = optionD;
+                    model.CorrectOption = correctOption;
+                    model.Marks = marks;
+                }
+                return View("~/Areas/Admin/Views/Home/QuestionForm.cshtml", model ?? new TbQuestion { ExamId = examId });
             }
         }
 

@@ -1,10 +1,12 @@
+@using System.Globalization 
+
 @model List<QuizlyWebsite.Models.TbExam>
 
 @{
     ViewData["Title"] = "Quản Lý Đề Thi";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
-
+<meta charset="utf-8" />
 <!-- Header with Add Button -->
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-3xl font-bold">Danh Sách Đề Thi</h2>
@@ -39,8 +41,8 @@
                             @exam.Difficulty
                         </span>
                     </td>
-                    <td class="px-6 py-4">@(exam.IsPremium == true ? exam.Price?.ToString("C") ?? "0" : "Miễn Phí")</td>
-                    <td class="px-6 py-4 text-sm">@exam.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"</td>
+                    <td class="px-6 py-4">@(exam.IsPremium == true ? exam.Price?.ToString("C0",CultureInfo.GetCultureInfo("vi-VN")) ?? "0" : "Miễn Phí")</td>
+                    <td class="px-6 py-4 text-sm">@exam.CreatedAt?.ToString("dd/MM/yyyy")</td>
                     <td class="px-6 py-4 text-sm">
                         <div class="flex gap-2">
                             <a href="/admin/exam-form/@exam.Id" class="text-primary hover:underline">Sửa</a>

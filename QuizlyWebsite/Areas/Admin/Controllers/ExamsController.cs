@@ -1,9 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
+using System;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Threading.Tasks;
+
 
 namespace QuizlyWebsite.Areas.Admin.Controllers
 {
@@ -72,7 +74,78 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         [HttpPost]
         [Route("admin/exam-form")]
         [Route("admin/exam-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string title, int subjectId, int questionCount, int duration, string difficulty, bool isPremium, decimal price)
+
+
+        //public async Task<IActionResult> FormPost(int? id, string title, int subjectId, int questionCount, int duration, string difficulty, bool isPremium, decimal price)
+        //{
+        //    if (!IsAdmin())
+        //        return RedirectToAction("Index", "Home", new { area = "" });
+
+        //    if (string.IsNullOrWhiteSpace(title))
+        //        ModelState.AddModelError(nameof(title), "Tên đề thi không được để trống");
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        var subjects = await _context.TbSubjects.ToListAsync();
+        //        var categories = await _context.TbCategories.ToListAsync();
+        //        ViewData["Subjects"] = subjects;
+        //        ViewData["Categories"] = categories;
+        //        var model = id.HasValue ? await _context.TbExams.FindAsync(id) : new TbExam();
+        //        return View("~/Areas/Admin/Views/Home/ExamForm.cshtml", model);
+        //    }
+
+        //    try
+        //    {
+        //        if (id.HasValue && id > 0)
+        //        {
+        //            var exam = await _context.TbExams.FindAsync(id.Value);
+        //            if (exam == null) return NotFound();
+        //            exam.Title = title;
+        //            exam.SubjectId = subjectId;
+        //            exam.QuestionCount = questionCount;
+        //            exam.Duration = duration;
+        //            exam.Difficulty = difficulty;
+        //            exam.IsPremium = isPremium;
+        //            exam.Price = isPremium ? price : 0;
+
+        //            _context.TbExams.Update(exam);
+        //            await _context.SaveChangesAsync();
+        //            TempData["Success"] = "Đề thi đã được cập nhật";
+        //        }
+        //        else
+        //        {
+        //            var exam = new TbExam
+        //            {
+        //                Title = title,
+        //                SubjectId = subjectId,
+        //                QuestionCount = questionCount,
+        //                Duration = duration,
+        //                Difficulty = difficulty,
+        //                IsPremium = isPremium,
+        //                Price = isPremium ? price : 0,
+        //                CreatedAt = DateTime.Now
+
+        //            };
+
+        //            await _context.TbExams.AddAsync(exam);
+        //            await _context.SaveChangesAsync();
+        //            TempData["Success"] = "Đề thi mới đã được tạo";
+        //        }
+
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
+        //        var subjects = await _context.TbSubjects.ToListAsync();
+        //        var categories = await _context.TbCategories.ToListAsync();
+        //        ViewData["Subjects"] = subjects;
+        //        ViewData["Categories"] = categories;
+        //        var model = id.HasValue ? await _context.TbExams.FindAsync(id) : new TbExam();
+        //        return View("~/Areas/Admin/Views/Home/ExamForm.cshtml", model);
+        //    }
+        //}
+        public async Task<IActionResult> FormPost(int? id, string title, int subjectId, int questionCount, int duration, string difficulty, bool isPremium, decimal? price)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
@@ -96,13 +169,14 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 {
                     var exam = await _context.TbExams.FindAsync(id.Value);
                     if (exam == null) return NotFound();
+
                     exam.Title = title;
                     exam.SubjectId = subjectId;
                     exam.QuestionCount = questionCount;
                     exam.Duration = duration;
                     exam.Difficulty = difficulty;
                     exam.IsPremium = isPremium;
-                    exam.Price = isPremium ? price : 0;
+                    exam.Price = isPremium ? (price ?? 0) : 0; // sửa lại
 
                     _context.TbExams.Update(exam);
                     await _context.SaveChangesAsync();
@@ -118,7 +192,7 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                         Duration = duration,
                         Difficulty = difficulty,
                         IsPremium = isPremium,
-                        Price = isPremium ? price : 0,
+                        Price = isPremium ? (price ?? 0) : 0, // sửa lại
                         CreatedAt = DateTime.Now
                     };
 
@@ -140,11 +214,10 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 return View("~/Areas/Admin/Views/Home/ExamForm.cshtml", model);
             }
         }
-
         // POST: /admin/delete-exam (used by AJAX)
         [HttpPost]
         [Route("admin/delete-exam")]
-        public async Task<IActionResult> Delete([FromBody] DeleteRequest req)
+        public async Task<IActionResult> Delete([FromBody] DeleteRequest req) //kiểm tra quyền được xóa hay không
         {
             if (!IsAdmin())
                 return Json(new { success = false, message = "Không có quyền" });
@@ -160,6 +233,6 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return Json(new { success = true, message = "Đề thi đã được xóa" });
         }
 
-        public class DeleteRequest { public int Id { get; set; } }
+        public class DeleteRequest { public int Id { get; set; } } // lấy id người dùng 
     }
 }
