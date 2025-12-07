@@ -18,4 +18,5 @@ public partial class TbUserSubscription
     public bool? IsActive { get; set; }
 
     public virtual TbUser User { get; set; } = null!;
+
 }

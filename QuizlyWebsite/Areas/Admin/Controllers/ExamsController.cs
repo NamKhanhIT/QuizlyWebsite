@@ -1,9 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
+using System;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Threading.Tasks;
+
 
 namespace QuizlyWebsite.Areas.Admin.Controllers
 {
@@ -72,7 +74,7 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         [HttpPost]
         [Route("admin/exam-form")]
         [Route("admin/exam-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string title, int subjectId, int questionCount, int duration, string difficulty, bool isPremium, decimal price)
+        public async Task<IActionResult> FormPost(int? id, string title, int subjectId, int questionCount, int duration, string difficulty, bool isPremium, decimal? price)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
@@ -96,13 +98,14 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 {
                     var exam = await _context.TbExams.FindAsync(id.Value);
                     if (exam == null) return NotFound();
+
                     exam.Title = title;
                     exam.SubjectId = subjectId;
                     exam.QuestionCount = questionCount;
                     exam.Duration = duration;
                     exam.Difficulty = difficulty;
                     exam.IsPremium = isPremium;
-                    exam.Price = isPremium ? price : 0;
+                    exam.Price = isPremium ? (price ?? 0) : 0; // sửa lại
 
                     _context.TbExams.Update(exam);
                     await _context.SaveChangesAsync();
@@ -118,7 +121,7 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                         Duration = duration,
                         Difficulty = difficulty,
                         IsPremium = isPremium,
-                        Price = isPremium ? price : 0,
+                        Price = isPremium ? (price ?? 0) : 0, // sửa lại
                         CreatedAt = DateTime.Now
                     };
 
@@ -141,10 +144,9 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             }
         }
 
-        // POST: /admin/delete-exam
         [HttpPost]
         [Route("admin/delete-exam")]
-        public async Task<IActionResult> Delete([FromBody] DeleteRequest req)
+        public async Task<IActionResult> Delete([FromBody] DeleteRequest req) //kiểm tra quyền được xóa hay không
         {
             if (!IsAdmin())
                 return Json(new { success = false, message = "Không có quyền" });
@@ -160,6 +162,6 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return Json(new { success = true, message = "Đề thi đã được xóa" });
         }
 
-        public class DeleteRequest { public int Id { get; set; } }
+        public class DeleteRequest { public int Id { get; set; } } // lấy id người dùng 
     }
 }

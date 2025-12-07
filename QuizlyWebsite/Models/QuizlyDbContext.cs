@@ -63,8 +63,11 @@ public partial class QuizlyDbContext : DbContext
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=QuizlyDB;Integrated Security=True;TrustServerCertificate=True;");
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
+
         modelBuilder.Entity<TbBlog>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__tb_Blogs__3214EC07C97B1085");
