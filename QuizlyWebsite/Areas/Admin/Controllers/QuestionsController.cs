@@ -65,17 +65,39 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         // GET: /admin/question-form or /admin/question-form/{id}?examId={examId}
         [Route("admin/question-form")]
         [Route("admin/question-form/{id}")]
-        public async Task<IActionResult> Form(int? id, int examId)
+        public async Task<IActionResult> Form(int? id, int examId = 0)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
+            // If editing existing question, get examId from question
+            if (id.HasValue && id > 0)
+            {
+                var question = await _context.TbQuestions.FindAsync(id.Value);
+                if (question == null) return NotFound();
+                
+                // Use examId from query string if provided, otherwise use question's examId
+                if (examId == 0)
+                    examId = question.ExamId;
+            }
+
+            // Validate examId
+            if (examId == 0)
+            {
+                TempData["Error"] = "Vui lòng chọn đề thi";
+                return RedirectToAction("Index");
+            }
+
             var exam = await _context.TbExams.FindAsync(examId);
-            if (exam == null) return NotFound();
+            if (exam == null)
+            {
+                TempData["Error"] = "Đề thi không tồn tại";
+                return RedirectToAction("Index");
+            }
 
             ViewData["ExamId"] = examId;
 
-            if (id.HasValue)
+            if (id.HasValue && id > 0)
             {
                 var question = await _context.TbQuestions.FindAsync(id.Value);
                 if (question == null) return NotFound();
