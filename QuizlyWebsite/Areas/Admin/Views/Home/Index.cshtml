@@ -69,6 +69,42 @@
         </p>
     </div>
 
+    <!-- Pending Exams -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-yellow-200 dark:border-yellow-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Bộ Đề Chờ Duyệt</p>
+            <span class="material-symbols-outlined text-yellow-500 text-2xl">pending_actions</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["PendingExams"] ?? 0)</p>
+        <a href="/admin/examreview" class="text-sm text-yellow-600 mt-2 inline-block font-medium hover:underline">
+            ⚠️ Review Now
+        </a>
+    </div>
+
+    <!-- Pending Courses -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-yellow-200 dark:border-yellow-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Khóa Học Chờ Duyệt</p>
+            <span class="material-symbols-outlined text-yellow-500 text-2xl">school</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["PendingCourses"] ?? 0)</p>
+        <p class="text-sm text-yellow-600 mt-2 font-medium">
+            Cần phê duyệt
+        </p>
+    </div>
+
+    <!-- Pending Lessons -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-yellow-200 dark:border-yellow-700 p-6 hover:shadow-lg transition">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Bài Học Chờ Duyệt</p>
+            <span class="material-symbols-outlined text-yellow-500 text-2xl">article</span>
+        </div>
+        <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["PendingLessons"] ?? 0)</p>
+        <p class="text-sm text-yellow-600 mt-2 font-medium">
+            Cần phê duyệt
+        </p>
+    </div>
+
 </div>
 
 <!-- Quick Actions -->

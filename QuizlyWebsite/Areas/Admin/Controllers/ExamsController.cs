@@ -141,7 +141,7 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             }
         }
 
-        // POST: /admin/delete-exam (used by AJAX)
+        // POST: /admin/delete-exam
         [HttpPost]
         [Route("admin/delete-exam")]
         public async Task<IActionResult> Delete([FromBody] DeleteRequest req)

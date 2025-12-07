@@ -1,0 +1,86 @@
+@model List<QuizlyWebsite.Models.TbCourse>
+@{
+    ViewData["Title"] = "Approve Courses";
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>Pending Courses Review</h2>
+            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <h4>No Pending Courses</h4>
+            <p>All courses have been reviewed!</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var course in Model)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card border-left-warning">
+                        <div class="card-body">
+                            <h5 class="card-title">@course.Title</h5>
+                            <p class="card-text">@course.Description</p>
+                            <small class="text-muted d-block mb-2">
+                                <i class="fas fa-calendar"></i> Submitted: @course.CreatedAt?.ToString("dd MMM yyyy HH:mm")
+                            </small>
+                            <div class="btn-group" role="group">
+                                <form method="post" action="@Url.Action("ApproveCourse")" style="display:inline;">
+                                    <input type="hidden" name="id" value="@course.Id" />
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </form>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal@course.Id">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reject Modal -->
+                    <div class="modal fade" id="rejectModal@course.Id" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Reject Course</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <form method="post" action="@Url.Action("RejectCourse")">
+                                    <input type="hidden" name="id" value="@course.Id" />
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="reason" class="form-label">Rejection Reason *</label>
+                                            <textarea class="form-control" name="reason" rows="4" placeholder="Explain why this course is being rejected..." required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .border-left-warning {
+        border-left: 4px solid #ffc107 !important;
+    }
+</style>
+

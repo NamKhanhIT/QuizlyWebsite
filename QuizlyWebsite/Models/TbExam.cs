@@ -27,6 +27,22 @@ public partial class TbExam
 
     public int? TotalReviews { get; set; }
 
+    public int? CreatedBy { get; set; }
+
+    public bool? IsApproved { get; set; }
+
+    public int? ApprovedBy { get; set; }
+
+    public DateTime? ApprovedAt { get; set; }
+
+    public string? RejectionReason { get; set; }
+
+    public bool? IsPaid { get; set; }
+
+    public virtual TbUser? ApprovedByNavigation { get; set; }
+
+    public virtual TbUser? CreatedByNavigation { get; set; }
+
     public virtual TbSubject Subject { get; set; } = null!;
 
     public virtual ICollection<TbExamResult> TbExamResults { get; set; } = new List<TbExamResult>();

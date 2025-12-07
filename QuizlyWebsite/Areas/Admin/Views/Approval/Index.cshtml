@@ -1,0 +1,114 @@
+@{
+    ViewData["Title"] = "Content Approval Dashboard";
+    var pendingCourses = ViewData["PendingCourses"] as List<QuizlyWebsite.Models.TbCourse> ?? new();
+    var pendingLessons = ViewData["PendingLessons"] as List<QuizlyWebsite.Models.TbLesson> ?? new();
+    var pendingExams = ViewData["PendingExams"] as List<QuizlyWebsite.Models.TbExam> ?? new();
+}
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1 class="h2">Content Approval Dashboard</h1>
+            <p class="text-muted">Review and approve user-generated content</p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Courses</h5>
+                    <p class="card-text fs-3">@pendingCourses.Count</p>
+                    <a href="@Url.Action("Courses")" class="btn btn-sm btn-primary">Review</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Lessons</h5>
+                    <p class="card-text fs-3">@pendingLessons.Count</p>
+                    <a href="@Url.Action("Lessons")" class="btn btn-sm btn-primary">Review</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Exams</h5>
+                    <p class="card-text fs-3">@pendingExams.Count</p>
+                    <a href="@Url.Action("Exams")" class="btn btn-sm btn-primary">Review</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Overview -->
+    @if (pendingCourses.Count == 0 && pendingLessons.Count == 0 && pendingExams.Count == 0)
+    {
+        <div class="alert alert-success text-center py-5">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <h4>All Set!</h4>
+            <p>There are no pending items for review at the moment.</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @if (pendingCourses.Count > 0)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-warning">
+                            <h5 class="mb-0">Recent Pending Courses</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                @foreach (var course in pendingCourses.Take(3))
+                                {
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">@course.Title</h6>
+                                                <small class="text-muted">Submitted @course.CreatedAt?.ToString("dd MMM yyyy")</small>
+                                            </div>
+                                            <a href="@Url.Action("Courses")" class="btn btn-sm btn-info">Review</a>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @if (pendingLessons.Count > 0)
+            {
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-info">
+                            <h5 class="mb-0">Recent Pending Lessons</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                @foreach (var lesson in pendingLessons.Take(3))
+                                {
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="mb-1">@lesson.Title</h6>
+                                                <small class="text-muted">@lesson.Course?.Title - @lesson.CreatedAt?.ToString("dd MMM yyyy")</small>
+                                            </div>
+                                            <a href="@Url.Action("Lessons")" class="btn btn-sm btn-info">Review</a>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

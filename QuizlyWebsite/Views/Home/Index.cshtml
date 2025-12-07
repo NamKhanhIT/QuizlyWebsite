@@ -1,146 +1,322 @@
-﻿@{
-    ViewData["Title"] = "Trang chủ";
+﻿@model List<TestimonialViewModel>
+@{
+    ViewData["Title"] = "Trắc Nghiệm Thông Minh";
 }
 
-<!-- Hero Section -->
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-16 md:py-24">
-    <div class="relative py-16 md:py-24 overflow-hidden rounded-xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-blue-900/50">
-        <div class="absolute inset-0 z-0 opacity-20 dark:opacity-10">
-            <div class="absolute -top-20 -left-20 size-64 bg-primary/20 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-20 -right-20 size-80 bg-purple-500/20 rounded-full blur-3xl"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-96 bg-teal-400/10 rounded-full blur-3xl"></div>
-        </div>
-        <div class="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
-            <div class="flex flex-col gap-4">
-                <h1 class="text-[#0d141b] dark:text-slate-50 text-4xl font-black leading-tight tracking-[-0.033em] sm:text-5xl md:text-6xl max-w-3xl mx-auto animate-fade-in">
-                    Thắc Nghiệm Thông Minh, Học Tập Hiệu Quả
-                </h1>
-                <p class="text-[#4c739a] dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto">
-                    Tham gia vào thế giới của những câu hỏi vui nhộn và thách thức. Chơi, học, và cạnh tranh!
-                </p>
-            </div>
-            <div class="flex flex-wrap justify-center gap-4">
-                <a href="/quiz/list" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em] btn-glow hover:bg-primary-dark transition">
-                    <span class="truncate">Khám Phá Bộ Đề</span>
-                </a>
-                <button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-white/70 dark:bg-background-dark/50 backdrop-blur-sm text-[#0d141b] dark:text-slate-50 text-base font-bold leading-normal tracking-[0.015em] border border-slate-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800">
-                    <span class="truncate">Tìm Hiểu Thêm</span>
-                </button>
-            </div>
-            
-            <!-- Category Quick Links -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-8 w-full max-w-4xl">
-                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
-                    <span class="material-symbols-outlined text-primary text-3xl">science</span>
-                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Khoa Học</span>
-                </div>
-                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
-                    <span class="material-symbols-outlined text-primary text-3xl">history_edu</span>
-                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Lịch Sử</span>
-                </div>
-                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
-                    <span class="material-symbols-outlined text-primary text-3xl">language</span>
-                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Ngôn Ngữ</span>
-                </div>
-                <div class="flex flex-col items-center gap-2 rounded-lg bg-white/50 dark:bg-background-dark/30 p-4 border border-slate-200/50 dark:border-gray-700/50 backdrop-blur-sm card-hover">
-                    <span class="material-symbols-outlined text-primary text-3xl">public</span>
-                    <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-200">Địa Lý</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc Nghiệm Thông Minh</title>
+    <link rel="stylesheet" href="~/css/homepage.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="canvas-container"></div>
 
-<!-- Features Section -->
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
-    <div class="flex flex-col gap-10">
-        <div class="flex flex-col gap-4 text-center">
-            <h2 class="text-[#0d141b] dark:text-slate-50 tracking-light text-[32px] font-bold leading-tight md:text-4xl md:font-black md:tracking-[-0.033em] max-w-[720px] mx-auto">
-                Khám Phá Những Tính Năng Tuyệt Vời
-            </h2>
-            <p class="text-[#4c739a] dark:text-slate-400 text-base font-normal leading-normal max-w-[720px] mx-auto">
-                Nền tảng của chúng tôi được thiết kế để trở nên trực quan, hấp dẫn và mạnh mẽ cho bất kỳ ai.
-            </p>
-        </div>
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-4 p-0">
-            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
-                <div class="text-primary text-2xl">
-                    <span class="material-symbols-outlined">public</span>
+    <div class="content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="floating-cards">
+                <div class="floating-card">
+                    <div style="font-size: 2rem;">🧠</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem;">Câu hỏi thú vị</div>
                 </div>
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Chủ Đề Rộng Rãi</h3>
-                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
-                        Khám phá các bộ đề từ khoa học, lịch sử đến văn hóa đại chúng và hơn thế nữa.
-                    </p>
+                <div class="floating-card">
+                    <div style="font-size: 2rem;">🏆</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem;">Thử thách</div>
+                </div>
+                <div class="floating-card">
+                    <div style="font-size: 2rem;">⭐</div>
+                    <div style="margin-top: 0.5rem; font-size: 0.9rem;">Huy hiệu</div>
                 </div>
             </div>
-            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
-                <div class="text-primary text-2xl">
-                    <span class="material-symbols-outlined">task_alt</span>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Phản Hồi Tức Thời</h3>
-                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
-                        Nhận kết quả của bạn ngay lập tức sau khi hoàn thành bộ đề và học hỏi từ sai lầm.
-                    </p>
-                </div>
-            </div>
-            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
-                <div class="text-primary text-2xl">
-                    <span class="material-symbols-outlined">groups</span>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Cạnh Tranh Với Bạn Bè</h3>
-                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
-                        Thách đấu bạn bè của bạn để thắng điểm và xem ai có điểm cao nhất trên bảng xếp hạng.
-                    </p>
-                </div>
-            </div>
-            <div class="flex flex-1 gap-3 rounded-xl border border-[#cfdbe7] dark:border-gray-700 bg-background-light dark:bg-background-dark p-4 flex-col card-hover">
-                <div class="text-primary text-2xl">
-                    <span class="material-symbols-outlined">emoji_events</span>
-                </div>
-                <div class="flex flex-col gap-1">
-                    <h3 class="text-[#0d141b] dark:text-slate-50 text-base font-bold leading-tight">Thành Tựu & Huy Hiệu</h3>
-                    <p class="text-[#4c739a] dark:text-slate-400 text-sm font-normal leading-normal">
-                        Kiếm được huy hiệu và thành tựu khi bạn tiến bộ và hoàn thành thách thức.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Stats Section -->
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 bg-gradient-to-r from-primary/10 to-blue-100 dark:from-blue-900/20 dark:to-primary/10 rounded-xl p-8 md:p-12">
-        <div class="text-center">
-            <div class="text-4xl font-black text-primary mb-2">5000+</div>
-            <p class="text-[#4c739a] dark:text-slate-400">Bộ Đề Thi</p>
-        </div>
-        <div class="text-center border-l border-r border-slate-300 dark:border-gray-700">
-            <div class="text-4xl font-black text-primary mb-2">50000+</div>
-            <p class="text-[#4c739a] dark:text-slate-400">Người Dùng Hoạt Động</p>
-        </div>
-        <div class="text-center">
-            <div class="text-4xl font-black text-primary mb-2">1M+</div>
-            <p class="text-[#4c739a] dark:text-slate-400">Câu Hỏi</p>
-        </div>
-    </div>
-</div>
+            <div class="hero-content">
+                <h1>Trắc Nghiệm Thông Minh, Học Tập Hiệu Quả</h1>
+                <p>Tham gia vào thế giới của những câu hỏi vui nhộn và thách thức. Chơi, học, và cạnh tranh!</p>
 
-<!-- CTA Section -->
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
-    <div class="bg-primary/20 dark:bg-primary/30 rounded-xl p-8 md:p-12 text-center flex flex-col items-center gap-6 my-10">
-        <h2 class="text-3xl md:text-4xl font-black text-[#0d141b] dark:text-slate-50 max-w-lg">
-            Sẵn Sàng Khám Phá Thiên Tài Của Bạn?
-        </h2>
-        <p class="text-[#4c739a] dark:text-slate-300 max-w-md">
-            Tham gia hàng ngàn người dùng và bắt đầu hành trình trắc nghiệm của bạn ngay hôm nay. Hoàn toàn miễn phí để bắt đầu!
-        </p>
-        <a href="/register" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-slate-50 text-base font-bold leading-normal tracking-[0.015em] btn-glow hover:bg-primary-dark transition">
-            <span class="truncate">Bắt Đầu Miễn Phí</span>
-        </a>
-    </div>
-</div>
+                <div class="cta-buttons">
+                    <a href="/quiz/list" class="btn btn-primary">🚀 Khám Phá Bộ Đề</a>
+                    <a href="#features" class="btn btn-secondary">✨ Tìm Hiểu Thêm</a>
+                </div>
 
+                <div class="categories">
+                    <div class="category-card">
+                        <div class="category-icon">🔬</div>
+                        <h3>Khoa Học</h3>
+                    </div>
+                    <div class="category-card">
+                        <div class="category-icon">📚</div>
+                        <h3>Lịch Sử</h3>
+                    </div>
+                    <div class="category-card">
+                        <div class="category-icon">🌍</div>
+                        <h3>Địa Lý</h3>
+                    </div>
+                    <div class="category-card">
+                        <div class="category-icon">💬</div>
+                        <h3>Ngôn Ngữ</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <h2 class="section-title">✨ Khám Phá Những Tính Năng Tuyệt Vời</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Chủ Đề Rộng Rãi</h3>
+                    <p>Khám phá các bộ đề từ khoa học, lịch sử đến văn hóa đại chúng và hơn thế nữa.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Phản Hồi Tức Thời</h3>
+                    <p>Nhận kết quả của bạn ngay lập tức sau khi hoàn thành bộ đề và học hỏi từ sai lầm.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Cạnh Tranh Với Bạn Bè</h3>
+                    <p>Thách đấu bạn bè của bạn để thắng điểm và xem ai có điểm cao nhất trên bảng xếp hạng.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏅</div>
+                    <h3>Thành Tựu & Huy Hiệu</h3>
+                    <p>Kiếm được huy hiệu và thành tựu khi bạn tiến bộ và hoàn thành thách thức.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">5000+</div>
+                    <div class="stat-label">Bộ Đề Thi</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Người Dùng Hoạt Động</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1M+</div>
+                    <div class="stat-label">Câu Hỏi</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works">
+            <h2 class="section-title">🚀 Cách Thức Hoạt Động</h2>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📝</div>
+                    <h3>Đăng Ký Tài Khoản</h3>
+                    <p>Tạo tài khoản miễn phí chỉ trong vài giây. Không cần thẻ tín dụng!</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">🎯</div>
+                    <h3>Chọn Chủ Đề</h3>
+                    <p>Khám phá hàng nghìn bộ đề từ nhiều lĩnh vực khác nhau phù hợp với bạn.</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">⚡</div>
+                    <h3>Làm Bài & Học Tập</h3>
+                    <p>Trả lời câu hỏi, nhận điểm, và cải thiện kiến thức của bạn mỗi ngày.</p>
+                </div>
+                <div class="step-arrow">→</div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">🏆</div>
+                    <h3>Nhận Thành Tựu</h3>
+                    <p>Kiếm huy hiệu, leo bảng xếp hạng và trở thành cao thủ!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section class="about-section">
+            <div class="about-container">
+                <div class="about-content">
+                    <h2>💡 Về Chúng Tôi</h2>
+                    <p class="about-intro">Chúng tôi tin rằng học tập nên là một trải nghiệm thú vị và dễ tiếp cận cho mọi người.</p>
+                    <p>Nền tảng trắc nghiệm của chúng tôi được xây dựng với sứ mệnh giúp học sinh, sinh viên và người đi làm có thể học tập mọi lúc, mọi nơi một cách hiệu quả nhất.</p>
+                    <div class="about-features">
+                        <div class="about-feature-item">
+                            <span class="feature-check">✓</span>
+                            <span>Hơn 1 triệu câu hỏi chất lượng cao</span>
+                        </div>
+                        <div class="about-feature-item">
+                            <span class="feature-check">✓</span>
+                            <span>Được tin dùng bởi 50,000+ người học</span>
+                        </div>
+                        <div class="about-feature-item">
+                            <span class="feature-check">✓</span>
+                            <span>Cập nhật nội dung liên tục hàng tuần</span>
+                        </div>
+                        <div class="about-feature-item">
+                            <span class="feature-check">✓</span>
+                            <span>Hỗ trợ đa nền tảng: Web, Mobile, Tablet</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-visual">
+                    <div class="visual-card">
+                        <div class="visual-stat">
+                            <div class="visual-number">5+</div>
+                            <div class="visual-label">Năm Kinh Nghiệm</div>
+                        </div>
+                    </div>
+                    <div class="visual-card">
+                        <div class="visual-stat">
+                            <div class="visual-number">98%</div>
+                            <div class="visual-label">Hài Lòng</div>
+                        </div>
+                    </div>
+                    <div class="visual-card">
+                        <div class="visual-stat">
+                            <div class="visual-number">24/7</div>
+                            <div class="visual-label">Hỗ Trợ</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="testimonials">
+            <h2 class="section-title">💬 Người Dùng Nói Gì Về Chúng Tôi</h2>
+            <div class="testimonials-grid">
+                @if (Model != null && Model.Count > 0)
+                {
+                    @foreach (var testimonial in Model)
+                    {
+                        <div class="testimonial-card">
+                            <div class="testimonial-rating">
+                                @for (int i = 0; i < testimonial.Rating; i++)
+                                {
+                                    <span>⭐</span>
+                                }
+                            </div>
+                            <p class="testimonial-text">"@testimonial.Comment"</p>
+                            <div class="testimonial-author">
+                                <div class="author-avatar">
+                                    @if (!string.IsNullOrEmpty(testimonial.AvatarUrl))
+                                    {
+                                        <img src="@testimonial.AvatarUrl" alt="@testimonial.FullName" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size: 2rem;">👤</span>
+                                    }
+                                </div>
+                                <div class="author-info">
+                                    <div class="author-name">@testimonial.FullName</div>
+                                    <div class="author-title">@testimonial.UserRole</div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Fallback testimonials nếu không có dữ liệu -->
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                        <p class="testimonial-text">"Đây là nền tảng học tập tốt nhất mà tôi từng sử dụng. Giao diện đẹp, câu hỏi chất lượng và rất dễ sử dụng!"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">👨‍🎓</div>
+                            <div class="author-info">
+                                <div class="author-name">Nguyễn Văn A</div>
+                                <div class="author-title">Sinh viên Đại học</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                        <p class="testimonial-text">"Tôi đã cải thiện điểm thi của mình rất nhiều nhờ luyện tập thường xuyên trên website này. Cảm ơn đội ngũ!"</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">👩‍💼</div>
+                            <div class="author-info">
+                                <div class="author-name">Trần Thị B</div>
+                                <div class="author-title">Giáo viên THPT</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">⭐⭐⭐⭐⭐</div>
+                        <p class="testimonial-text">"Chức năng thi đấu với bạn bè rất thú vị! Con tôi rất thích học và không còn thấy nhàm chán nữa."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">👨‍👩‍👧</div>
+                            <div class="author-info">
+                                <div class="author-name">Phạm Văn C</div>
+                                <div class="author-title">Phụ huynh</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="faq-section">
+            <h2 class="section-title">❓ Câu Hỏi Thường Gặp</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Tôi có phải trả phí để sử dụng không?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Không! Nền tảng của chúng tôi hoàn toàn miễn phí. Bạn có thể truy cập hàng nghìn bộ đề mà không cần trả bất kỳ khoản phí nào. Nhưng nếu muốn trải nghiệm thêm các tính năng cao cấp, bạn có thể nâng cấp lên gói có sẵn của Website nhé!.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Tôi có thể sử dụng trên điện thoại không?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Có! Website của chúng tôi được tối ưu hóa cho tất cả các thiết bị bao gồm điện thoại, máy tính bảng và máy tính để bàn.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Làm thế nào để theo dõi tiến độ học tập?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Sau khi đăng nhập, bạn có thể xem chi tiết lịch sử làm bài, điểm số, thành tích và biểu đồ tiến độ trong trang cá nhân của mình.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Tôi có thể tạo bộ đề của riêng mình không?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Có! Người dùng có thể tạo bộ đề riêng và chia sẻ với bạn bè hoặc cộng đồng. Tính năng này có sẵn trong tài khoản của bạn.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+            <h2>🎯 Sẵn Sàng Khám Phá Thiên Tài Của Bạn?</h2>
+            <p>Tham gia hàng ngàn người dùng và bắt đầu hành trình trắc nghiệm của bạn ngay hôm nay. Hoàn toàn miễn phí để bắt đầu!</p>
+            <a href="/register" class="btn btn-primary">🎓 Bắt Đầu Miễn Phí</a>
+        </section>
+    </div>
+
+    <script src="~/js/homepage.js"></script>
+</body>
+</html>

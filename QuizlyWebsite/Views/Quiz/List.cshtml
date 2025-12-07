@@ -1,171 +1,222 @@
 @model List<QuizlyWebsite.Models.TbExam>
+@inject QuizlyWebsite.Services.IAccessControlService AccessControl
+@inject QuizlyWebsite.Services.ISubscriptionService Subscription
 
 @{
-    ViewData["Title"] = "Danh Sách Bộ Đề Thi";
+    ViewData["Title"] = "Danh sách đề thi";
+    var userId = ViewContext.HttpContext.Session.GetInt32("UserId") ?? 0;
+    var categories = ViewData["Categories"] as List<QuizlyWebsite.Models.TbCategory> ?? new List<QuizlyWebsite.Models.TbCategory>();
+    var search = ViewData["Search"]?.ToString() ?? "";
+    var selectedCategory = ViewData["SelectedCategory"] as int?;
 }
 
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
-    <!-- Header -->
-    <div class="mb-10">
-        <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-3">Bộ Đề Thi</h1>
-        <p class="text-[#4c739a] dark:text-slate-400">Tìm và làm bài thi trực tuyến từ hàng ngàn bộ đề</p>
-    </div>
+<main class="min-h-screen bg-background-light dark:bg-background-dark py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8 animate-slide-up">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Đề thi</h1>
+            <p class="text-gray-600 dark:text-gray-400">Khám phá và thực hành với hàng ngàn đề thi</p>
+        </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Sidebar Filters -->
-        <div class="lg:col-span-1">
-            <div class="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-                <h3 class="font-bold text-lg mb-4">Bộ Lọc</h3>
-                
-                <!-- Search -->
-                <div class="mb-6">
-                    <label class="text-sm font-semibold block mb-2">Tìm Kiếm</label>
-                    <input type="text" id="searchInput" placeholder="Tên bộ đề..." 
-                           class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700">
+        <!-- Search and Filters -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm mb-8 card-hover">
+            <form method="get" action="@Url.Action("List", "Quiz")" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Search Bar -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tìm kiếm</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+                            <input type="text" name="search" value="@search" placeholder="Nhập từ khóa..." class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Subject Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Môn học</label>
+                        <select name="categoryId" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">Tất cả</option>
+                            @foreach (var category in categories)
+                            {
+                                var isSelected = selectedCategory == category.Id;
+                                if (isSelected)
+                                {
+                                    <option value="@category.Id" selected>@category.Title</option>
+                                }
+                                else
+                                {
+                                    <option value="@category.Id">@category.Title</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Difficulty Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mức độ</label>
+                        <select name="difficulty" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">Tất cả</option>
+                            <option value="Dễ">Dễ</option>
+                            <option value="Trung bình">Trung bình</option>
+                            <option value="Khó">Khó</option>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Categories -->
-                <div class="mb-6">
-                    <label class="text-sm font-semibold block mb-3">Danh Mục</label>
-                    @foreach (var cat in (ViewData["Categories"] as List<QuizlyWebsite.Models.TbCategory>) ?? new())
-                    {
-                        <label class="flex items-center mb-2 cursor-pointer">
-                            <input type="checkbox" class="categoryFilter mr-2" value="@cat.Id">
-                            <span class="text-sm">@cat.Title</span>
-                        </label>
-                    }
+                <div class="flex flex-wrap gap-3">
+                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Tìm kiếm</button>
+                    <a href="@Url.Action("List", "Quiz")" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Xóa bộ lọc</a>
                 </div>
+            </form>
+        </div>
 
-                <!-- Difficulty -->
-                <div class="mb-6">
-                    <label class="text-sm font-semibold block mb-3">Độ Khó</label>
-                    <label class="flex items-center mb-2 cursor-pointer">
-                        <input type="checkbox" class="difficultyFilter mr-2" value="Dễ">
-                        <span class="text-sm">Dễ</span>
-                    </label>
-                    <label class="flex items-center mb-2 cursor-pointer">
-                        <input type="checkbox" class="difficultyFilter mr-2" value="Trung bình">
-                        <span class="text-sm">Trung Bình</span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" class="difficultyFilter mr-2" value="Khó">
-                        <span class="text-sm">Khó</span>
-                    </label>
-                </div>
-
-                <!-- Premium -->
-                <div>
-                    <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" id="premiumFilter" class="mr-2">
-                        <span class="text-sm">Chỉ Bộ Đề Premium</span>
-                    </label>
-                </div>
+        <!-- Sort Options -->
+        <div class="flex justify-between items-center mb-6">
+            <p class="text-gray-600 dark:text-gray-400">Tìm thấy <span class="font-semibold text-gray-900 dark:text-white">@Model.Count</span> đề thi</p>
+            <div class="flex gap-2">
+                <select id="sortSelect" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm">
+                    <option value="newest">Mới nhất</option>
+                    <option value="popular">Phổ biến</option>
+                    <option value="rating">Điểm cao</option>
+                </select>
             </div>
         </div>
 
-        <!-- Quiz List -->
-        <div class="lg:col-span-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Quiz Grid -->
+        @if (Model != null && Model.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach (var exam in Model)
                 {
-                    <a href="/quiz/detail/@exam.Id" class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition card-hover">
-                        <!-- Header -->
-                        <div class="bg-gradient-to-r from-primary/20 to-blue-100 dark:from-primary/30 dark:to-blue-900/30 p-4">
-                            <div class="flex items-start justify-between">
-                                <div>
-                                    <span class="inline-block text-xs font-semibold bg-primary text-white px-3 py-1 rounded-full mb-2">
-                                        @exam.Subject.Category.Title
-                                    </span>
-                                    <h3 class="font-bold text-lg text-[#0d141b] dark:text-slate-50">@exam.Title</h3>
+                    var canAccess = await AccessControl.CanAccessExamAsync(userId, exam);
+                    var isAdmin = exam.CreatedByNavigation?.Role == "Admin";
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden card-hover group">
+                        <!-- Thumbnail/Header -->
+                        <div class="h-32 bg-gradient-to-br from-primary to-primary-dark relative">
+                            @if (isAdmin)
+                            {
+                                <div class="absolute top-3 right-3 px-2 py-1 bg-white/20 backdrop-blur-sm rounded text-white text-xs font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">verified</span>
+                                    Admin Verified
                                 </div>
-                                @if (exam.IsPremium == true)
-                                {
-                                    <span class="text-yellow-500 text-2xl" title="Premium">★</span>
-                                }
-                            </div>
+                            }
+                            else
+                            {
+                                <div class="absolute top-3 right-3 px-2 py-1 bg-white/20 backdrop-blur-sm rounded text-white text-xs font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">person</span>
+                                    User Submitted
+                                </div>
+                            }
                         </div>
 
                         <!-- Content -->
-                        <div class="p-4 space-y-3">
-                            <p class="text-sm text-[#4c739a] dark:text-slate-400">
-                                <span class="material-symbols-outlined text-sm align-middle">category</span>
-                                @exam.Subject.Title
-                            </p>
+                        <div class="p-6">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">@exam.Title</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">@exam.Subject?.Title</p>
 
-                            <div class="flex gap-4 text-sm">
-                                <div class="flex items-center gap-1 text-[#4c739a] dark:text-slate-400">
-                                    <span class="material-symbols-outlined text-sm">help</span>
-                                    @exam.QuestionCount câu
+                            <!-- Stats -->
+                            <div class="grid grid-cols-3 gap-3 mb-4">
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Câu hỏi</p>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">@(exam.QuestionCount ?? 0)</p>
                                 </div>
-                                <div class="flex items-center gap-1 text-[#4c739a] dark:text-slate-400">
-                                    <span class="material-symbols-outlined text-sm">schedule</span>
-                                    @exam.Duration phút
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Thời gian</p>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">@exam.Duration phút</p>
                                 </div>
-                            </div>
-
-                            <!-- Difficulty Badge -->
-                            <div>
-                                @{
-                                    var diffColor = exam.Difficulty == "Dễ" ? "bg-success/20 text-success" : 
-                                                   exam.Difficulty == "Trung bình" ? "bg-warning/20 text-warning" :
-                                                   "bg-danger/20 text-danger";
-                                }
-                                <span class="text-xs font-semibold px-2 py-1 rounded @diffColor">
-                                    @exam.Difficulty
-                                </span>
+                                <div class="text-center">
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">Độ khó</p>
+                                    <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full 
+                                        @(exam.Difficulty == "Dễ" ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : 
+                                          exam.Difficulty == "Trung bình" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400" : 
+                                          "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400")">
+                                        @(exam.Difficulty ?? "N/A")
+                                    </span>
+                                </div>
                             </div>
 
                             <!-- Rating -->
-                            <div class="flex items-center gap-1">
-                                @for (int i = 0; i < 5; i++)
-                                {
-                                    if (i < Math.Floor(exam.AvgRating ?? 0))
-                                    {
-                                        <span class="text-yellow-400 text-sm">★</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-gray-300 text-sm">★</span>
-                                    }
-                                }
-                                <span class="text-xs text-[#4c739a] dark:text-slate-400">(@exam.TotalReviews)</span>
-                            </div>
+                            @if (exam.AvgRating.HasValue && exam.AvgRating.Value > 0)
+                            {
+                                <div class="flex items-center gap-2 mb-4">
+                                    <div class="flex items-center">
+                                        @for (int i = 0; i < 5; i++)
+                                        {
+                                            <span class="material-symbols-outlined text-sm @(i < Math.Round(exam.AvgRating.Value) ? "text-yellow-400" : "text-gray-300 dark:text-gray-600")">star</span>
+                                        }
+                                    </div>
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">@exam.AvgRating.Value.ToString("F1") (@exam.TotalReviews)</span>
+                                </div>
+                            }
 
-                            <!-- Button -->
-                            <button class="w-full bg-primary text-white font-semibold py-2 rounded-lg hover:bg-primary-dark transition mt-4">
-                                Bắt Đầu
-                            </button>
+                            <!-- Premium Badge -->
+                            @if (exam.IsPremium == true || exam.IsPaid == true)
+                            {
+                                <div class="mb-4">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+                                        <span class="material-symbols-outlined text-sm">workspace_premium</span>
+                                        Premium
+                                    </span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="mb-4">
+                                    <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-semibold rounded-full">
+                                        <span class="material-symbols-outlined text-sm">lock_open</span>
+                                        Miễn phí
+                                    </span>
+                                </div>
+                            }
                         </div>
-                    </a>
+
+                        <!-- Actions -->
+                        <div class="px-6 pb-6 flex gap-2">
+                            @if (exam.IsApproved == false)
+                            {
+                                <button disabled class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg font-medium cursor-not-allowed">
+                                    ⏳ Chờ duyệt
+                                </button>
+                            }
+                            else if (!canAccess && (exam.IsPremium == true || exam.IsPaid == true))
+                            {
+                                <button onclick="showPremiumModal()" class="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition btn-glow">
+                                    🔒 Mua để truy cập
+                                </button>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Detail", "Quiz", new { id = exam.Id })" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition text-center btn-glow">
+                                    Bắt đầu thi
+                                </a>
+                            }
+                            <a href="@Url.Action("Detail", "Quiz", new { id = exam.Id })" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+                                <span class="material-symbols-outlined text-sm">visibility</span>
+                            </a>
+                        </div>
+                    </div>
                 }
             </div>
-
-            @if (Model.Count == 0)
-            {
-                <div class="text-center py-16">
-                    <span class="material-symbols-outlined text-6xl text-gray-300">search_off</span>
-                    <p class="mt-4 text-gray-500">Không tìm thấy bộ đề nào</p>
-                </div>
-            }
-        </div>
+        }
+        else
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-12 text-center shadow-sm">
+                <span class="material-symbols-outlined text-6xl text-gray-400 mb-4 block">quiz</span>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Không tìm thấy đề thi</h3>
+                <p class="text-gray-600 dark:text-gray-400">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+            </div>
+        }
     </div>
-</div>
+</main>
 
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            function filterExams() {
-                // Implement filtering logic here
-                console.log("Filtering exams...");
-            }
+<script>
+    function showPremiumModal() {
+        alert('Vui lòng nâng cấp tài khoản để truy cập đề thi này!');
+    }
 
-            $(".categoryFilter, .difficultyFilter, #premiumFilter").change(function () {
-                filterExams();
-            });
-
-            $("#searchInput").on("keyup", function () {
-                filterExams();
-            });
-        });
-    </script>
-}
+    document.getElementById('sortSelect')?.addEventListener('change', function() {
+        // Implement sorting logic here
+        console.log('Sort by:', this.value);
+    });
+</script>

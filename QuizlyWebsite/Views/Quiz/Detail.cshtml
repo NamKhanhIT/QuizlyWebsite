@@ -2,159 +2,153 @@
 
 @{
     ViewData["Title"] = Model.Title;
+    var userId = ViewContext.HttpContext.Session.GetInt32("UserId");
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
-    <!-- Breadcrumb -->
-    <nav class="flex gap-2 mb-8 text-sm">
-        <a href="/" class="text-primary hover:underline">Trang chủ</a>
-        <span class="text-gray-400">/</span>
-        <a href="/quiz/list" class="text-primary hover:underline">Bộ đề</a>
-        <span class="text-gray-400">/</span>
-        <span class="text-gray-600 dark:text-gray-400">@Model.Title</span>
-    </nav>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Content -->
-        <div class="lg:col-span-2">
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
-                <!-- Title -->
-                <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-4">@Model.Title</h1>
-
-                <!-- Meta Info -->
-                <div class="flex flex-wrap gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
-                    <div class="flex items-center gap-2 text-[#4c739a] dark:text-slate-400">
-                        <span class="material-symbols-outlined">category</span>
-                        <span>@Model.Subject.Title</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-[#4c739a] dark:text-slate-400">
-                        <span class="material-symbols-outlined">help</span>
-                        <span>@Model.QuestionCount câu hỏi</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-[#4c739a] dark:text-slate-400">
-                        <span class="material-symbols-outlined">schedule</span>
-                        <span>@Model.Duration phút</span>
-                    </div>
-                    <div>
-                        @{
-                            var diffColor = Model.Difficulty == "Dễ" ? "bg-success/20 text-success" : 
-                                           Model.Difficulty == "Trung bình" ? "bg-warning/20 text-warning" :
-                                           "bg-danger/20 text-danger";
-                        }
-                        <span class="text-xs font-semibold px-3 py-1 rounded @diffColor">@Model.Difficulty</span>
-                    </div>
-                </div>
-
-                <!-- Features -->
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <span class="material-symbols-outlined text-primary text-2xl">verified</span>
-                        <div>
-                            <p class="text-sm text-[#4c739a] dark:text-slate-400">Được Xác Minh</p>
-                            <p class="font-semibold">@Model.TotalReviews</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-                        <span class="material-symbols-outlined text-primary text-2xl">star</span>
-                        <div>
-                            <p class="text-sm text-[#4c739a] dark:text-slate-400">Đánh Giá</p>
-                            <p class="font-semibold">@(string.Format("{0:F1}", Model.AvgRating ?? 0)) / 5</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reviews Section -->
-                <div class="mt-12">
-                    <h2 class="text-2xl font-bold mb-6">Đánh Giá Từ Người Dùng</h2>
-                    @if (Model.TbExamReviews.Any())
-                    {
-                        @foreach (var review in Model.TbExamReviews.Take(5))
-                        {
-                            <div class="mb-4 pb-4 border-b border-gray-200 dark:border-gray-700 last:border-b-0">
-                                <div class="flex items-start justify-between mb-2">
-                                    <div>
-                                        <p class="font-semibold text-[#0d141b] dark:text-slate-50">@(review.User?.FullName ?? "Ẩn danh")</p>
-                                        <p class="text-xs text-[#4c739a] dark:text-slate-400">@review.CreatedAt?.ToString("dd/MM/yyyy")</p>
-                                    </div>
-                                    <div class="flex gap-1">
-                                        @for (int i = 0; i < (review.Rating ?? 0); i++)
-                                        {
-                                            <span class="text-yellow-400">★</span>
-                                        }
-                                    </div>
-                                </div>
-                                <p class="text-[#4c739a] dark:text-slate-400">@review.Comment</p>
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+    <div class="flex min-h-screen">
+        <!-- SideNavBar -->
+        <aside class="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 flex-col justify-between hidden lg:flex">
+            <div class="flex h-full flex-col justify-between p-4">
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center gap-3 p-3">
+                        <a href="/" class="flex items-center gap-2">
+                            <div class="text-primary text-2xl">
+                                <span class="material-symbols-outlined">school</span>
                             </div>
+                            <h1 class="text-slate-900 dark:text-slate-50 text-base font-bold leading-normal">Quizly</h1>
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-3 px-3 py-2">
+                        <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">quiz</span>
+                        <p class="text-slate-900 dark:text-slate-50 text-sm font-medium leading-normal">@Model.Title</p>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <div class="flex flex-col gap-1">
+                        <a href="@Url.Action("Index", "Profile")" class="flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">settings</span>
+                            <p class="text-slate-600 dark:text-slate-300 text-sm font-medium leading-normal">Settings</p>
+                        </a>
+                        <a href="/logout" class="flex items-center gap-3 px-3 py-2 cursor-pointer rounded-md hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">logout</span>
+                            <p class="text-slate-600 dark:text-slate-300 text-sm font-medium leading-normal">Logout</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-10">
+            <div class="layout-content-container flex flex-col mx-auto max-w-4xl flex-1">
+                <!-- PageHeading -->
+                <div class="flex flex-wrap justify-between gap-3 p-4">
+                    <p class="text-slate-900 dark:text-slate-50 tracking-tight text-3xl font-bold leading-tight min-w-72">@Model.Title</p>
+                </div>
+                
+                <!-- Exam Info Card -->
+                <div class="p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <span class="material-symbols-outlined text-primary text-2xl">help</span>
+                            <div>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Câu hỏi</p>
+                                <p class="font-semibold text-slate-900 dark:text-slate-50">@Model.QuestionCount</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <span class="material-symbols-outlined text-primary text-2xl">schedule</span>
+                            <div>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Thời gian</p>
+                                <p class="font-semibold text-slate-900 dark:text-slate-50">@Model.Duration phút</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <span class="material-symbols-outlined text-primary text-2xl">category</span>
+                            <div>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Môn học</p>
+                                <p class="font-semibold text-slate-900 dark:text-slate-50">@(Model.Subject?.Title ?? "N/A")</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <span class="material-symbols-outlined text-primary text-2xl">trending_up</span>
+                            <div>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Độ khó</p>
+                                <p class="font-semibold text-slate-900 dark:text-slate-50">@Model.Difficulty</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Exam Info -->
+                <div class="p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm mb-6">
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">Thông Tin Đề Thi</h2>
+                    <div class="space-y-2 text-slate-600 dark:text-slate-400">
+                        <p><strong class="text-slate-900 dark:text-slate-50">Tiêu đề:</strong> @Model.Title</p>
+                        <p><strong class="text-slate-900 dark:text-slate-50">Môn học:</strong> @(Model.Subject?.Title ?? "N/A")</p>
+                        <p><strong class="text-slate-900 dark:text-slate-50">Độ khó:</strong> @Model.Difficulty</p>
+                        @if (Model.AvgRating.HasValue)
+                        {
+                            <p><strong class="text-slate-900 dark:text-slate-50">Đánh giá:</strong> @string.Format("{0:F1}", Model.AvgRating.Value) / 5.0</p>
                         }
-                    }
-                    else
-                    {
-                        <p class="text-[#4c739a] dark:text-slate-400">Chưa có đánh giá nào</p>
-                    }
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="lg:col-span-1">
-            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 sticky top-24">
-                <!-- Price -->
-                <div class="mb-6">
-                    @if (Model.IsPremium == true)
-                    {
-                        <p class="text-sm text-[#4c739a] dark:text-slate-400 mb-2">Giá:</p>
-                        <p class="text-3xl font-black text-primary">@Model.Price?.ToString("C") ?? "Miễn Phí"</p>
-                    }
-                    else
-                    {
-                        <p class="text-3xl font-black text-success">Miễn Phí</p>
-                    }
-                </div>
-
+                
+                <!-- Reviews Section -->
+                @if (Model.TbExamReviews?.Any() == true)
+                {
+                    <div class="p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm mb-6">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-50 mb-4">Đánh Giá Từ Người Dùng</h2>
+                        <div class="space-y-4">
+                            @foreach (var review in Model.TbExamReviews.Take(5))
+                            {
+                                <div class="pb-4 border-b border-slate-200 dark:border-slate-700 last:border-b-0">
+                                    <div class="flex items-start justify-between mb-2">
+                                        <div>
+                                            <p class="font-semibold text-slate-900 dark:text-slate-50">@(review.User?.FullName ?? "Ẩn danh")</p>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400">@review.CreatedAt?.ToString("dd/MM/yyyy")</p>
+                                        </div>
+                                        <div class="flex gap-1">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                @if (i < (review.Rating ?? 0))
+                                                {
+                                                    <span class="text-yellow-400">★</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-slate-300 dark:text-slate-600">★</span>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <p class="text-slate-600 dark:text-slate-400">@review.Comment</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                
                 <!-- Start Button -->
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <a href="/quiz/start/@Model.Id" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-dark transition block text-center mb-3 btn-glow">
-                        <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
-                        Bắt Đầu Làm Bài
-                    </a>
-                }
-                else
-                {
-                    <a href="/login" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:bg-primary-dark transition block text-center mb-3">
-                        <span class="material-symbols-outlined align-middle mr-2">login</span>
-                        Đăng Nhập Để Làm Bài
-                    </a>
-                }
-
-                <!-- Share Button -->
-                <button class="w-full border border-gray-300 dark:border-gray-600 text-[#0d141b] dark:text-slate-50 font-semibold py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    <span class="material-symbols-outlined align-middle mr-2">share</span>
-                    Chia Sẻ
-                </button>
-
-                <!-- Info Box -->
-                <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                    <p class="text-sm text-[#4c739a] dark:text-slate-400 mb-3">
-                        <span class="material-symbols-outlined align-middle text-primary">info</span>
-                        Thông Tin Bộ Đề
-                    </p>
-                    <ul class="text-sm space-y-2">
-                        <li class="flex justify-between">
-                            <span class="text-[#4c739a] dark:text-slate-400">Câu hỏi:</span>
-                            <span class="font-semibold">@Model.QuestionCount</span>
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-[#4c739a] dark:text-slate-400">Thời gian:</span>
-                            <span class="font-semibold">@Model.Duration phút</span>
-                        </li>
-                        <li class="flex justify-between">
-                            <span class="text-[#4c739a] dark:text-slate-400">Độ khó:</span>
-                            <span class="font-semibold">@Model.Difficulty</span>
-                        </li>
-                    </ul>
+                <div class="p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm">
+                    @if (isAuthenticated)
+                    {
+                        <a href="@Url.Action("Start", "Quiz", new { id = Model.Id })" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
+                            <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
+                            <span class="truncate">Bắt Đầu Làm Bài</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/login" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
+                            <span class="material-symbols-outlined align-middle mr-2">login</span>
+                            <span class="truncate">Đăng Nhập Để Làm Bài</span>
+                        </a>
+                    }
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 </div>

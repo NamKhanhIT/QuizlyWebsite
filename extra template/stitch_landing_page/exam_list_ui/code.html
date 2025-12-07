@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Quizly - Exam List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "success": "#7ED321",
+              "danger": "#D0021B",
+              "accent": "#F5A623",
+            },
+            fontFamily: {
+              "display": ["Lexend"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.5rem",
+              "lg": "1rem",
+              "xl": "1.5rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-display">
+<div class="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-slate-200 dark:border-slate-800 px-10 py-3 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+<span class="material-symbols-outlined text-primary text-3xl">school</span>
+<h2 class="text-slate-800 dark:text-slate-200 text-xl font-bold leading-tight tracking-[-0.015em]">Quizly</h2>
+</div>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">Dashboard</a>
+<a class="text-primary dark:text-primary text-sm font-bold leading-normal" href="#">My Exams</a>
+<a class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal hover:text-primary dark:hover:text-primary" href="#">Leaderboard</a>
+</div>
+<div class="flex flex-1 justify-end gap-4 items-center">
+<label class="relative flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-slate-500 dark:text-slate-400 flex bg-slate-200/60 dark:bg-slate-800 items-center justify-center pl-3 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-slate-800 dark:text-slate-200 focus:outline-0 focus:ring-2 focus:ring-primary/50 border-none bg-slate-200/60 dark:bg-slate-800 h-full placeholder:text-slate-500 dark:placeholder:text-slate-400 px-4 rounded-l-none border-l-0 pl-2 text-sm font-normal leading-normal" placeholder="Search exams..." value=""/>
+</div>
+</label>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User profile avatar" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCLBrHpGotZQ4bBsVxvhIAL7rc5f2wFInvH4PVR25UpdxFFVuXKyxqQjewBkQVzSFfcq7ZV04d58uTgJIbI6YClW6TWffynRxhOo2EQ1xHyQoSQeN3DuIrSKhXi-yBlG9uMP6-GKhr2o5PYIrt-5HqvQ20O4jQd5ZdlCYw9cw_esyffBsLjnm8yDokqCY8Obu8NKa9RsqOrAAquuBQyM8fqwYxIjIqVBJFX3Mx3mVeQRSLxXYInVKezIBhNSsThHmsEVeeP9K0arCn8');"></div>
+</div>
+</header>
+<div class="px-10 py-8 flex flex-1 justify-center">
+<div class="layout-content-container flex flex-col w-full max-w-7xl flex-1">
+<div class="flex min-w-72 flex-col gap-2">
+<p class="text-slate-800 dark:text-slate-100 text-4xl font-black leading-tight tracking-[-0.033em]">Explore Your Next Challenge</p>
+<p class="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">Browse and select from a wide range of exams to test your knowledge.</p>
+</div>
+<div class="flex gap-3 pt-6 flex-wrap">
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary pl-4 pr-4 cursor-pointer">
+<p class="text-white text-sm font-medium leading-normal">All</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-slate-800 pl-4 pr-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Mathematics</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-slate-800 pl-4 pr-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Physics</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-slate-800 pl-4 pr-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">History</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-slate-800 pl-4 pr-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">English Literature</p>
+</div>
+<div class="flex h-9 shrink-0 items-center justify-center gap-x-2 rounded-full bg-slate-200 dark:bg-slate-800 pl-4 pr-4 cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-700">
+<p class="text-slate-700 dark:text-slate-300 text-sm font-medium leading-normal">Chemistry</p>
+</div>
+</div>
+<div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6 pt-8">
+<div class="flex flex-col gap-3 pb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image for Algebra exam" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDDdPVdGeu9KINYwqEcUaiDy2Lw9NWiEaOHP-eVSmndW988ogAyWCwMAqPx_fWam2ScDSn9sCoPxD1u-TAlxWFRD3aGtFLK2s2oV6PxlwwN68EgaYIP5y8R5kTKlTlKYbITWvfCGBDu0hH5ZimLwbiNAaSI5Sf2gxnuFsEeMVX9BKgJH40dYG3zMJePSRLTX1vLT1Zyq3d6ssPCATx6L9GS474rA0gl8ZnLQZa7C_tZHeb4aWp0C8kKHkguVzWe45ru_FlmcjQXMgBH');"></div>
+<div>
+<div class="flex justify-end -mt-8 mr-2">
+<p class="text-xs font-bold leading-normal bg-accent text-white py-1 px-3 rounded-full">PREMIUM 🔒</p>
+</div>
+<p class="text-slate-800 dark:text-slate-100 text-lg font-bold leading-normal pt-2">Algebra Basics Final</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-1">50 Questions • 60 Minutes • Medium</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image for History exam" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC430m1VuzjskFkT024KUApsQ-l3Gz74oxbxiTadT-q1qLSonIiQ-pgWW--QiMN6cYgTi0ncMFBB9rbxwH3Cs39Z_APnTSIBCU9edcYJPwlLfKf1NKTKBTApc2AjS1WXCVMQonxZa0KXokfbvdieTZNIY2EPmXC6QJ-w46tJGLp9DMw44aqbGrz6NRF_yCB1XgsybgVak4y7Ap1nqnizYnAnVGxKV_lXR0qZzuFoHInjf24I1XtnQutPvid6zk0STnZggVUUqsSWe9y');"></div>
+<div>
+<div class="flex justify-end -mt-8 mr-2">
+<p class="text-xs font-bold leading-normal bg-slate-500 text-white py-1 px-3 rounded-full">COMMUNITY 👥</p>
+</div>
+<p class="text-slate-800 dark:text-slate-100 text-lg font-bold leading-normal pt-2">World History Mid-Term</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-1">40 Questions • 45 Minutes • Easy</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image for Physics exam" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBZFd13Ptjzuz2EE0QxWXTSEkiTv21voIe8GNIl7fWDDKVNgL6E4DzPIrHPxnqmaEEc7yA1DH1w4uahz8Oe8cakRlmJ1wOgm-jUfoSBHOR_zWlaVEqmtzOwMUUiZUF1lTjqCLAdbhT5zpV4FtnycssG8VUV6EqzPYSKFsfOMYGDz30A85hCKg_s9oMrUyvyh8N9S5dOofj5qKvA5dKmhgOLkhPk6gt782Ktxh67L94GJlaodc0z2fVlmTtEvq3uL3upBvNj7oULag89');"></div>
+<div>
+<div class="flex justify-end -mt-8 mr-2">
+<p class="text-xs font-bold leading-normal bg-success text-white py-1 px-3 rounded-full">OFFICIAL 🛡️</p>
+</div>
+<p class="text-slate-800 dark:text-slate-100 text-lg font-bold leading-normal pt-2">Advanced Physics Challenge</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-1">60 Questions • 90 Minutes • Hard</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image for Calculus exam" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6PF5pi_a9vpITMCHe6Na_29CwaAmKuM2P-yfOKjU0ScC4aGesoT_R-9byl2zu4W9BMNB5Ir_P_Vi8GgCGrCxpmlulq-vmEGZK7W3rPLDYQIRJz6IgKFDCJwhb9CHabZdnFOpSzQsRq7ozy8qW-AG28L9hUjOKM_0KtnpVsZ33R3QaFtgKCQ5KH7XdD1879Rk9eobIVPPnNzK_41ux5jiK33w1apZGtY5OqRTxt9banci-UafxdcZwrl4FBwstgXcJn_LE0kHqVe9X');"></div>
+<div>
+<div class="flex justify-end -mt-8 mr-2">
+<p class="text-xs font-bold leading-normal bg-accent text-white py-1 px-3 rounded-full">PREMIUM 🔒</p>
+</div>
+<p class="text-slate-800 dark:text-slate-100 text-lg font-bold leading-normal pt-2">Calculus I Practice</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-1">50 Questions • 75 Minutes • Hard</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image for Literature exam" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD8-Kl5tRaloK3dZLUME32WECa7IENmQRe6TxMteym0fHuUAbSbMBRGOJiV-mXpiA_NpjYeWH2sCydhUCbaRplOX05lI53cjaQmdizDCF2NEsU5OgscreDLJLXhITN3orrtIZIqac40wi5Z78QUkZgO6qB9kg1xrkOANyKSqyhlUHn_4dmPvHcgWokv1CfwmOitpD_QiEV9jzRtBkZ2TjIrvRH5cjWbYVHNNTGNmiBNBRdQlmzr6a5L_8Rvrao5ArcJA3Ch2GaNe0So');"></div>
+<div>
+<div class="flex justify-end -mt-8 mr-2">
+<p class="text-xs font-bold leading-normal bg-success text-white py-1 px-3 rounded-full">OFFICIAL 🛡️</p>
+</div>
+<p class="text-slate-800 dark:text-slate-100 text-lg font-bold leading-normal pt-2">English Literature Review</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-1">30 Questions • 30 Minutes • Easy</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 pb-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image for Chemistry exam" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAo5iwJHuuf1JqkcyOmDXk2_yxxvV-Nm3xNavqCgnygP8w5WsP0tlCtViCLWXW1EwSLk_AEIIhT9WGqF-CbjhZRFEVLrXJU7-V_DZ6hzcF4Jx1pBz7jycaOMf37EOK61l85Kmto9O-zEH5Mn2MHJ-qzvkVCTDpqrm547xctbecIrB2tF8jN-Qk6E8w2iPY_1hvAeBZVnRDIBlwjVp1oRhncB-ezsi89l_pXffDnK4J5y8Ik8Ekb-dP8ASt6d8JeGlQtWJhOMLvdimJd');"></div>
+<div>
+<div class="flex justify-end -mt-8 mr-2">
+<p class="text-xs font-bold leading-normal bg-slate-500 text-white py-1 px-3 rounded-full">COMMUNITY 👥</p>
+</div>
+<p class="text-slate-800 dark:text-slate-100 text-lg font-bold leading-normal pt-2">Chemistry Fundamentals</p>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal pt-1">50 Questions • 60 Minutes • Medium</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

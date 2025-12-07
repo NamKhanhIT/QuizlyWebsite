@@ -19,6 +19,8 @@ public partial class QuizlyDbContext : DbContext
 
     public virtual DbSet<TbCategory> TbCategories { get; set; }
 
+    public virtual DbSet<TbCourse> TbCourses { get; set; }
+
     public virtual DbSet<TbExam> TbExams { get; set; }
 
     public virtual DbSet<TbExamResult> TbExamResults { get; set; }
@@ -30,6 +32,10 @@ public partial class QuizlyDbContext : DbContext
     public virtual DbSet<TbExamSession> TbExamSessions { get; set; }
 
     public virtual DbSet<TbExamViolation> TbExamViolations { get; set; }
+
+    public virtual DbSet<TbLesson> TbLessons { get; set; }
+
+    public virtual DbSet<TbLessonProgress> TbLessonProgresses { get; set; }
 
     public virtual DbSet<TbMembershipPlan> TbMembershipPlans { get; set; }
 
@@ -49,9 +55,13 @@ public partial class QuizlyDbContext : DbContext
 
     public virtual DbSet<TbUserPurchase> TbUserPurchases { get; set; }
 
+    public virtual DbSet<TbUserSubscription> TbUserSubscriptions { get; set; }
+
+    public virtual DbSet<TbUserXp> TbUserXps { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("data source=.; initial catalog=QuizlyDB; integrated security=True; TrustServerCertificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=QuizlyDB;Integrated Security=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,15 +94,42 @@ public partial class QuizlyDbContext : DbContext
             entity.Property(e => e.Title).HasMaxLength(100);
         });
 
+        modelBuilder.Entity<TbCourse>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tb_Cours__3214EC07B80A2664");
+
+            entity.ToTable("tb_Courses");
+
+            entity.HasIndex(e => e.CreatedBy, "IX_Courses_CreatedBy");
+
+            entity.HasIndex(e => e.IsApproved, "IX_Courses_IsApproved");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.FreeLessonCount).HasDefaultValue(2);
+            entity.Property(e => e.IsApproved).HasDefaultValue(false);
+            entity.Property(e => e.IsPaid).HasDefaultValue(false);
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TbCourses)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Courses_CreatedBy");
+        });
+
         modelBuilder.Entity<TbExam>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__tb_Exams__3214EC07D8D4493E");
 
             entity.ToTable("tb_Exams");
 
+            entity.HasIndex(e => e.CreatedBy, "IX_Exams_CreatedBy");
+
+            entity.HasIndex(e => e.IsApproved, "IX_Exams_IsApproved");
+
             entity.Property(e => e.AvgRating).HasDefaultValue(0.0);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
             entity.Property(e => e.Difficulty).HasMaxLength(20);
+            entity.Property(e => e.IsApproved).HasDefaultValue(true);
+            entity.Property(e => e.IsPaid).HasDefaultValue(false);
             entity.Property(e => e.IsPremium).HasDefaultValue(false);
             entity.Property(e => e.Price)
                 .HasDefaultValue(0m)
@@ -100,6 +137,14 @@ public partial class QuizlyDbContext : DbContext
             entity.Property(e => e.QuestionCount).HasDefaultValue(0);
             entity.Property(e => e.Title).HasMaxLength(200);
             entity.Property(e => e.TotalReviews).HasDefaultValue(0);
+
+            entity.HasOne(d => d.ApprovedByNavigation).WithMany(p => p.TbExamApprovedByNavigations)
+                .HasForeignKey(d => d.ApprovedBy)
+                .HasConstraintName("FK_Exams_ApprovedBy");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TbExamCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Exams_CreatedBy");
 
             entity.HasOne(d => d.Subject).WithMany(p => p.TbExams)
                 .HasForeignKey(d => d.SubjectId)
@@ -209,6 +254,56 @@ public partial class QuizlyDbContext : DbContext
             entity.HasOne(d => d.Session).WithMany(p => p.TbExamViolations)
                 .HasForeignKey(d => d.SessionId)
                 .HasConstraintName("FK__tb_ExamVi__Sessi__571DF1D5");
+        });
+
+        modelBuilder.Entity<TbLesson>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tb_Lesso__3214EC07358B9D1A");
+
+            entity.ToTable("tb_Lessons");
+
+            entity.HasIndex(e => e.CourseId, "IX_Lessons_CourseId");
+
+            entity.HasIndex(e => e.CreatedBy, "IX_Lessons_CreatedBy");
+
+            entity.HasIndex(e => e.IsApproved, "IX_Lessons_IsApproved");
+
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsApproved).HasDefaultValue(false);
+            entity.Property(e => e.IsPreview).HasDefaultValue(false);
+            entity.Property(e => e.Title).HasMaxLength(200);
+
+            entity.HasOne(d => d.Course).WithMany(p => p.TbLessons)
+                .HasForeignKey(d => d.CourseId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__tb_Lesson__Cours__2739D489");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.TbLessons)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("FK_Lessons_CreatedBy");
+        });
+
+        modelBuilder.Entity<TbLessonProgress>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tb_Lesso__3214EC07546968BB");
+
+            entity.ToTable("tb_LessonProgress");
+
+            entity.HasIndex(e => e.LessonId, "IX_LessonProgress_LessonId");
+
+            entity.HasIndex(e => e.UserId, "IX_LessonProgress_UserId");
+
+            entity.Property(e => e.IsCompleted).HasDefaultValue(false);
+
+            entity.HasOne(d => d.Lesson).WithMany(p => p.TbLessonProgresses)
+                .HasForeignKey(d => d.LessonId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__tb_Lesson__Lesso__2BFE89A6");
+
+            entity.HasOne(d => d.User).WithMany(p => p.TbLessonProgresses)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__tb_Lesson__UserI__2B0A656D");
         });
 
         modelBuilder.Entity<TbMembershipPlan>(entity =>
@@ -368,6 +463,36 @@ public partial class QuizlyDbContext : DbContext
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__tb_UserPu__UserI__6E01572D");
+        });
+
+        modelBuilder.Entity<TbUserSubscription>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tb_UserS__3214EC07CEE246F5");
+
+            entity.ToTable("tb_UserSubscriptions");
+
+            entity.Property(e => e.EndDate).HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.PlanType).HasMaxLength(30);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<TbUserXp>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PK__tb_UserX__1788CC4C11314948");
+
+            entity.ToTable("tb_UserXP");
+
+            entity.Property(e => e.UserId).ValueGeneratedNever();
+            entity.Property(e => e.Level).HasDefaultValue(1);
+            entity.Property(e => e.Xp)
+                .HasDefaultValue(0)
+                .HasColumnName("XP");
+
+            entity.HasOne(d => d.User).WithOne(p => p.TbUserXp)
+                .HasForeignKey<TbUserXp>(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__tb_UserXP__UserI__30C33EC3");
         });
 
         OnModelCreatingPartial(modelBuilder);

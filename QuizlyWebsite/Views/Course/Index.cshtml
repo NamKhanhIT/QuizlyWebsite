@@ -1,0 +1,157 @@
+@model List<QuizlyWebsite.Models.TbCourse>
+@inject QuizlyWebsite.Services.IAccessControlService AccessControl
+
+@{
+    ViewData["Title"] = "Khóa học";
+    var userId = ViewContext.HttpContext.Session.GetInt32("UserId") ?? 0;
+    var search = ViewData["Search"]?.ToString() ?? "";
+    var priceFilter = ViewData["PriceFilter"]?.ToString() ?? "";
+}
+
+<main class="min-h-screen bg-background-light dark:bg-background-dark py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8 animate-slide-up">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Khóa học</h1>
+            <p class="text-gray-600 dark:text-gray-400">Học tập và phát triển kỹ năng với các khóa học chất lượng</p>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm mb-8 card-hover">
+            <form method="get" action="@Url.Action("Index", "Course")" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Search Bar -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tìm kiếm</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">search</span>
+                            <input type="text" name="search" value="@search" placeholder="Nhập tên khóa học..." class="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Giá</label>
+                        <select name="priceFilter" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <option value="">Tất cả</option>
+                            @if (priceFilter == "free")
+                            {
+                                <option value="free" selected>Miễn phí</option>
+                            }
+                            else
+                            {
+                                <option value="free">Miễn phí</option>
+                            }
+                            @if (priceFilter == "paid")
+                            {
+                                <option value="paid" selected>Trả phí</option>
+                            }
+                            else
+                            {
+                                <option value="paid">Trả phí</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Tìm kiếm</button>
+                    <a href="@Url.Action("Index", "Course")" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Xóa bộ lọc</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Course Grid -->
+        @if (Model != null && Model.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var course in Model)
+                {
+                    var userHasAccess = await AccessControl.CanAccessCourseAsync(userId, course);
+                    var lessonCount = course.TbLessons?.Count ?? 0;
+                    var completedLessons = course.TbLessons?.Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true) ?? 0;
+                    var progressPercentage = lessonCount > 0 ? (completedLessons * 100 / lessonCount) : 0;
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden card-hover group">
+                        <!-- Cover Image -->
+                        <div class="h-48 bg-gradient-to-br from-primary to-primary-dark relative">
+                            @if (course.IsPaid == true)
+                            {
+                                <div class="absolute top-3 right-3 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">workspace_premium</span>
+                                    Trả phí
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="absolute top-3 right-3 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-sm">lock_open</span>
+                                    Miễn phí
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-6">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 line-clamp-2">@course.Title</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">@(course.Description?.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)</p>
+
+                            <!-- Course Info -->
+                            <div class="flex items-center justify-between mb-4 text-sm text-gray-600 dark:text-gray-400">
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">menu_book</span>
+                                    <span>@lessonCount bài học</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">person</span>
+                                    <span>@course.CreatedByNavigation?.FullName</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar (if enrolled) -->
+                            @if (userHasAccess && lessonCount > 0)
+                            {
+                                <div class="mb-4">
+                                    <div class="flex justify-between mb-1 text-xs text-gray-600 dark:text-gray-400">
+                                        <span>Tiến độ</span>
+                                        <span>@progressPercentage%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                        <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: @progressPercentage%"></div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Price -->
+                            <div class="mb-4">
+                                @if (course.IsPaid == true)
+                                {
+                                    <span class="text-xl font-bold text-primary">Liên hệ</span>
+                                }
+                                else
+                                {
+                                    <span class="text-xl font-bold text-success">Miễn phí</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="px-6 pb-6">
+                            <a href="@Url.Action("View", "Course", new { id = course.Id })" class="block w-full px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition text-center btn-glow">
+                                @(userHasAccess ? "Tiếp tục học" : "Xem chi tiết")
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-12 text-center shadow-sm">
+                <span class="material-symbols-outlined text-6xl text-gray-400 mb-4 block">school</span>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Không tìm thấy khóa học</h3>
+                <p class="text-gray-600 dark:text-gray-400">Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm</p>
+            </div>
+        }
+    </div>
+</main>

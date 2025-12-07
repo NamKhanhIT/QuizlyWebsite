@@ -1,0 +1,284 @@
+@model List<TbExam>
+@{
+    ViewData["Title"] = "My Exams";
+}
+
+<style>
+    .my-exams-container {
+        padding: 40px 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .exams-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .exams-header h1 {
+        font-size: 2rem;
+        margin: 0;
+        color: #333;
+    }
+
+    .btn-new-exam {
+        padding: 12px 25px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .exams-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .exams-table thead {
+        background: #f8f9fa;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .exams-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.95rem;
+    }
+
+    .exams-table td {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .exams-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .exam-title {
+        font-weight: 600;
+        color: #667eea;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-approved {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-edit {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background: #5568d3;
+    }
+
+    .btn-view {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .btn-view:hover {
+        background: #138496;
+    }
+
+    .btn-delete {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c82333;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 15px;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .empty-text {
+        color: #999;
+        margin-bottom: 20px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #999;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="my-exams-container">
+    <!-- Header -->
+    <div class="exams-header">
+        <h1>📝 My Exams</h1>
+        <a href="@Url.Action("Create", "Quiz")" class="btn-new-exam">
+            ➕ Create New Exam
+        </a>
+    </div>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count</div>
+                <div class="stat-label">Total Exams</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count(e => e.IsApproved == true)</div>
+                <div class="stat-label">Approved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">@Model.Count(e => e.IsApproved == false)</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <!-- Exams Table -->
+        <table class="exams-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Subject</th>
+                    <th>Questions</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var exam in Model.OrderByDescending(e => e.CreatedAt))
+                {
+                    <tr>
+                        <td class="exam-title">@exam.Title</td>
+                        <td>@(exam.Subject?.Title ?? "N/A")</td>
+                        <td>@(exam.QuestionCount ?? 0)</td>
+                        <td>@exam.Duration min</td>
+                        <td>
+                            @if (exam.IsApproved == true)
+                            {
+                                <span class="status-badge status-approved">✓ Approved</span>
+                            }
+                            else if (exam.IsApproved == false)
+                            {
+                                <span class="status-badge status-pending">⏳ Pending</span>
+                            }
+                        </td>
+                        <td>@exam.CreatedAt?.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="@Url.Action("Edit", "Quiz", new { id = exam.Id })" class="btn-action btn-edit">Edit</a>
+                                <a href="@Url.Action("Detail", "Quiz", new { id = exam.Id })" class="btn-action btn-view">View</a>
+                                <form method="post" action="@Url.Action("Delete", "Quiz", new { id = exam.Id })" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this exam? This action cannot be undone.');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-action btn-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <div class="empty-title">No Exams Created Yet</div>
+            <div class="empty-text">Start creating your first exam to share with the community</div>
+            <a href="@Url.Action("Create", "Quiz")" class="btn-new-exam">
+                ➕ Create Your First Exam
+            </a>
+        </div>
+    }
+</div>

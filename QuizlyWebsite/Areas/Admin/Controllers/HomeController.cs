@@ -32,12 +32,20 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             var totalQuestions = await _context.TbQuestions.CountAsync();
             var totalResults = await _context.TbExamResults.CountAsync();
             var totalRevenue = await _context.TbPayments.Where(p => p.Status == "Completed").SumAsync(p => p.Amount);
+            
+            // Pending approvals
+            var pendingExams = await _context.TbExams.Where(e => e.IsApproved == false).CountAsync();
+            var pendingCourses = await _context.TbCourses.Where(c => c.IsApproved == false).CountAsync();
+            var pendingLessons = await _context.TbLessons.Where(l => l.IsApproved == false).CountAsync();
 
             ViewData["TotalExams"] = totalExams;
             ViewData["TotalUsers"] = totalUsers;
             ViewData["TotalQuestions"] = totalQuestions;
             ViewData["TotalResults"] = totalResults;
             ViewData["TotalRevenue"] = totalRevenue;
+            ViewData["PendingExams"] = pendingExams;
+            ViewData["PendingCourses"] = pendingCourses;
+            ViewData["PendingLessons"] = pendingLessons;
 
             return View();
         }

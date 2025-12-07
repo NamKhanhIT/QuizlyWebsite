@@ -1,131 +1,1107 @@
 @model QuizlyWebsite.Models.TbUser
+@inject QuizlyWebsite.Services.ISubscriptionService SubscriptionService
 
 @{
-    ViewData["Title"] = "Hồ Sơ Cá Nhân";
+    ViewData["Title"] = "Hồ sơ cá nhân";
+    var userId = ViewContext.HttpContext.Session.GetInt32("UserId");
+    var currentTab = ViewData["CurrentTab"]?.ToString() ?? "overview";
+    var user = ViewBag.User as QuizlyWebsite.Models.TbUser ?? Model;
+    var examResults = ViewBag.ExamResults as List<QuizlyWebsite.Models.TbExamResult> ?? new List<QuizlyWebsite.Models.TbExamResult>();
+    var isPremium = ViewBag.IsPremium as bool? ?? false;
+    var userExams = ViewBag.UserExams as List<QuizlyWebsite.Models.TbExam> ?? new List<QuizlyWebsite.Models.TbExam>();
+    var payments = ViewBag.Payments as List<QuizlyWebsite.Models.TbPayment> ?? new List<QuizlyWebsite.Models.TbPayment>();
+    var coursesWithProgress = ViewBag.CoursesWithProgress as List<dynamic> ?? new List<dynamic>();
+    var subjects = ViewBag.Subjects as List<QuizlyWebsite.Models.TbSubject> ?? new List<QuizlyWebsite.Models.TbSubject>();
+    
+    // Safely get UserXP from Statistics
+    int userXP = 0;
+    try {
+        if (ViewBag.Statistics != null) {
+            var statsType = ViewBag.Statistics.GetType();
+            var userXPProp = statsType.GetProperty("UserXP");
+            if (userXPProp != null) {
+                var value = userXPProp.GetValue(ViewBag.Statistics);
+                userXP = value != null ? Convert.ToInt32(value) : 0;
+            }
+        }
+    } catch {
+        userXP = 0;
+    }
+    
+    // Safely get LearningProgress properties
+    int lessonsCompleted = 0;
+    int totalLessons = 0;
+    int completionPercentage = 0;
+    int totalXP = 0;
+    int level = 1;
+    try {
+        if (ViewBag.LearningProgress != null) {
+            var lpType = ViewBag.LearningProgress.GetType();
+            var lessonsCompletedProp = lpType.GetProperty("LessonsCompleted");
+            var totalLessonsProp = lpType.GetProperty("TotalLessons");
+            var completionPercentageProp = lpType.GetProperty("CompletionPercentage");
+            var totalXPProp = lpType.GetProperty("TotalXP");
+            var levelProp = lpType.GetProperty("Level");
+            
+            if (lessonsCompletedProp != null) {
+                var value = lessonsCompletedProp.GetValue(ViewBag.LearningProgress);
+                lessonsCompleted = value != null ? Convert.ToInt32(value) : 0;
+            }
+            if (totalLessonsProp != null) {
+                var value = totalLessonsProp.GetValue(ViewBag.LearningProgress);
+                totalLessons = value != null ? Convert.ToInt32(value) : 0;
+            }
+            if (completionPercentageProp != null) {
+                var value = completionPercentageProp.GetValue(ViewBag.LearningProgress);
+                completionPercentage = value != null ? Convert.ToInt32(value) : 0;
+            }
+            if (totalXPProp != null) {
+                var value = totalXPProp.GetValue(ViewBag.LearningProgress);
+                totalXP = value != null ? Convert.ToInt32(value) : 0;
+            }
+            if (levelProp != null) {
+                var value = levelProp.GetValue(ViewBag.LearningProgress);
+                level = value != null ? Convert.ToInt32(value) : 1;
+            }
+        }
+    } catch {
+        // Use defaults
+    }
+    
+    // Safely get ActiveSubscription EndDate
+    DateTime? subscriptionEndDate = null;
+    try {
+        if (ViewBag.ActiveSubscription != null) {
+            var subType = ViewBag.ActiveSubscription.GetType();
+            var endDateProp = subType.GetProperty("EndDate");
+            if (endDateProp != null) {
+                var value = endDateProp.GetValue(ViewBag.ActiveSubscription);
+                subscriptionEndDate = value as DateTime?;
+            }
+        }
+    } catch {
+        // Use default
+    }
 }
 
-<div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
-    <!-- Profile Header -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden mb-8">
-        <!-- Banner -->
-        <div class="h-32 bg-gradient-to-r from-primary to-blue-600"></div>
+<main class="min-h-screen bg-background-light dark:bg-background-dark">
+    <!-- Mobile Menu Button -->
+    <button onclick="toggleMobileSidebar()" class="lg:hidden fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
 
-        <!-- Profile Info -->
-        <div class="px-8 py-6 -mt-16 relative z-10">
-            <div class="flex gap-6 items-end">
-                <img src="@(Model.AvatarUrl ?? "https://via.placeholder.com/120")" alt="@Model.FullName" class="w-24 h-24 rounded-full border-4 border-white dark:border-gray-800 object-cover">
-                <div class="flex-1 pb-2">
-                    <h1 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50">@Model.FullName</h1>
-                    <p class="text-[#4c739a] dark:text-slate-400">@Model.Email</p>
-                    <div class="flex gap-2 mt-2">
-                        <span class="inline-block text-xs font-semibold bg-primary/20 text-primary px-3 py-1 rounded-full">
-                            @Model.Role
-                        </span>
-                        <span class="inline-block text-xs font-semibold bg-success/20 text-success px-3 py-1 rounded-full">
-                            Tham gia từ @Model.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"
-                        </span>
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside id="mobileSidebar" class="hidden lg:flex w-64 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 min-h-screen fixed lg:static inset-y-0 left-0 z-40 overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-8">
+                    @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                    {
+                        <img src="@user.AvatarUrl" alt="Avatar" class="w-12 h-12 rounded-full object-cover border-2 border-primary">
+                    }
+                    else
+                    {
+                        <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+                            @(user.FullName?.Length > 0 ? user.FullName.Substring(0, 1).ToUpper() : user.Username.Substring(0, 1).ToUpper())
+                        </div>
+                    }
+                    <div>
+                        <h2 class="font-semibold text-gray-900 dark:text-white">@(user.FullName ?? user.Username)</h2>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">@user.Email</p>
                     </div>
                 </div>
-                <button class="px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                    Chỉnh Sửa
-                </button>
+
+                <nav class="space-y-1">
+                    <a href="@Url.Action("Index", "Profile", new { tab = "overview" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "overview" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">dashboard</span>
+                        <span class="font-medium">Tổng quan</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "profile" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "profile" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">person</span>
+                        <span class="font-medium">Hồ sơ cá nhân</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "security" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "security" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">lock</span>
+                        <span class="font-medium">Bảo mật</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "exam-history" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "exam-history" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">quiz</span>
+                        <span class="font-medium">Lịch sử thi</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "learning-history" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "learning-history" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">school</span>
+                        <span class="font-medium">Lịch sử học tập</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "my-exams" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "my-exams" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">edit_note</span>
+                        <span class="font-medium">Đề thi đã tạo</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "membership" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "membership" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">workspace_premium</span>
+                        <span class="font-medium">Gói hội viên</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "payment" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "payment" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">payment</span>
+                        <span class="font-medium">Thanh toán</span>
+                    </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "settings" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "settings" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">settings</span>
+                        <span class="font-medium">Cài đặt</span>
+                    </a>
+                </nav>
             </div>
-        </div>
-    </div>
+        </aside>
 
-    <!-- Stats Section -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
-            <p class="text-3xl font-black text-primary mb-2">0</p>
-            <p class="text-sm text-[#4c739a] dark:text-slate-400">Bài Thi Hoàn Thành</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
-            <p class="text-3xl font-black text-success mb-2">0%</p>
-            <p class="text-sm text-[#4c739a] dark:text-slate-400">Tỷ Lệ Đạt</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
-            <p class="text-3xl font-black text-warning mb-2">0</p>
-            <p class="text-sm text-[#4c739a] dark:text-slate-400">Điểm Cao Nhất</p>
-        </div>
-        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 text-center card-hover">
-            <p class="text-3xl font-black text-primary mb-2">0</p>
-            <p class="text-sm text-[#4c739a] dark:text-slate-400">Huy Hiệu</p>
-        </div>
-    </div>
+        <!-- Main Content -->
+        <div class="flex-1 p-4 lg:p-6 lg:p-8 lg:ml-0">
+            @if (TempData["Success"] != null)
+            {
+                <div class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-green-800 dark:text-green-200 animate-slide-up">
+                    @TempData["Success"]
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-200 animate-slide-up">
+                    @TempData["Error"]
+                </div>
+            }
+            
+            <!-- Debug: Current Tab (remove in production) -->
+            @* <div class="mb-4 p-2 bg-yellow-100 text-yellow-800 text-xs">
+                Debug: Current Tab = @currentTab
+            </div> *@
 
-    <!-- Tabs -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
-        <div class="flex border-b border-gray-200 dark:border-gray-700">
-            <button class="tab-btn flex-1 py-4 px-6 text-center font-semibold border-b-2 border-primary text-primary" data-tab="activity">
-                Hoạt Động Gần Đây
-            </button>
-            <button class="tab-btn flex-1 py-4 px-6 text-center font-semibold border-b-2 border-transparent text-[#4c739a] dark:text-slate-400 hover:text-primary" data-tab="achievements">
-                Thành Tựu
-            </button>
-            <button class="tab-btn flex-1 py-4 px-6 text-center font-semibold border-b-2 border-transparent text-[#4c739a] dark:text-slate-400 hover:text-primary" data-tab="settings">
-                Cài Đặt
-            </button>
-        </div>
+            <!-- Overview Tab -->
+            @if (currentTab == "overview")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Tổng quan</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Chào mừng trở lại, @(user.FullName ?? user.Username)!</p>
+                    </div>
 
-        <div class="p-6">
-            <!-- Activity Tab -->
-            <div class="tab-content" id="activity" style="display: block;">
-                <p class="text-center text-[#4c739a] dark:text-slate-400 py-8">Chưa có hoạt động nào</p>
-            </div>
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Điểm XP</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@userXP</p>
+                                </div>
+                                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary">star</span>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Achievements Tab -->
-            <div class="tab-content" id="achievements" style="display: none;">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    @for (int i = 0; i < 8; i++)
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Bài học đã hoàn thành</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@lessonsCompleted</p>
+                                </div>
+                                <div class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-success">check_circle</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Đề thi đã làm</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@examResults.Count</p>
+                                </div>
+                                <div class="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-warning">quiz</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm card-hover">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Đề thi đã tạo</p>
+                                    <p class="text-2xl font-bold text-gray-900 dark:text-white">@userExams.Count</p>
+                                </div>
+                                <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-primary">edit_note</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Section -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Tiến độ học tập</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Hoàn thành bài học</span>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">@completionPercentage%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                    <div class="bg-primary h-3 rounded-full transition-all duration-500" style="width: @completionPercentage%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Profile Tab -->
+            @if (currentTab == "profile")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Hồ sơ cá nhân</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Quản lý thông tin cá nhân của bạn</p>
+                    </div>
+
+                    <!-- Avatar Section -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ảnh đại diện</h3>
+                        <div class="flex items-center gap-6">
+                            <div class="relative">
+                                @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                {
+                                    <img src="@user.AvatarUrl" alt="Avatar" class="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700 shadow-lg" id="avatarPreview">
+                                }
+                                else
+                                {
+                                    <div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white font-bold text-3xl border-4 border-gray-200 dark:border-gray-700 shadow-lg" id="avatarPreview">
+                                        @(user.FullName?.Length > 0 ? user.FullName.Substring(0, 1).ToUpper() : user.Username.Substring(0, 1).ToUpper())
+                                    </div>
+                                }
+                                <button onclick="document.getElementById('avatarInput').click()" class="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white shadow-lg hover:bg-primary-dark transition transform hover:scale-110">
+                                    <span class="material-symbols-outlined text-lg">camera_alt</span>
+                                </button>
+                                <form id="avatarForm" method="post" action="@Url.Action("UploadAvatar", "Profile")" enctype="multipart/form-data">
+                                    @Html.AntiForgeryToken()
+                                    <input type="file" id="avatarInput" name="avatarFile" accept="image/*" class="hidden" onchange="openAvatarCropModal(event)">
+                                </form>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Tải lên ảnh đại diện mới</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500 mb-3">JPG, PNG hoặc GIF. Tối đa 2MB</p>
+                                <div id="avatarUploadStatus" class="text-xs"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avatar Crop Modal -->
+                    <div id="avatarCropModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Cắt ảnh đại diện</h3>
+                                    <button onclick="closeAvatarCropModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="w-full max-w-md mx-auto overflow-hidden rounded-lg">
+                                        <img id="avatarCropImage" class="max-w-full" style="max-height: 400px; display: block;">
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button onclick="cropAndUploadAvatar()" class="flex-1 px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">
+                                        Cắt và lưu
+                                    </button>
+                                    <button onclick="closeAvatarCropModal()" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Personal Information Form -->
+                    <form method="post" action="@Url.Action("UpdateProfile", "Profile")" class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        @Html.AntiForgeryToken()
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Thông tin cá nhân</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tên hiển thị</label>
+                                <input type="text" name="fullName" value="@user.FullName" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Username</label>
+                                <input type="text" value="@user.Username" disabled class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                <input type="email" name="email" value="@user.Email" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Số điện thoại</label>
+                                <input type="tel" name="phone" placeholder="Chưa cập nhật" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mô tả bản thân</label>
+                                <textarea name="bio" rows="4" placeholder="Giới thiệu về bản thân..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"></textarea>
+                            </div>
+                        </div>
+                        <div class="flex gap-3 mt-6">
+                            <button type="submit" class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Lưu thay đổi</button>
+                            <button type="button" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Hủy</button>
+                            <button type="button" onclick="showDeleteProfileModal()" class="px-6 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition">Xóa tài khoản</button>
+                        </div>
+                    </form>
+                </div>
+            }
+
+            <!-- Security Tab -->
+            @if (currentTab == "security")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Bảo mật</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Thay đổi mật khẩu của bạn</p>
+                    </div>
+
+                    <form method="post" action="@Url.Action("ChangePassword", "Profile")" class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm max-w-2xl">
+                        @Html.AntiForgeryToken()
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Đổi mật khẩu</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mật khẩu hiện tại</label>
+                                <input type="password" name="currentPassword" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mật khẩu mới</label>
+                                <input type="password" name="newPassword" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Xác nhận mật khẩu</label>
+                                <input type="password" name="confirmPassword" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                            </div>
+                        </div>
+                        <button type="submit" class="mt-6 px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Cập nhật mật khẩu</button>
+                    </form>
+                </div>
+            }
+
+            <!-- Exam History Tab -->
+            @if (currentTab == "exam-history")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Lịch sử thi</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Xem lại kết quả các bài thi đã làm</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 dark:bg-gray-900">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tên đề thi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Điểm</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Thời gian</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ngày thi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    @if (examResults.Any())
+                                    {
+                                        @foreach (var result in examResults)
+                                        {
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@result.Exam?.Title</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <span class="px-3 py-1 text-sm font-semibold rounded-full @(result.Score >= 50 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400")">
+                                                        @(result.Score.HasValue ? result.Score.Value.ToString("F1") : "0.0")%
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                    @if (result.FinishedAt.HasValue && result.StartedAt.HasValue)
+                                                    {
+                                                        var duration = result.FinishedAt.Value - result.StartedAt.Value;
+                                                        @($"{duration.Minutes}m {duration.Seconds}s")
+                                                    }
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">@result.FinishedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <a href="@Url.Action("Result", "Quiz", new { resultId = result.Id })" class="text-primary hover:text-primary-dark font-medium">Xem chi tiết</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                                <span class="material-symbols-outlined text-4xl mb-2 block">quiz</span>
+                                                Chưa có lịch sử thi
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Learning History Tab -->
+            @if (currentTab == "learning-history")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Lịch sử học tập</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Theo dõi tiến độ học tập của bạn</p>
+                    </div>
+
+                    <!-- Overall Progress -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">Tổng tiến độ</span>
+                                    <span class="text-sm font-semibold text-primary">@lessonsCompleted / @totalLessons bài học</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
+                                    <div class="bg-gradient-to-r from-primary to-primary-dark h-4 rounded-full transition-all duration-500" style="width: @completionPercentage%"></div>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Điểm XP hiện tại: <span class="font-semibold text-gray-900 dark:text-white">@totalXP</span></p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Cấp độ: <span class="font-semibold text-gray-900 dark:text-white">@level</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Courses Progress -->
+                    @if (coursesWithProgress.Any())
                     {
-                        <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg opacity-50">
-                            <div class="text-4xl mb-2">🏆</div>
-                            <p class="text-xs font-semibold">Huy Hiệu #@(i+1)</p>
+                        <div class="space-y-4">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Tiến độ từng khóa học</h2>
+                            @foreach (var courseProgress in coursesWithProgress)
+                            {
+                                var course = courseProgress.Course as QuizlyWebsite.Models.TbCourse;
+                                var progressPercent = courseProgress.ProgressPercent as int? ?? 0;
+                                var completedLessons = courseProgress.CompletedLessons as int? ?? 0;
+                                var courseTotalLessons = courseProgress.TotalLessons as int? ?? 0;
+                                var currentLesson = courseProgress.CurrentLesson as QuizlyWebsite.Models.TbLesson;
+
+                                <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm card-hover">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="flex-1">
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">@course?.Title</h3>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">@completedLessons / @courseTotalLessons bài học đã hoàn thành</p>
+                                        </div>
+                                        <a href="@Url.Action("View", "Course", new { id = course?.Id })" class="text-primary hover:text-primary-dark font-medium text-sm">Xem khóa học</a>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <div class="flex justify-between mb-2 text-xs text-gray-600 dark:text-gray-400">
+                                            <span>Tiến độ</span>
+                                            <span class="font-semibold">@progressPercent%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                                            <div class="bg-gradient-to-r from-primary to-primary-dark h-3 rounded-full transition-all duration-500" style="width: @progressPercent%"></div>
+                                        </div>
+                                    </div>
+
+                                    @if (currentLesson != null)
+                                    {
+                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                                <span class="font-medium text-gray-900 dark:text-white">Bài học đang học:</span> @currentLesson.Title
+                                            </p>
+                                            <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = currentLesson.Id })" class="inline-block mt-2 text-sm text-primary hover:text-primary-dark font-medium">
+                                                Tiếp tục học →
+                                            </a>
+                                        </div>
+                                    }
+                                    else if (progressPercent == 100)
+                                    {
+                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <span class="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full text-sm font-medium">
+                                                <span class="material-symbols-outlined text-sm">check_circle</span>
+                                                Đã hoàn thành
+                                            </span>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-12 text-center shadow-sm">
+                            <span class="material-symbols-outlined text-6xl text-gray-400 mb-4 block">school</span>
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Chưa có khóa học nào</h3>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Bắt đầu học tập để xem tiến độ của bạn</p>
+                            <a href="/courses" class="inline-block px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Khám phá khóa học</a>
                         </div>
                     }
                 </div>
-            </div>
+            }
+
+            <!-- My Exams Tab -->
+            @if (currentTab == "my-exams")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Đề thi đã tạo</h1>
+                            <p class="text-gray-600 dark:text-gray-400">Quản lý các đề thi bạn đã tạo</p>
+                        </div>
+                        <button onclick="showCreateExamModal()" class="px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow flex items-center gap-2">
+                            <span class="material-symbols-outlined text-sm">add</span>
+                            Tạo đề thi mới
+                        </button>
+                    </div>
+
+                    <!-- Create Exam Modal (hidden by default) -->
+                    <div id="createExamModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Tạo đề thi mới</h2>
+                                    <button onclick="closeCreateExamModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                
+                                <form method="post" action="@Url.Action("Create", "Quiz")" class="space-y-4" onsubmit="handleCreateExam(event)">
+                                    @Html.AntiForgeryToken()
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tên đề thi *</label>
+                                        <input type="text" name="Title" id="examTitle" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Nhập tên đề thi">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Môn học *</label>
+                                        <select name="SubjectId" id="examSubjectId" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                            <option value="">Chọn môn học</option>
+                                            @foreach (var subject in subjects)
+                                            {
+                                                <option value="@subject.Id">@subject.Title</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mô tả</label>
+                                        <textarea name="Description" id="examDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Mô tả về đề thi..."></textarea>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Thời gian (phút) *</label>
+                                            <input type="number" name="Duration" id="examDuration" required min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="60">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mức độ</label>
+                                            <select name="Difficulty" id="examDifficulty" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                <option value="Dễ">Dễ</option>
+                                                <option value="Trung bình" selected>Trung bình</option>
+                                                <option value="Khó">Khó</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                        <p class="text-sm text-blue-800 dark:text-blue-200">
+                                            <span class="font-semibold">Lưu ý:</span> Đề thi sau khi tạo sẽ ở trạng thái "Chờ duyệt". Bạn có thể thêm câu hỏi sau khi đề thi được duyệt.
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="flex gap-3 pt-4">
+                                        <button type="submit" class="flex-1 px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">
+                                            Tạo đề thi
+                                        </button>
+                                        <button type="button" onclick="closeCreateExamModal()" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                            Hủy
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50 dark:bg-gray-900">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Tên đề</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ngày tạo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    @if (userExams.Any())
+                                    {
+                                        @foreach (var exam in userExams)
+                                        {
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@exam.Title</td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if (exam.IsApproved == true)
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">✅ Đã duyệt</span>
+                                                    }
+                                                    else if (exam.IsApproved == false && exam.RejectionReason != null)
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">❌ Bị từ chối</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">⏳ Chờ duyệt</span>
+                                                    }
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">@exam.CreatedAt?.ToString("dd/MM/yyyy")</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                    <div class="flex gap-2">
+                                                        <a href="@Url.Action("Edit", "Quiz", new { id = exam.Id })" class="text-primary hover:text-primary-dark font-medium">Sửa</a>
+                                                        <form method="post" action="@Url.Action("Delete", "Quiz")" class="inline" onsubmit="return confirm('Bạn có chắc muốn xóa đề thi này?');">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="id" value="@exam.Id">
+                                                            <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Profile", new { tab = "my-exams" })">
+                                                            <button type="submit" class="text-danger hover:text-red-700 font-medium">Xóa</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                                <span class="material-symbols-outlined text-4xl mb-2 block">edit_note</span>
+                                                Chưa có đề thi nào
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Membership Tab -->
+            @if (currentTab == "membership")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Gói hội viên</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Quản lý gói đăng ký của bạn</p>
+                    </div>
+
+                    @if (ViewBag.ActiveSubscription != null && isPremium)
+                    {
+                        var endDate = subscriptionEndDate;
+                        <div class="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Gói Premium</h3>
+                                    <p class="text-primary-100">Hết hạn: @(endDate.HasValue ? endDate.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                                </div>
+                                <span class="px-4 py-2 bg-white/20 rounded-lg font-semibold">Đang hoạt động</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">Bạn chưa đăng ký gói nào</p>
+                            <a href="/subscription" class="inline-block px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Xem gói hội viên</a>
+                        </div>
+                    }
+                </div>
+            }
+
+            <!-- Payment Tab -->
+            @if (currentTab == "payment")
+            {
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Thanh toán</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Quản lý phương thức thanh toán và lịch sử giao dịch</p>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Phương thức thanh toán</h3>
+                        <div class="space-y-4">
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-primary">credit_card</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900 dark:text-white">Thẻ tín dụng / Ghi nợ</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Chưa có thẻ được lưu</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="showPaymentMethodModal()" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition btn-glow">
+                                        Thêm thẻ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-green-600 dark:text-green-400">account_balance_wallet</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900 dark:text-white">Ví điện tử</p>
+                                            <p class="text-sm text-gray-600 dark:text-gray-400">Momo, ZaloPay, VNPay</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="showPaymentMethodModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                        Thêm ví
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction History -->
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Lịch sử giao dịch</h3>
+                        @if (payments.Any())
+                        {
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 dark:bg-gray-900">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mô tả</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Số tiền</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Phương thức</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Trạng thái</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Ngày giao dịch</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                        @foreach (var payment in payments)
+                                        {
+                                            <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                    @(payment.Exam != null ? payment.Exam.Title : "Gói hội viên")
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-semibold">
+                                                    @(payment.Amount?.ToString("N0") ?? "0") @(payment.Currency ?? "VND")
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                    @(payment.Provider ?? "N/A")
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if (payment.Status == "Success" || payment.Status == "Completed")
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Thành công</span>
+                                                    }
+                                                    else if (payment.Status == "Pending")
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">Đang xử lý</span>
+                                                    }
+                                                    else if (payment.Status == "Failed")
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">Thất bại</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">@(payment.Status ?? "N/A")</span>
+                                                    }
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                                                    @payment.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-12">
+                                <span class="material-symbols-outlined text-6xl text-gray-400 mb-4 block">receipt_long</span>
+                                <p class="text-gray-500 dark:text-gray-400">Chưa có giao dịch nào</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
 
             <!-- Settings Tab -->
-            <div class="tab-content" id="settings" style="display: none;">
-                <div class="max-w-md space-y-4">
+            @if (currentTab == "settings")
+            {
+                <div class="space-y-6 animate-fade-in">
                     <div>
-                        <label class="block text-sm font-semibold mb-2">Mật Khẩu Hiện Tại</label>
-                        <input type="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="Nhập mật khẩu hiện tại">
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Cài đặt</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Tùy chỉnh trải nghiệm của bạn</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Mật Khẩu Mới</label>
-                        <input type="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="Nhập mật khẩu mới">
+
+                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">Cài đặt website</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Giao diện</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Chuyển đổi giữa chế độ sáng và tối</p>
+                                </div>
+                                <button onclick="toggleTheme()" class="relative inline-flex h-6 w-11 items-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors">
+                                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1 dark:translate-x-6"></span>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Thông báo</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Bật/tắt thông báo</p>
+                                </div>
+                                <button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary transition-colors">
+                                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6"></span>
+                                </button>
+                            </div>
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <div>
+                                    <p class="font-medium text-gray-900 dark:text-white">Ngôn ngữ</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Chọn ngôn ngữ hiển thị</p>
+                                </div>
+                                <select class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    <option>Tiếng Việt</option>
+                                    <option>English</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-2">Xác Nhận Mật Khẩu</label>
-                        <input type="password" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700" placeholder="Xác nhận mật khẩu mới">
-                    </div>
-                    <button class="w-full bg-primary text-white font-semibold py-2 rounded-lg hover:bg-primary-dark transition">Cập Nhật Mật Khẩu</button>
                 </div>
-            </div>
+            }
         </div>
     </div>
-</div>
+</main>
+
+<script>
+    let avatarCropper = null;
+    let selectedAvatarFile = null;
+
+    function openAvatarCropModal(event) {
+        const file = event.target.files[0];
+        const statusDiv = document.getElementById('avatarUploadStatus');
+        
+        if (!file) {
+            return;
+        }
+
+        // Validate file size (2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            statusDiv.innerHTML = '<span class="text-red-600 dark:text-red-400">File không được vượt quá 2MB</span>';
+            return;
+        }
+
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+        if (!allowedTypes.includes(file.type)) {
+            statusDiv.innerHTML = '<span class="text-red-600 dark:text-red-400">Chỉ chấp nhận file JPG, PNG hoặc GIF</span>';
+            return;
+        }
+
+        selectedAvatarFile = file;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const cropImageEl = document.getElementById('avatarCropImage');
+            cropImageEl.src = e.target.result;
+            
+            // Show modal
+            document.getElementById('avatarCropModal').classList.remove('hidden');
+            
+            // Initialize Cropper.js
+            if (avatarCropper) {
+                avatarCropper.destroy();
+            }
+            
+            avatarCropper = new Cropper(cropImageEl, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.8,
+                restore: false,
+                guides: true,
+                center: true,
+                highlight: false,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                minCropBoxWidth: 100,
+                minCropBoxHeight: 100,
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function cropAndUploadAvatar() {
+        if (!avatarCropper || !selectedAvatarFile) return;
+
+        // Get cropped canvas
+        const canvas = avatarCropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+        });
+
+        // Convert to blob and upload
+        canvas.toBlob(function(blob) {
+            const formData = new FormData();
+            formData.append('avatarFile', blob, selectedAvatarFile.name);
+            
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            const statusDiv = document.getElementById('avatarUploadStatus');
+            statusDiv.innerHTML = '<span class="text-blue-600 dark:text-blue-400">Đang tải lên...</span>';
+
+            fetch('@Url.Action("UploadAvatar", "Profile")', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusDiv.innerHTML = '<span class="text-green-600 dark:text-green-400">✓ Cập nhật avatar thành công</span>';
+                    
+                    // Update preview
+                    const preview = document.getElementById('avatarPreview');
+                    if (preview.tagName === 'IMG') {
+                        preview.src = data.avatarUrl + '?t=' + new Date().getTime();
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = data.avatarUrl + '?t=' + new Date().getTime();
+                        img.alt = 'Avatar';
+                        img.className = 'w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-gray-700 shadow-lg';
+                        img.id = 'avatarPreview';
+                        preview.parentNode.replaceChild(img, preview);
+                    }
+                    
+                    // Update sidebar avatar
+                    const sidebarAvatar = document.querySelector('aside img[alt="Avatar"]');
+                    if (sidebarAvatar) {
+                        sidebarAvatar.src = data.avatarUrl + '?t=' + new Date().getTime();
+                    }
+                    
+                    closeAvatarCropModal();
+                    setTimeout(() => {
+                        statusDiv.innerHTML = '';
+                    }, 3000);
+                } else {
+                    statusDiv.innerHTML = '<span class="text-red-600 dark:text-red-400">✗ ' + data.message + '</span>';
+                }
+            })
+            .catch(error => {
+                statusDiv.innerHTML = '<span class="text-red-600 dark:text-red-400">✗ Lỗi khi tải lên: ' + error.message + '</span>';
+            });
+        }, 'image/jpeg', 0.9);
+    }
+
+    function closeAvatarCropModal() {
+        document.getElementById('avatarCropModal').classList.add('hidden');
+        if (avatarCropper) {
+            avatarCropper.destroy();
+            avatarCropper = null;
+        }
+        selectedAvatarFile = null;
+        document.getElementById('avatarInput').value = '';
+    }
+
+    function toggleTheme() {
+        const html = document.documentElement;
+        html.classList.toggle('dark');
+        localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    }
+
+    function showCreateExamModal() {
+        document.getElementById('createExamModal').classList.remove('hidden');
+    }
+
+    function closeCreateExamModal() {
+        document.getElementById('createExamModal').classList.add('hidden');
+    }
+
+    function showPaymentMethodModal() {
+        alert('Tính năng đang phát triển. Vui lòng liên hệ admin để thêm phương thức thanh toán.');
+    }
+
+    function showDeleteProfileModal() {
+        if (confirm('Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn.')) {
+            if (confirm('Xác nhận lần cuối: Bạn thực sự muốn xóa tài khoản?')) {
+                // Create form and submit
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("DeleteProfile", "Profile")';
+                
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                if (token) {
+                    const tokenInput = document.createElement('input');
+                    tokenInput.type = 'hidden';
+                    tokenInput.name = '__RequestVerificationToken';
+                    tokenInput.value = token;
+                    form.appendChild(tokenInput);
+                }
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    }
+
+    function handleCreateExam(event) {
+        // Form will submit normally, but we can add validation here if needed
+        // The form action will handle the redirect
+        return true;
+    }
+
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('mobileSidebar');
+        sidebar.classList.toggle('hidden');
+    }
+
+    // Close mobile sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('mobileSidebar');
+        const menuButton = event.target.closest('button[onclick="toggleMobileSidebar()"]');
+        
+        if (window.innerWidth < 1024 && !sidebar.contains(event.target) && !menuButton) {
+            sidebar.classList.add('hidden');
+        }
+    });
+
+    // Load theme on page load
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('createExamModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCreateExamModal();
+        }
+    });
+
+    document.getElementById('avatarCropModal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeAvatarCropModal();
+        }
+    });
+</script>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
+}
 
 @section Scripts {
-    <script>
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const tabName = btn.dataset.tab;
-                
-                document.querySelectorAll('.tab-btn').forEach(b => {
-                    b.classList.remove('border-primary', 'text-primary');
-                    b.classList.add('border-transparent', 'text-[#4c739a]', 'dark:text-slate-400');
-                });
-                btn.classList.add('border-primary', 'text-primary');
-                btn.classList.remove('border-transparent', 'text-[#4c739a]', 'dark:text-slate-400');
-
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.style.display = 'none';
-                });
-                document.getElementById(tabName).style.display = 'block';
-            });
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
 }

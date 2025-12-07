@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
 using QuizlyWebsite.Middleware;
+using QuizlyWebsite.Services;
+using QuizlyWebsite.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +22,32 @@ builder.Services.AddSession(options =>
 builder.Services.AddDbContext<QuizlyDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-});    
+});
+
+// Add custom services
+builder.Services.AddScoped<IXpService, XpService>();
+builder.Services.AddScoped<IApprovalService, ApprovalService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<IAccessControlService, AccessControlService>();
+builder.Services.AddScoped<ILessonPreviewService, LessonPreviewService>();
+builder.Services.AddScoped<QuizlySeeder>();    
 
 var app = builder.Build();
+
+// Seed database with demo data
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<QuizlySeeder>();
+    try
+    {
+        await seeder.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError($"Error seeding database: {ex.Message}");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -52,3 +77,4 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+

@@ -169,5 +169,169 @@ namespace QuizlyWebsite.Controllers
 
             return View(result);
         }
+
+        // GET: /quiz/create - Create new exam form
+        public async Task<IActionResult> Create()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            ViewData["Subjects"] = await _context.TbSubjects.ToListAsync();
+            return View();
+        }
+
+        // POST: /quiz/create - Submit new exam
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Title,SubjectId,Duration,Difficulty")] TbExam exam)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            try
+            {
+                exam.CreatedBy = userId.Value;
+                exam.CreatedAt = DateTime.Now;
+                exam.IsApproved = false;
+                exam.IsPaid = false;
+
+                _context.Add(exam);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đề thi đã được tạo thành công! Đang chờ duyệt từ admin.";
+                return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error creating exam: " + ex.Message);
+            }
+
+            ViewData["Subjects"] = await _context.TbSubjects.ToListAsync();
+            return View(exam);
+        }
+
+        // GET: /quiz/myexams - View user's created exams
+        public async Task<IActionResult> MyExams()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var userExams = await _context.TbExams
+                .Where(e => e.CreatedBy == userId.Value)
+                .Include(e => e.Subject)
+                .OrderByDescending(e => e.CreatedAt)
+                .ToListAsync();
+
+            return View(userExams);
+        }
+
+        // POST: /quiz/delete/{id} - Delete exam (only by creator)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return Unauthorized();
+
+            var exam = await _context.TbExams
+                .Include(e => e.TbQuestions)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
+            if (exam == null)
+                return NotFound();
+
+            // Only creator or admin can delete
+            if (exam.CreatedBy != userId.Value)
+                return Forbid();
+
+            try
+            {
+                // Delete associated questions
+                _context.TbQuestions.RemoveRange(exam.TbQuestions);
+                
+                // Delete exam
+                _context.TbExams.Remove(exam);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đề thi đã được xóa thành công.";
+                return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Error deleting exam: " + ex.Message;
+                return RedirectToAction("MyExams", "Quiz");
+            }
+        }
+
+        // GET: /quiz/edit/{id} - Edit exam form
+        public async Task<IActionResult> Edit(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return RedirectToAction("Login", "Account");
+
+            var exam = await _context.TbExams.FirstOrDefaultAsync(e => e.Id == id);
+            if (exam == null)
+                return NotFound();
+
+            // Only creator can edit
+            if (exam.CreatedBy != userId.Value)
+                return Forbid();
+
+            ViewData["Subjects"] = await _context.TbSubjects.ToListAsync();
+            return View(exam);
+        }
+
+        // POST: /quiz/edit/{id} - Save edited exam
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,SubjectId,Duration")] TbExam exam)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+                return Unauthorized();
+
+            if (id != exam.Id)
+                return BadRequest();
+
+            var existingExam = await _context.TbExams.FirstOrDefaultAsync(e => e.Id == id);
+            if (existingExam == null)
+                return NotFound();
+
+            // Only creator can edit
+            if (existingExam.CreatedBy != userId.Value)
+                return Forbid();
+
+            try
+            {
+                // Update only allowed fields
+                existingExam.Title = exam.Title;
+                existingExam.SubjectId = exam.SubjectId;
+                existingExam.Duration = exam.Duration;
+
+                _context.Update(existingExam);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Đề thi đã được cập nhật thành công.";
+                return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.TbExams.Any(e => e.Id == id))
+                    return NotFound();
+                throw;
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error updating exam: " + ex.Message);
+            }
+
+            ViewData["Subjects"] = await _context.TbSubjects.ToListAsync();
+            return View(existingExam);
+        }
     }
 }
