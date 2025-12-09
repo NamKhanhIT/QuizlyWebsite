@@ -51,9 +51,14 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
+            // Load categories for dropdown
+            ViewData["Categories"] = await _context.TbCategories.OrderBy(c => c.Title).ToListAsync();
+
             if (id.HasValue)
             {
-                var subject = await _context.TbSubjects.FindAsync(id.Value);
+                var subject = await _context.TbSubjects
+                    .Include(s => s.Category)
+                    .FirstOrDefaultAsync(s => s.Id == id.Value);
                 if (subject == null) return NotFound();
                 return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", subject);
             }
@@ -65,17 +70,34 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         [HttpPost]
         [Route("admin/subject-form")]
         [Route("admin/subject-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string title, string description)
+        public async Task<IActionResult> FormPost(int? id, string title, string description, int categoryId)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
+            // Load categories for dropdown (in case of error)
+            ViewData["Categories"] = await _context.TbCategories.OrderBy(c => c.Title).ToListAsync();
+
             if (string.IsNullOrWhiteSpace(title))
                 ModelState.AddModelError(nameof(title), "Tên môn học không được để trống");
 
+            if (categoryId <= 0)
+                ModelState.AddModelError(nameof(categoryId), "Vui lòng chọn danh mục");
+
+            // Verify category exists
+            if (categoryId > 0)
+            {
+                var categoryExists = await _context.TbCategories.AnyAsync(c => c.Id == categoryId);
+                if (!categoryExists)
+                    ModelState.AddModelError(nameof(categoryId), "Danh mục không tồn tại");
+            }
+
             if (!ModelState.IsValid)
             {
-                var model = id.HasValue ? await _context.TbSubjects.FindAsync(id) : new TbSubject();
+                var model = id.HasValue 
+                    ? await _context.TbSubjects.Include(s => s.Category).FirstOrDefaultAsync(s => s.Id == id) 
+                    : new TbSubject();
+                if (model == null) model = new TbSubject();
                 return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", model);
             }
 
@@ -87,10 +109,11 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                     if (subject == null) return NotFound();
                     subject.Title = title;
                     subject.Description = description;
+                    subject.CategoryId = categoryId;
 
                     _context.TbSubjects.Update(subject);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Môn học đã được cập nhật";
+                    TempData["Success"] = "Môn học đã được cập nhật thành công";
                 }
                 else
                 {
@@ -98,20 +121,24 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                     {
                         Title = title,
                         Description = description,
-                        CategoryId = 1
+                        CategoryId = categoryId
                     };
 
                     await _context.TbSubjects.AddAsync(subject);
                     await _context.SaveChangesAsync();
-                    TempData["Success"] = "Môn học mới đã được tạo";
+                    TempData["Success"] = "Môn học mới đã được tạo thành công";
                 }
 
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                TempData["Error"] = "Lỗi: " + ex.Message;
                 ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
-                var model = id.HasValue ? await _context.TbSubjects.FindAsync(id) : new TbSubject();
+                var model = id.HasValue 
+                    ? await _context.TbSubjects.Include(s => s.Category).FirstOrDefaultAsync(s => s.Id == id) 
+                    : new TbSubject();
+                if (model == null) model = new TbSubject();
                 return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", model);
             }
         }

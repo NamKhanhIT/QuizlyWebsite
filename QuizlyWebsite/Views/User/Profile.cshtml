@@ -479,13 +479,29 @@
                     {
                         <div class="space-y-4">
                             <h2 class="text-xl font-bold text-gray-900 dark:text-white">Tiến độ từng khóa học</h2>
-                            @foreach (var courseProgress in coursesWithProgress)
+                            @foreach (dynamic courseProgress in coursesWithProgress)
                             {
-                                var course = courseProgress.Course as QuizlyWebsite.Models.TbCourse;
-                                var progressPercent = courseProgress.ProgressPercent as int? ?? 0;
-                                var completedLessons = courseProgress.CompletedLessons as int? ?? 0;
-                                var courseTotalLessons = courseProgress.TotalLessons as int? ?? 0;
-                                var currentLesson = courseProgress.CurrentLesson as QuizlyWebsite.Models.TbLesson;
+                                QuizlyWebsite.Models.TbCourse? course = null;
+                                int progressPercent = 0;
+                                int completedLessons = 0;
+                                int courseTotalLessons = 0;
+                                QuizlyWebsite.Models.TbLesson? currentLesson = null;
+                                
+                                try
+                                {
+                                    course = courseProgress?.Course as QuizlyWebsite.Models.TbCourse;
+                                    progressPercent = (int)(courseProgress?.ProgressPercent ?? 0);
+                                    completedLessons = (int)(courseProgress?.CompletedLessons ?? 0);
+                                    courseTotalLessons = (int)(courseProgress?.TotalLessons ?? 0);
+                                    currentLesson = courseProgress?.CurrentLesson as QuizlyWebsite.Models.TbLesson;
+                                }
+                                catch
+                                {
+                                    // Skip this item if there's an error
+                                    continue;
+                                }
+                                
+                                if (course == null) continue;
 
                                 <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm card-hover">
                                     <div class="flex items-start justify-between mb-4">

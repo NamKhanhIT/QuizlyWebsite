@@ -9,21 +9,31 @@
     <div class="bg-gradient-to-r from-primary/20 to-blue-100 dark:from-primary/30 dark:to-blue-900/30 rounded-xl p-8 md:p-12 text-center mb-8">
         <div class="mb-6">
             @{
-                var isPassed = Model.Score >= 50;
-                var resultColor = isPassed ? "text-success" : "text-danger";
-                var resultIcon = isPassed ? "check_circle" : "cancel";
-                var resultText = isPassed ? "Đạt" : "Không Đạt";
+                var isCancelled = Model.Status == "Cancelled";
+                var isPassed = !isCancelled && Model.Score >= 5; // Thang điểm 10, đạt từ 5.0 trở lên
+                var resultColor = isCancelled ? "text-red-600" : (isPassed ? "text-success" : "text-danger");
+                var resultIcon = isCancelled ? "block" : (isPassed ? "check_circle" : "cancel");
+                var resultText = isCancelled ? "Bị Hủy" : (isPassed ? "Đạt" : "Không Đạt");
             }
             <span class="material-symbols-outlined text-6xl @resultColor">@resultIcon</span>
         </div>
         
         <h1 class="text-4xl font-black text-[#0d141b] dark:text-slate-50 mb-2">@resultText</h1>
+        
+        @if (isCancelled)
+        {
+            <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg p-4 mb-4 max-w-md mx-auto">
+                <p class="text-sm font-bold text-red-700 dark:text-red-300 text-center">
+                    ⚠️ Bài thi đã bị hủy do vi phạm quá 3 lần (chuyển tab/thoát màn hình)
+                </p>
+            </div>
+        }
         <p class="text-xl text-[#4c739a] dark:text-slate-400 mb-4">@Model.Exam.Title</p>
 
         <!-- Score Display -->
         <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
-                <p class="text-3xl font-black text-primary">@Model.Score?.ToString("F1") ?? "0.0"</p>
+                <p class="text-3xl font-black text-primary">@(Model.Score?.ToString("F1") ?? "0.0")</p>
                 <p class="text-xs text-[#4c739a] dark:text-slate-400">Điểm</p>
             </div>
             <div class="bg-white dark:bg-gray-800 rounded-lg p-4">
@@ -52,9 +62,59 @@
         </a>
     </div>
 
+    <!-- Violations Section (if cancelled) -->
+    @if (Model.Status == "Cancelled" && Model.Session?.TbExamViolations != null && Model.Session.TbExamViolations.Any())
+    {
+        <div class="max-w-4xl mx-auto mb-8">
+            <h2 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50 mb-6">Lịch Sử Vi Phạm</h2>
+            <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg p-6">
+                <div class="mb-4">
+                    <p class="text-lg font-bold text-red-700 dark:text-red-300 mb-2">
+                        Tổng số lần vi phạm: <span class="text-2xl">@Model.Session.TbExamViolations.Count</span>
+                    </p>
+                    <p class="text-sm text-red-600 dark:text-red-400">
+                        Mỗi lần vi phạm bị trừ 0.5 điểm. Sau 3 lần vi phạm, bài thi sẽ bị hủy.
+                    </p>
+                </div>
+                <div class="space-y-3">
+                    @foreach (var violation in Model.Session.TbExamViolations.OrderBy(v => v.ViolationTime))
+                    {
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-4 border border-red-200 dark:border-red-800">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-red-500">warning</span>
+                                    <div>
+                                        <p class="font-semibold text-gray-900 dark:text-white">
+                                            @violation.ViolationType
+                                        </p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                                            @violation.ViolationTime?.ToString("dd/MM/yyyy HH:mm:ss")
+                                        </p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-semibold">
+                                    -0.5 điểm
+                                </span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
     <!-- Review Section -->
     <div class="max-w-4xl mx-auto">
         <h2 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50 mb-6">Chi Tiết Câu Trả Lời</h2>
+        
+        @if (!Model.TbExamResultDetails.Any())
+        {
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-lg p-6 text-center">
+                <p class="text-yellow-700 dark:text-yellow-300">
+                    Bài thi bị hủy trước khi hoàn thành. Không có câu trả lời nào được ghi nhận.
+                </p>
+            </div>
+        }
 
         @foreach (var detail in Model.TbExamResultDetails)
         {

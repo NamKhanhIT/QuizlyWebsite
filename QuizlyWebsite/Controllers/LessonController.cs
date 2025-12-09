@@ -133,10 +133,52 @@ namespace QuizlyWebsite.Controllers
             // Get current lesson progress
             var progress = lessonProgressDict.ContainsKey(lessonId) ? lessonProgressDict[lessonId] : null;
 
-            // Calculate course progress
-            var completedLessons = allProgresses.Count(p => p.IsCompleted == true);
-            var totalLessons = allLessons.Count;
-            var courseProgress = totalLessons > 0 ? (completedLessons * 100 / totalLessons) : 0;
+            // Calculate course progress - only count non-preview lessons that are completed
+            var nonPreviewLessons = allLessons.Where(l => l.IsPreview != true).ToList();
+            var completedNonPreviewLessons = allProgresses
+                .Where(p => p.IsCompleted == true && nonPreviewLessons.Any(l => l.Id == p.LessonId))
+                .Select(p => p.LessonId)
+                .Distinct()
+                .Count();
+            var totalNonPreviewLessons = nonPreviewLessons.Count;
+            var courseProgress = totalNonPreviewLessons > 0 ? (completedNonPreviewLessons * 100 / totalNonPreviewLessons) : 0;
+
+            // Extract YouTube URL from content if exists (format: <!-- YOUTUBE: https://youtube.com/... -->)
+            string? youtubeUrl = null;
+            if (!string.IsNullOrEmpty(lesson.Content))
+            {
+                var youtubeMatch = System.Text.RegularExpressions.Regex.Match(
+                    lesson.Content, 
+                    @"<!--\s*YOUTUBE:\s*(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)[a-zA-Z0-9_-]+[^\s]*)",
+                    System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                );
+                if (youtubeMatch.Success && youtubeMatch.Groups.Count > 1)
+                {
+                    youtubeUrl = youtubeMatch.Groups[1].Value.Trim();
+                }
+            }
+
+            // Get lesson quiz if exists
+            var lessonQuiz = await _context.TbExams
+                .Include(e => e.TbQuestions)
+                .FirstOrDefaultAsync(e => e.LessonId == lessonId);
+
+            // Check if user has passed the quiz
+            bool hasPassedQuiz = false;
+            decimal? bestQuizScore = null;
+            if (lessonQuiz != null && userId > 0)
+            {
+                var bestResult = await _context.TbExamResults
+                    .Where(r => r.UserId == userId && r.ExamId == lessonQuiz.Id)
+                    .OrderByDescending(r => r.Score)
+                    .FirstOrDefaultAsync();
+
+                if (bestResult != null)
+                {
+                    bestQuizScore = bestResult.Score;
+                    hasPassedQuiz = bestResult.Score >= 70;
+                }
+            }
 
             ViewBag.Course = course;
             ViewBag.AllLessons = allLessons;
@@ -147,6 +189,10 @@ namespace QuizlyWebsite.Controllers
             ViewBag.IsCompleted = progress?.IsCompleted ?? false;
             ViewBag.CourseProgress = courseProgress;
             ViewBag.CanAccess = canAccess;
+            ViewBag.YoutubeUrl = youtubeUrl;
+            ViewBag.LessonQuiz = lessonQuiz;
+            ViewBag.HasPassedQuiz = hasPassedQuiz;
+            ViewBag.BestQuizScore = bestQuizScore;
 
             return View(lesson);
         }
@@ -265,15 +311,41 @@ namespace QuizlyWebsite.Controllers
 
         // POST: Lesson/Complete/5
         [HttpPost]
-        public async Task<IActionResult> Complete(int id)
+        public async Task<IActionResult> Complete(int id, int? courseId)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
                 return RedirectToAction("Login", "Auth");
 
-            var lesson = await _context.TbLessons.FindAsync(id);
+            var lesson = await _context.TbLessons
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(l => l.Id == id);
+            
             if (lesson == null)
                 return NotFound();
+
+            // Get courseId from lesson if not provided
+            var finalCourseId = courseId ?? lesson.CourseId;
+
+            // Check if lesson has a quiz
+            var lessonQuiz = await _context.TbExams
+                .Include(e => e.TbQuestions)
+                .FirstOrDefaultAsync(e => e.LessonId == id);
+
+            if (lessonQuiz != null && lessonQuiz.TbQuestions.Any())
+            {
+                // Check if user has passed the quiz (>= 70%)
+                var bestResult = await _context.TbExamResults
+                    .Where(r => r.UserId == userId.Value && r.ExamId == lessonQuiz.Id)
+                    .OrderByDescending(r => r.Score)
+                    .FirstOrDefaultAsync();
+
+                if (bestResult == null || bestResult.Score < 70)
+                {
+                    TempData["ErrorMessage"] = "Bạn cần làm bài kiểm tra và đạt ít nhất 70% để hoàn thành bài học này.";
+                    return RedirectToAction("Learn", new { courseId = finalCourseId, lessonId = id });
+                }
+            }
 
             try
             {
@@ -313,7 +385,8 @@ namespace QuizlyWebsite.Controllers
                 TempData["ErrorMessage"] = "Error completing lesson";
             }
 
-            return RedirectToAction("View", new { id });
+            // Redirect back to Learn page with courseId and lessonId
+            return RedirectToAction("Learn", new { courseId = finalCourseId, lessonId = id });
         }
     }
 }

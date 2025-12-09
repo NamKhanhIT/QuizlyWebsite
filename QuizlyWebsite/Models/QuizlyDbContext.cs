@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,8 +50,6 @@ public partial class QuizlyDbContext : DbContext
     public virtual DbSet<TbSubject> TbSubjects { get; set; }
 
     public virtual DbSet<TbUser> TbUsers { get; set; }
-
-    public virtual DbSet<TbUserMembership> TbUserMemberships { get; set; }
 
     public virtual DbSet<TbUserPurchase> TbUserPurchases { get; set; }
 
@@ -152,6 +150,11 @@ public partial class QuizlyDbContext : DbContext
             entity.HasOne(d => d.Subject).WithMany(p => p.TbExams)
                 .HasForeignKey(d => d.SubjectId)
                 .HasConstraintName("FK__tb_Exams__Subjec__46E78A0C");
+
+            entity.HasOne(d => d.Lesson).WithMany()
+                .HasForeignKey(d => d.LessonId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Exams_Lesson");
         });
 
         modelBuilder.Entity<TbExamResult>(entity =>
@@ -430,23 +433,6 @@ public partial class QuizlyDbContext : DbContext
                 .HasMaxLength(20)
                 .HasDefaultValue("User");
             entity.Property(e => e.Username).HasMaxLength(50);
-        });
-
-        modelBuilder.Entity<TbUserMembership>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("PK__tb_UserM__3214EC07DA05BD36");
-
-            entity.ToTable("tb_UserMemberships");
-
-            entity.HasOne(d => d.Plan).WithMany(p => p.TbUserMemberships)
-                .HasForeignKey(d => d.PlanId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__tb_UserMe__PlanI__74AE54BC");
-
-            entity.HasOne(d => d.User).WithMany(p => p.TbUserMemberships)
-                .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__tb_UserMe__UserI__73BA3083");
         });
 
         modelBuilder.Entity<TbUserPurchase>(entity =>

@@ -2,9 +2,62 @@
 
 @{
     ViewData["Title"] = "Làm Bài Thi - " + Model.Title;
+    var sessionId = ViewBag.SessionId as int?;
+    var penaltyRules = ViewBag.PenaltyRules as List<QuizlyWebsite.Models.TbPenaltyRule> ?? new List<QuizlyWebsite.Models.TbPenaltyRule>();
+    var lessonId = ViewBag.LessonId as int?;
+    var courseId = ViewBag.CourseId as int?;
+    var isLessonQuiz = ViewBag.IsLessonQuiz as bool? ?? false;
 }
 
+<!-- Violation Warning Modal -->
+<div id="violationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm" onclick="event.stopPropagation()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all animate-scale-in" onclick="event.stopPropagation()">
+        <div class="p-8 text-center">
+            <div class="mb-6">
+                <span class="material-symbols-outlined text-6xl text-yellow-500 animate-bounce">warning</span>
+            </div>
+            <h2 class="text-2xl font-black text-gray-900 dark:text-white mb-4">⚠️ CẢNH BÁO VI PHẠM</h2>
+            <p class="text-lg font-semibold text-yellow-600 dark:text-yellow-400 mb-2" id="warningMessage"></p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Bạn đã chuyển tab hoặc rời khỏi màn hình làm bài thi!
+            </p>
+            <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-bold text-red-700 dark:text-red-300">
+                    ⚠️ Đã trừ <span class="text-xl">0.5 điểm</span> cho lần vi phạm này!
+                </p>
+            </div>
+            <button onclick="closeViolationModal()" class="w-full px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-lg transition transform hover:scale-105">
+                Tôi đã hiểu - Tiếp tục làm bài
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Exam Cancelled Modal -->
+<div id="examCancelledModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 backdrop-blur-sm" onclick="event.stopPropagation()">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full mx-4 transform transition-all animate-scale-in" onclick="event.stopPropagation()">
+        <div class="p-8 text-center">
+            <div class="mb-6">
+                <span class="material-symbols-outlined text-6xl text-red-500 animate-pulse">cancel</span>
+            </div>
+            <h2 class="text-3xl font-black text-red-600 dark:text-red-400 mb-4">❌ BÀI THI ĐÃ BỊ HỦY</h2>
+            <p class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Bạn đã vi phạm quá 3 lần!
+            </p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+                Bài thi của bạn đã bị hủy do chuyển tab/thoát màn hình quá 3 lần.
+            </p>
+            <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-700 rounded-lg p-4 mb-6">
+                <p class="text-sm font-bold text-red-700 dark:text-red-300">
+                    Bạn sẽ được chuyển về danh sách đề thi trong giây lát...
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+
     <!-- Top Bar with Timer -->
     <div class="flex justify-between items-center mb-8 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 sticky top-20 z-30">
         <div>
@@ -19,7 +72,7 @@
         </div>
 
         <!-- Exit Button -->
-        <a href="/quiz/list" class="text-gray-600 dark:text-gray-400 hover:text-danger">
+        <a href="/quiz/list" class="text-gray-600 dark:text-gray-400 hover:text-danger" onclick="return confirm('Bạn có chắc muốn thoát? Tiến trình làm bài sẽ bị mất.');">
             <span class="material-symbols-outlined">close</span>
         </a>
     </div>
@@ -44,6 +97,15 @@
         <!-- Main Quiz Area -->
         <div class="lg:col-span-3 order-1 lg:order-2">
             <form id="quizForm" method="post" action="/quiz/submit">
+                @if (lessonId.HasValue)
+                {
+                    <input type="hidden" name="lessonId" value="@lessonId.Value" />
+                }
+                @if (courseId.HasValue)
+                {
+                    <input type="hidden" name="courseId" value="@courseId.Value" />
+                }
+                <input type="hidden" name="examId" value="@Model.Id" />
                 @{
                     var questionsList = Model.TbQuestions.ToList();
                 }
@@ -103,16 +165,221 @@
     </div>
 </div>
 
+<style>
+    @@keyframes scale-in {
+        from {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    .animate-scale-in {
+        animation: scale-in 0.3s ease-out;
+    }
+</style>
+
 @section Scripts {
     <script>
         let currentQuestion = 1;
         let totalQuestions = @Model.TbQuestions.Count;
         let timeLeft = @Model.Duration * 60;
+        let sessionId = @(sessionId ?? 0);
+        let violationCount = 0;
+        let isExamCancelled = false;
+        let isTabVisible = true;
+        let lastBlurTime = null;
+        let isRecordingViolation = false; // Flag to prevent multiple simultaneous calls
+        let violationDebounceTimer = null;
+
+        // Tab switching detection
+        function handleVisibilityChange() {
+            if (document.hidden) {
+                // Tab/window is hidden
+                if (isTabVisible && !isExamCancelled && sessionId > 0) {
+                    isTabVisible = false;
+                    lastBlurTime = Date.now();
+                    console.log('Tab hidden - recording violation');
+                    recordViolation();
+                }
+            } else {
+                // Tab/window is visible again
+                if (!isTabVisible) {
+                    console.log('Tab visible again');
+                }
+                isTabVisible = true;
+            }
+        }
+
+        function handleBlur() {
+            if (!isExamCancelled && isTabVisible && sessionId > 0) {
+                isTabVisible = false;
+                lastBlurTime = Date.now();
+                console.log('Window blur - recording violation');
+                recordViolation();
+            }
+        }
+
+        function handleFocus() {
+            if (!isTabVisible) {
+                console.log('Window focus');
+            }
+            isTabVisible = true;
+        }
+
+        async function recordViolation() {
+            // Prevent multiple simultaneous calls
+            if (isExamCancelled || sessionId === 0 || isRecordingViolation) {
+                console.log('Skipping violation record:', { isExamCancelled, sessionId, isRecordingViolation });
+                return;
+            }
+
+            // Debounce: only record if last violation was more than 2 seconds ago
+            if (violationDebounceTimer) {
+                clearTimeout(violationDebounceTimer);
+            }
+
+            violationDebounceTimer = setTimeout(async () => {
+                isRecordingViolation = true;
+                console.log('Recording violation for session:', sessionId);
+
+                try {
+                    const response = await fetch('/quiz/violation', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ sessionId: sessionId })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('Violation response:', data);
+                    
+                    if (data.success) {
+                        violationCount = data.violationCount;
+                        
+                        if (data.cancelled) {
+                            // Exam cancelled
+                            isExamCancelled = true;
+                            showExamCancelledModal();
+                            document.getElementById('quizForm').style.pointerEvents = 'none';
+                            document.getElementById('quizForm').style.opacity = '0.5';
+                            
+                            // Redirect to result page if resultId is provided, otherwise to list
+                            setTimeout(() => {
+                                if (data.resultId && data.resultId > 0) {
+                                    console.log('Redirecting to result page with resultId:', data.resultId);
+                                    window.location.href = '/quiz/result/' + data.resultId;
+                                } else {
+                                    console.log('No resultId provided, redirecting to list');
+                                    window.location.href = '/quiz/list';
+                                }
+                            }, 5000);
+                        } else {
+                            // Show warning modal
+                            showViolationModal(data.message);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error recording violation:', error);
+                } finally {
+                    isRecordingViolation = false;
+                }
+            }, 500); // 500ms debounce
+        }
+
+        // Prevent context menu and copy/paste (optional, can be removed if too strict)
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('copy', function(e) {
+            e.preventDefault();
+        });
+
+        // Set up event listeners for violation detection
+        // Check if DOM is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupViolationDetection);
+        } else {
+            setupViolationDetection();
+        }
+
+        function setupViolationDetection() {
+            console.log('Setting up violation detection, sessionId:', sessionId);
+            
+            if (sessionId > 0) {
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                window.addEventListener('blur', handleBlur);
+                window.addEventListener('focus', handleFocus);
+                
+                console.log('Violation detection listeners attached');
+                
+                // Test: Log when page becomes visible/hidden
+                document.addEventListener('visibilitychange', function() {
+                    console.log('Visibility changed:', document.hidden ? 'hidden' : 'visible');
+                });
+            } else {
+                console.warn('No sessionId, violation detection disabled');
+            }
+        }
+
+        function showViolationModal(message) {
+            const modal = document.getElementById('violationModal');
+            const messageEl = document.getElementById('warningMessage');
+            if (modal && messageEl) {
+                messageEl.textContent = message;
+                modal.classList.remove('hidden');
+                // Prevent interaction with form while modal is open
+                const form = document.getElementById('quizForm');
+                if (form) {
+                    form.style.pointerEvents = 'none';
+                    form.style.opacity = '0.7';
+                }
+                // Play warning sound (optional - browser may block autoplay)
+                try {
+                    const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZijYIGGS57+OeTQ8OUKfj8LZjHAY4kdfyzHksBSR3x/DdkEAKFF606euoVRQKRp/g8r5sIQUrgc7y2Yo2CBhkue/jnk0PDlCn4/C2YxwGOJHX8sx5LAUkd8fw3ZBAC');
+                    audio.volume = 0.3;
+                    audio.play().catch(() => {}); // Ignore autoplay errors
+                } catch (e) {}
+            }
+        }
+
+        function closeViolationModal() {
+            const modal = document.getElementById('violationModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                // Re-enable form interaction
+                const form = document.getElementById('quizForm');
+                if (form) {
+                    form.style.pointerEvents = 'auto';
+                    form.style.opacity = '1';
+                }
+            }
+        }
+
+        function showExamCancelledModal() {
+            const modal = document.getElementById('examCancelledModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            }
+        }
 
         // Timer
         function startTimer() {
             const timerEl = document.getElementById('timer');
             const interval = setInterval(() => {
+                if (isExamCancelled) {
+                    clearInterval(interval);
+                    return;
+                }
+
                 timeLeft--;
                 const minutes = Math.floor(timeLeft / 60);
                 const seconds = timeLeft % 60;
@@ -173,5 +440,14 @@
         // Initialize
         showQuestion(1);
         startTimer();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function(e) {
+            if (!isExamCancelled) {
+                e.preventDefault();
+                e.returnValue = 'Bạn có chắc muốn thoát? Tiến trình làm bài sẽ bị mất.';
+                return e.returnValue;
+            }
+        });
     </script>
 }

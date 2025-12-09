@@ -59,9 +59,7 @@ namespace QuizlyWebsite.Controllers
             return role switch
             {
                 "Admin" => "Quản Trị Viên",
-                "Teacher" => "Giáo Viên",
-                "Student" => "Sinh Viên",
-                "Parent" => "Phụ Huynh",
+                "User" => "Người Dùng",
                 _ => "Người Dùng"
             };
         }

@@ -1,9 +1,13 @@
 @model QuizlyWebsite.Models.TbExam
+@inject QuizlyWebsite.Services.IAccessControlService AccessControl
+@inject QuizlyWebsite.Services.ISubscriptionService Subscription
 
 @{
     ViewData["Title"] = Model.Title;
     var userId = ViewContext.HttpContext.Session.GetInt32("UserId");
     var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var canAccessPaidExam = ViewBag.CanAccessPaidExam as bool? ?? true;
+    var isPaidExam = Model.IsPaid == true;
 }
 
 <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
@@ -133,18 +137,36 @@
                 
                 <!-- Start Button -->
                 <div class="p-4 bg-white dark:bg-slate-900 rounded-xl shadow-sm">
-                    @if (isAuthenticated)
-                    {
-                        <a href="@Url.Action("Start", "Quiz", new { id = Model.Id })" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
-                            <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
-                            <span class="truncate">Bắt Đầu Làm Bài</span>
-                        </a>
-                    }
-                    else
+                    @if (!isAuthenticated)
                     {
                         <a href="/login" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
                             <span class="material-symbols-outlined align-middle mr-2">login</span>
                             <span class="truncate">Đăng Nhập Để Làm Bài</span>
+                        </a>
+                    }
+                    else if (isPaidExam && !canAccessPaidExam)
+                    {
+                        <div class="space-y-3">
+                            <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                <p class="text-sm text-yellow-800 dark:text-yellow-200 font-semibold mb-2">
+                                    <span class="material-symbols-outlined align-middle mr-1">lock</span>
+                                    Đề thi trả phí
+                                </p>
+                                <p class="text-sm text-yellow-700 dark:text-yellow-300">
+                                    Bạn cần đăng ký gói trả phí để làm đề thi này.
+                                </p>
+                            </div>
+                            <a href="@Url.Action("Pricing", "Subscription")" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-base font-bold leading-normal shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all">
+                                <span class="material-symbols-outlined align-middle mr-2">workspace_premium</span>
+                                <span class="truncate">Đăng Ký Gói Trả Phí</span>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Start", "Quiz", new { id = Model.Id })" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
+                            <span class="material-symbols-outlined align-middle mr-2">play_arrow</span>
+                            <span class="truncate">Bắt Đầu Làm Bài</span>
                         </a>
                     }
                 </div>

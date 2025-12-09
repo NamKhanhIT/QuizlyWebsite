@@ -107,6 +107,7 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
+                TempData["Error"] = "Lỗi: " + ex.Message;
                 ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
                 var model = id.HasValue ? await _context.TbCategories.FindAsync(id) : new TbCategory();
                 return View("~/Areas/Admin/Views/Home/CategoryForm.cshtml", model);

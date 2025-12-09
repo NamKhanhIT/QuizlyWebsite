@@ -12,7 +12,58 @@
 
 <!-- Form -->
 <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-2xl">
-    <form method="post" class="space-y-6">
+    <!-- Success/Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+            <p class="text-sm font-semibold">@TempData["Success"]</p>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+            <p class="text-sm font-semibold">@TempData["Error"]</p>
+        </div>
+    }
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p class="text-sm">@error.ErrorMessage</p>
+            }
+        </div>
+    }
+
+    <form method="post" action="@(Model?.Id > 0 ? $"/admin/subject-form/{Model.Id}" : "/admin/subject-form")" class="space-y-6">
+        <!-- Danh Mục -->
+        <div>
+            <label class="block text-sm font-semibold mb-3 text-[#0d141b] dark:text-slate-50">Danh Mục <span class="text-danger">*</span></label>
+            <select name="categoryId" required
+                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50">
+                <option value="">-- Chọn Danh Mục --</option>
+                @{
+                    var categories = ViewData["Categories"] as List<QuizlyWebsite.Models.TbCategory> ?? new List<QuizlyWebsite.Models.TbCategory>();
+                    var selectedCategoryId = Model?.CategoryId ?? 0;
+                }
+                @foreach (var category in categories)
+                {
+                    if (category.Id == selectedCategoryId)
+                    {
+                        <option value="@category.Id" selected>@category.Title</option>
+                    }
+                    else
+                    {
+                        <option value="@category.Id">@category.Title</option>
+                    }
+                }
+            </select>
+            @if (ViewData.ModelState["categoryId"]?.Errors.Count > 0)
+            {
+                <span class="text-danger text-sm mt-1">@ViewData.ModelState["categoryId"].Errors[0].ErrorMessage</span>
+            }
+        </div>
+
         <!-- Tên Môn Học -->
         <div>
             <label class="block text-sm font-semibold mb-3 text-[#0d141b] dark:text-slate-50">Tên Môn Học <span class="text-danger">*</span></label>

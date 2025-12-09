@@ -176,7 +176,10 @@ namespace QuizlyWebsite.Controllers
 
             var course = await _context.TbCourses
                 .Include(c => c.TbLessons)
+                    .ThenInclude(l => l.TbLessonProgresses)
+                        .ThenInclude(p => p.User)
                 .Include(c => c.CreatedByNavigation)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (course == null)

@@ -18,7 +18,25 @@
 <form method="post" action="@(Model?.Id > 0 ? $"/admin/category-form/{Model.Id}" : "/admin/category-form")" class="max-w-2xl">
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
         
-        <!-- Error Messages -->
+        <!-- Success/Error Messages -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <p class="text-sm font-semibold">@TempData["Success"]</p>
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">error</span>
+                    <p class="text-sm font-semibold">@TempData["Error"]</p>
+                </div>
+            </div>
+        }
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">

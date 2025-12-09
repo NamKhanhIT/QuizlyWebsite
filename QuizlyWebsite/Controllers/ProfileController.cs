@@ -69,7 +69,7 @@ namespace QuizlyWebsite.Controllers
             ViewBag.UserLessons = lessons;
             ViewBag.UserExams = exams;
 
-            // Load learning progress
+            // Load learning progress - only count non-preview lessons
             var progress = await _context.TbLessonProgresses
                 .Where(p => p.UserId == userId && p.IsCompleted == true)
                 .Include(p => p.Lesson)
@@ -77,18 +77,25 @@ namespace QuizlyWebsite.Controllers
                 .OrderByDescending(p => p.CompletedAt)
                 .ToListAsync();
 
-            var totalLessonsAvailable = await _context.TbLessons.CountAsync();
-            var lessonsCompleted = progress.Count;
+            // Only count non-preview lessons
+            var totalNonPreviewLessonsAvailable = await _context.TbLessons
+                .Where(l => l.IsPreview != true)
+                .CountAsync();
+            var nonPreviewLessonsCompleted = progress
+                .Where(p => p.Lesson != null && p.Lesson.IsPreview != true)
+                .Select(p => p.LessonId)
+                .Distinct()
+                .Count();
             var xpPercentage = userXp != null ? (userXp.Xp % 1000) / 10 : 0;
 
             ViewBag.LearningProgress = new
             {
                 TotalXP = userXp?.Xp ?? 0,
                 Level = userXp?.Level ?? 1,
-                LessonsCompleted = lessonsCompleted,
-                TotalLessons = totalLessonsAvailable,
+                LessonsCompleted = nonPreviewLessonsCompleted,
+                TotalLessons = totalNonPreviewLessonsAvailable,
                 XPPercentage = xpPercentage,
-                CompletionPercentage = totalLessonsAvailable > 0 ? (lessonsCompleted * 100 / totalLessonsAvailable) : 0
+                CompletionPercentage = totalNonPreviewLessonsAvailable > 0 ? (nonPreviewLessonsCompleted * 100 / totalNonPreviewLessonsAvailable) : 0
             };
 
             // Load statistics
@@ -106,7 +113,7 @@ namespace QuizlyWebsite.Controllers
                 ExamsApproved = exams.Count(e => e.IsApproved == true),
                 ExamsPending = exams.Count(e => e.IsApproved == false),
                 
-                LessonsCompleted = lessonsCompleted,
+                LessonsCompleted = nonPreviewLessonsCompleted,
             };
 
             var avgRating = exams
@@ -142,24 +149,28 @@ namespace QuizlyWebsite.Controllers
             var enrolledCourses = await _context.TbCourses
                 .Where(c => c.TbLessons.Any(l => l.TbLessonProgresses.Any(p => p.UserId == userId)))
                 .Include(c => c.TbLessons)
+                    .ThenInclude(l => l.TbLessonProgresses)
                 .ToListAsync();
 
-            var coursesWithProgress = new List<dynamic>();
+            var coursesWithProgress = new List<object>();
             foreach (var course in enrolledCourses)
             {
                 var courseLessons = course.TbLessons?.ToList() ?? new List<TbLesson>();
-                var completedLessons = courseLessons.Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true);
-                var totalLessons = courseLessons.Count;
-                var progressPercent = totalLessons > 0 ? (completedLessons * 100 / totalLessons) : 0;
-                var currentLesson = courseLessons.FirstOrDefault(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted != true) == true);
+                // Only count non-preview lessons
+                var nonPreviewLessons = courseLessons.Where(l => l.IsPreview != true).ToList();
+                var completedNonPreviewLessons = nonPreviewLessons
+                    .Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true);
+                var totalNonPreviewLessons = nonPreviewLessons.Count;
+                var progressPercent = totalNonPreviewLessons > 0 ? (completedNonPreviewLessons * 100 / totalNonPreviewLessons) : 0;
+                var currentLesson = nonPreviewLessons.FirstOrDefault(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted != true) == true);
 
                 coursesWithProgress.Add(new
                 {
-                    Course = course,
+                    Course = (TbCourse)course,
                     ProgressPercent = progressPercent,
-                    CompletedLessons = completedLessons,
-                    TotalLessons = totalLessons,
-                    CurrentLesson = currentLesson
+                    CompletedLessons = completedNonPreviewLessons,
+                    TotalLessons = totalNonPreviewLessons,
+                    CurrentLesson = (TbLesson?)currentLesson
                 });
             }
 

@@ -13,175 +13,385 @@
     var isCompleted = ViewBag.IsCompleted as bool? ?? false;
     var courseProgress = ViewBag.CourseProgress as int? ?? 0;
     var canAccess = ViewBag.CanAccess as bool? ?? false;
+    var youtubeUrl = ViewBag.YoutubeUrl as string;
+    var lessonQuiz = ViewBag.LessonQuiz as QuizlyWebsite.Models.TbExam;
+    var hasPassedQuiz = ViewBag.HasPassedQuiz as bool? ?? false;
+    var bestQuizScore = ViewBag.BestQuizScore as decimal?;
+    
+    // Helper function to extract YouTube video ID
+    string? GetYouTubeVideoId(string? url)
+    {
+        if (string.IsNullOrEmpty(url)) return null;
+        
+        var patterns = new[]
+        {
+            @"(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]+)",
+            @"youtube\.com\/watch\?.*v=([a-zA-Z0-9_-]+)"
+        };
+        
+        foreach (var pattern in patterns)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(url, pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (match.Success && match.Groups.Count > 1)
+            {
+                return match.Groups[1].Value;
+            }
+        }
+        
+        return null;
+    }
+    
+    var youtubeVideoId = GetYouTubeVideoId(youtubeUrl);
 }
 
-<main class="min-h-screen bg-background-light dark:bg-background-dark">
-    <div class="flex h-screen overflow-hidden">
-        <!-- Left Sidebar - Lesson Navigation -->
-        <aside class="hidden lg:flex w-80 flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-y-auto">
-            <div class="p-6">
-                <div class="mb-6">
-                    <a href="@Url.Action("View", "Course", new { id = course?.Id })" class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary transition mb-2">
-                        <span class="material-symbols-outlined text-sm">arrow_back</span>
-                        <span class="text-sm font-medium">Về khóa học</span>
-                    </a>
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white">@course?.Title</h2>
-                </div>
-
-                <!-- Progress -->
-                <div class="mb-6">
-                    <div class="flex justify-between mb-2 text-sm">
-                        <span class="text-gray-600 dark:text-gray-400">Tiến độ khóa học</span>
-                        <span class="font-semibold text-gray-900 dark:text-white">@courseProgress%</span>
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
+    <div class="flex min-h-screen">
+        <!-- SideNavBar -->
+        <aside class="w-80 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 flex-col justify-between hidden lg:flex">
+            <div class="flex h-full flex-col justify-between p-4">
+                <div class="flex flex-col gap-4">
+                    <!-- Course Title -->
+                    <div class="flex items-center gap-3 p-3">
+                        <div class="bg-gradient-to-br from-primary to-blue-600 aspect-square rounded-full size-10 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-lg">menu_book</span>
+                        </div>
+                        <h1 class="text-slate-900 dark:text-slate-50 text-base font-bold leading-normal truncate">@course?.Title</h1>
                     </div>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-primary h-2 rounded-full transition-all duration-500" style="width: @courseProgress%"></div>
+                    
+                    <!-- Lesson List -->
+                    <div class="flex flex-col gap-1">
+                        @for (int i = 0; i < allLessons.Count; i++)
+                        {
+                            var lesson = allLessons[i];
+                            var lessonCanAccess = await AccessControl.CanAccessLessonAsync(userId, lesson);
+                            var lessonIsPreview = lesson.IsPreview == true;
+                            var lessonIsLocked = !lessonCanAccess && !lessonIsPreview;
+                            var isCurrent = lesson.Id == Model.Id;
+                            var lessonProgress = lessonProgressDict.ContainsKey(lesson.Id) ? lessonProgressDict[lesson.Id] : null;
+                            var lessonIsCompleted = lessonProgress?.IsCompleted == true;
+                            
+                            @if (i == 0)
+                            {
+                                <!-- Course Folder -->
+                                <div class="flex items-center gap-3 px-3 py-2">
+                                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">folder_open</span>
+                                    <p class="text-slate-900 dark:text-slate-50 text-sm font-medium leading-normal">@course?.Title</p>
+                                </div>
+                            }
+                            
+                            @if (lessonIsLocked)
+                            {
+                                <div class="flex items-center gap-3 px-3 py-2 ml-8">
+                                    <span class="material-symbols-outlined text-slate-400 dark:text-slate-500">lock</span>
+                                    <p class="text-slate-400 dark:text-slate-500 text-sm font-medium leading-normal">Bài @(i + 1): @lesson.Title</p>
+                                </div>
+                            }
+                            else if (isCurrent)
+                            {
+                                <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-primary/10 ml-8">
+                                    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                                    <p class="text-primary text-sm font-bold leading-normal">Bài @(i + 1): @lesson.Title</p>
+                                </div>
+                            }
+                            else if (lessonIsCompleted)
+                            {
+                                <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = lesson.Id })" class="flex items-center gap-3 px-3 py-2 ml-8 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-green-500" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    <p class="text-slate-600 dark:text-slate-300 text-sm font-medium leading-normal">Bài @(i + 1): @lesson.Title</p>
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = lesson.Id })" class="flex items-center gap-3 px-3 py-2 ml-8 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-slate-600 dark:text-slate-300">code</span>
+                                    <p class="text-slate-600 dark:text-slate-300 text-sm font-medium leading-normal">Bài @(i + 1): @lesson.Title</p>
+                                </a>
+                            }
+                        }
                     </div>
                 </div>
-
-                <!-- Lesson List -->
-                <div class="space-y-1">
-                    @for (int i = 0; i < allLessons.Count; i++)
+                
+                <!-- Bottom Actions -->
+                <div class="flex flex-col gap-4">
+                    @if (!canAccess && Model.IsPreview != true)
                     {
-                        var lesson = allLessons[i];
-                        var lessonCanAccess = await AccessControl.CanAccessLessonAsync(userId, lesson);
-                        var lessonIsPreview = lesson.IsPreview == true;
-                        var lessonIsLocked = !lessonCanAccess && !lessonIsPreview;
-                        var isCurrent = lesson.Id == Model.Id;
-                        var lessonProgress = lessonProgressDict.ContainsKey(lesson.Id) ? lessonProgressDict[lesson.Id] : null;
-
-                        <a href="@(lessonIsLocked ? "#" : Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = lesson.Id }))" 
-                           class="flex items-center gap-3 p-3 rounded-lg transition-colors @(isCurrent ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800") @(lessonIsLocked ? "opacity-50 cursor-not-allowed" : "")">
-                            <div class="flex-shrink-0">
-                                @if (lessonIsLocked)
-                                {
-                                    <span class="material-symbols-outlined text-lg">lock</span>
-                                }
-                                else if (lessonProgress?.IsCompleted == true)
-                                {
-                                    <span class="material-symbols-outlined text-lg text-success">check_circle</span>
-                                }
-                                else if (lessonIsPreview)
-                                {
-                                    <span class="material-symbols-outlined text-lg text-primary">play_circle</span>
-                                }
-                                else
-                                {
-                                    <span class="material-symbols-outlined text-lg">radio_button_unchecked</span>
-                                }
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium truncate">Bài @(i + 1): @lesson.Title</p>
-                                @if (lessonIsPreview)
-                                {
-                                    <span class="text-xs text-green-600 dark:text-green-400">Preview</span>
-                                }
-                            </div>
+                        <a href="/subscription" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Nâng cấp Pro</span>
                         </a>
                     }
                 </div>
             </div>
         </aside>
-
+        
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Top Bar -->
-            <div class="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">@Model.Title</h1>
-                        <p class="text-sm text-gray-600 dark:text-gray-400">Bài @(currentIndex + 1) / @allLessons.Count</p>
+        <main class="flex-1 p-4 sm:p-6 lg:p-10">
+            <div class="flex flex-col mx-auto max-w-4xl flex-1">
+                <!-- Page Heading -->
+                <div class="flex flex-wrap justify-between gap-3 p-4">
+                    <p class="text-slate-900 dark:text-slate-50 tracking-tight text-3xl font-bold leading-tight min-w-72">Bài @(currentIndex + 1): @Model.Title</p>
+                </div>
+                
+                <!-- Media Player Area -->
+                <div class="p-4">
+                    @if (!string.IsNullOrEmpty(youtubeVideoId))
+                    {
+                        <!-- YouTube Video Embed -->
+                        <div class="relative w-full aspect-video rounded-xl overflow-hidden bg-slate-900">
+                            <iframe 
+                                class="absolute inset-0 w-full h-full" 
+                                src="https://www.youtube.com/embed/@youtubeVideoId?rel=0&modestbranding=1" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Fallback: Gradient Background with Play Icon -->
+                        <div class="relative flex items-center justify-center bg-slate-900 bg-cover bg-center aspect-video rounded-xl p-4 overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary to-blue-600 opacity-80"></div>
+                            <div class="relative flex flex-col items-center justify-center text-white p-8">
+                                <span class="material-symbols-outlined text-6xl mb-4" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+                                <p class="text-lg font-semibold">Bài học: @Model.Title</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                
+                <!-- Progress and XP -->
+                <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                    <!-- Progress Bar -->
+                    <div class="flex flex-col gap-3 flex-1">
+                        <div class="flex gap-6 justify-between">
+                            <p class="text-slate-800 dark:text-slate-200 text-base font-medium leading-normal">Tiến độ khóa học</p>
+                            <p class="text-slate-600 dark:text-slate-400 text-sm font-normal leading-normal">@courseProgress%</p>
+                        </div>
+                        <div class="h-2 rounded-full bg-slate-200 dark:bg-slate-700">
+                            <div class="h-2 rounded-full bg-primary transition-all duration-500" style="width: @courseProgress%;"></div>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-4">
-                        @if (isCompleted)
+                    
+                    <!-- XP Chip -->
+                    @if (!isCompleted && canAccess)
+                    {
+                        <div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-green-500/10 dark:bg-green-500/20 px-4">
+                            <span class="material-symbols-outlined text-green-600 dark:text-green-400 text-base">emoji_events</span>
+                            <p class="text-green-700 dark:text-green-300 text-sm font-medium leading-normal">+10 XP</p>
+                        </div>
+                    }
+                </div>
+                
+                <!-- Lesson Content -->
+                <div class="p-4">
+                    <div class="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-sm mb-6 relative">
+                        @{
+                            var isPreview = Model.IsPreview == true;
+                            var canAccessFullContent = canAccess || isCompleted;
+                            
+                            // For preview lessons, only show first part of content
+                            string displayContent = Model.Content ?? "";
+                            if (isPreview && !canAccessFullContent)
+                            {
+                                // Extract first 500 characters or until first </p> tag
+                                var firstParagraphEnd = displayContent.IndexOf("</p>", 500);
+                                if (firstParagraphEnd > 0 && firstParagraphEnd < 1000)
+                                {
+                                    displayContent = displayContent.Substring(0, firstParagraphEnd + 4);
+                                }
+                                else if (displayContent.Length > 500)
+                                {
+                                    displayContent = displayContent.Substring(0, 500) + "...";
+                                }
+                            }
+                        }
+                        
+                        <div class="prose dark:prose-invert max-w-none">
+                            <div class="text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">@Html.Raw(displayContent)</div>
+                        </div>
+                        
+                        @if (isPreview && !canAccessFullContent)
                         {
-                            <span class="px-3 py-1 bg-success/10 text-success rounded-full text-sm font-medium flex items-center gap-1">
-                                <span class="material-symbols-outlined text-sm">check_circle</span>
-                                Đã hoàn thành
-                            </span>
+                            <!-- Blur overlay for preview content -->
+                            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-white/80 to-white dark:via-slate-900/80 dark:to-slate-900 backdrop-blur-sm rounded-xl flex items-end justify-center pb-8 pointer-events-none">
+                                <div class="bg-primary/10 dark:bg-primary/20 border-2 border-primary/30 rounded-lg px-6 py-4 pointer-events-auto">
+                                    <p class="text-center text-slate-700 dark:text-slate-200 font-semibold mb-2">
+                                        <span class="material-symbols-outlined align-middle">visibility_off</span>
+                                        Nội dung preview
+                                    </p>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400 text-center">
+                                        Đăng ký khóa học để xem toàn bộ nội dung
+                                    </p>
+                                </div>
+                            </div>
                         }
                     </div>
                 </div>
-            </div>
-
-            <!-- Content Area -->
-            <div class="flex-1 overflow-y-auto">
-                <div class="max-w-4xl mx-auto p-6 lg:p-8">
-                    <!-- Lesson Content -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm mb-6">
-                        <div class="prose dark:prose-invert max-w-none">
-                            <div class="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">@Model.Content</div>
+                
+                <!-- Lesson Quiz Section -->
+                @if (lessonQuiz != null && lessonQuiz.TbQuestions != null && lessonQuiz.TbQuestions.Any())
+                {
+                    <div class="p-4">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 shadow-sm border border-blue-200 dark:border-blue-800">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">quiz</span>
+                                        Bài Kiểm Tra
+                                    </h3>
+                                    <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">
+                                        Bài học này có @lessonQuiz.TbQuestions.Count() câu hỏi trắc nghiệm. 
+                                        Bạn cần đạt ít nhất 70% để hoàn thành bài học.
+                                    </p>
+                                    @if (bestQuizScore.HasValue)
+                                    {
+                                        <div class="flex items-center gap-2 mt-2">
+                                            <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Điểm cao nhất:</span>
+                                            <span class="text-lg font-bold @(hasPassedQuiz ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                                @bestQuizScore.Value.ToString("F1")%
+                                            </span>
+                                            @if (hasPassedQuiz)
+                                            {
+                                                <span class="px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded text-xs font-semibold flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                                    Đã đạt
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="px-2 py-1 bg-red-500/10 text-red-600 dark:text-red-400 rounded text-xs font-semibold">
+                                                    Chưa đạt
+                                                </span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="flex-shrink-0">
+                                    @if (canAccess)
+                                    {
+                                        <a href="@Url.Action("Start", "Quiz", new { id = lessonQuiz.Id, lessonId = Model.Id, courseId = course?.Id })" 
+                                           class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-500/30">
+                                            <span class="material-symbols-outlined">play_circle</span>
+                                            <span>@(bestQuizScore.HasValue ? "Làm lại" : "Làm bài kiểm tra")</span>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button disabled class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-400 text-white font-semibold rounded-lg cursor-not-allowed">
+                                            <span class="material-symbols-outlined">lock</span>
+                                            <span>Khóa</span>
+                                        </button>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Interactive Quiz Section (if applicable) -->
-                    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm mb-6">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Câu hỏi kiểm tra</h3>
-                        <p class="text-gray-600 dark:text-gray-400">Tính năng đang phát triển...</p>
-                    </div>
-
-                    <!-- Complete Button -->
-                    @if (!isCompleted && canAccess)
+                }
+                
+                <!-- Navigation Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 p-4 mt-4 border-t border-slate-200 dark:border-slate-800">
+                    @if (previousLesson != null)
                     {
-                        <form method="post" action="@Url.Action("Complete", "Lesson")" class="mb-6">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@Model.Id">
-                            <button type="submit" class="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition btn-glow flex items-center justify-center gap-2">
-                                <span class="material-symbols-outlined">check_circle</span>
-                                Hoàn thành bài học (+10 XP)
-                            </button>
-                        </form>
-                    }
-
-                    <!-- Navigation -->
-                    <div class="flex justify-between gap-4">
-                        @if (previousLesson != null)
+                        var prevCanAccess = await AccessControl.CanAccessLessonAsync(userId, previousLesson);
+                        var prevIsPreview = previousLesson.IsPreview == true;
+                        @if (prevCanAccess || prevIsPreview)
                         {
-                            var prevCanAccess = await AccessControl.CanAccessLessonAsync(userId, previousLesson);
-                            var prevIsPreview = previousLesson.IsPreview == true;
-                            @if (prevCanAccess || prevIsPreview)
-                            {
-                                <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = previousLesson.Id })" class="flex-1 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center justify-center gap-2">
-                                    <span class="material-symbols-outlined">arrow_back</span>
-                                    Bài trước
-                                </a>
-                            }
+                            <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = previousLesson.Id })" class="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                                <span class="truncate">Bài trước</span>
+                            </a>
                         }
                         else
                         {
-                            <div class="flex-1"></div>
+                            <div class="flex flex-1"></div>
                         }
-
-                        @if (nextLesson != null)
+                    }
+                    else
+                    {
+                        <div class="flex flex-1"></div>
+                    }
+                    
+                    @if (!isCompleted && canAccess)
+                    {
+                        <form method="post" action="@Url.Action("Complete", "Lesson")" class="flex flex-1">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id">
+                            <input type="hidden" name="courseId" value="@course?.Id">
+                            <button type="submit" class="flex w-full min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                                <span class="truncate">Hoàn thành bài học</span>
+                            </button>
+                        </form>
+                    }
+                    else if (isCompleted)
+                    {
+                        <div class="flex flex-1 items-center justify-center">
+                            <span class="px-4 py-2 bg-green-500/10 text-green-600 dark:text-green-400 rounded-lg text-sm font-semibold flex items-center gap-2">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Đã hoàn thành
+                            </span>
+                        </div>
+                    }
+                    
+                    @if (nextLesson != null)
+                    {
+                        var nextCanAccess = await AccessControl.CanAccessLessonAsync(userId, nextLesson);
+                        var nextIsPreview = nextLesson.IsPreview == true;
+                        @if (nextCanAccess || nextIsPreview)
                         {
-                            var nextCanAccess = await AccessControl.CanAccessLessonAsync(userId, nextLesson);
-                            var nextIsPreview = nextLesson.IsPreview == true;
-                            @if (nextCanAccess || nextIsPreview)
-                            {
-                                <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = nextLesson.Id })" class="flex-1 px-6 py-3 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow flex items-center justify-center gap-2">
-                                    Bài tiếp theo
-                                    <span class="material-symbols-outlined">arrow_forward</span>
-                                </a>
-                            }
-                            else
-                            {
-                                <button onclick="showUpgradeModal()" class="flex-1 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition btn-glow flex items-center justify-center gap-2">
-                                    Nâng cấp để tiếp tục
-                                    <span class="material-symbols-outlined">lock</span>
-                                </button>
-                            }
+                            <a href="@Url.Action("Learn", "Lesson", new { courseId = course?.Id, lessonId = nextLesson.Id })" class="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-slate-50 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                                <span class="truncate">Bài tiếp theo</span>
+                            </a>
                         }
-                    </div>
+                        else
+                        {
+                            <button onclick="showUpgradeModal()" class="flex flex-1 min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold leading-normal tracking-[0.015em] hover:from-purple-600 hover:to-pink-600 transition-colors">
+                                <span class="truncate">Nâng cấp để tiếp tục</span>
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <div class="flex flex-1"></div>
+                    }
                 </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Lock Popup Modal -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 hidden" id="lock-modal">
+        <div class="flex w-full max-w-md flex-col gap-6 rounded-xl bg-white dark:bg-slate-900 p-8 shadow-2xl">
+            <div class="flex flex-col items-center gap-4 text-center">
+                <div class="flex items-center justify-center size-14 rounded-full bg-primary/10">
+                    <span class="material-symbols-outlined text-primary text-4xl">lock</span>
+                </div>
+                <h2 class="text-slate-900 dark:text-slate-50 text-2xl font-bold">Nội dung Premium</h2>
+                <p class="text-slate-600 dark:text-slate-400 text-base">Nâng cấp để mở khóa toàn bộ bài học và đề thi.</p>
+            </div>
+            <div class="flex flex-col sm:flex-row-reverse gap-3">
+                <a href="/subscription" class="flex min-w-[84px] flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-5 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                    <span class="truncate">Nâng cấp</span>
+                </a>
+                <button onclick="closeUpgradeModal()" class="flex min-w-[84px] flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg h-11 px-5 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-sm font-bold leading-normal tracking-[0.015em] hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <span class="truncate">Hủy</span>
+                </button>
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <script>
     function showUpgradeModal() {
-        if (confirm('Bạn cần nâng cấp tài khoản để truy cập bài học này. Bạn có muốn chuyển đến trang đăng ký gói Premium không?')) {
-            window.location.href = '/subscription';
-        }
+        document.getElementById('lock-modal').classList.remove('hidden');
     }
+    
+    function closeUpgradeModal() {
+        document.getElementById('lock-modal').classList.add('hidden');
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('lock-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUpgradeModal();
+        }
+    });
 </script>

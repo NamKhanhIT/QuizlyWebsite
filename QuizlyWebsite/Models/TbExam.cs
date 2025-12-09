@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace QuizlyWebsite.Models;
@@ -39,11 +39,15 @@ public partial class TbExam
 
     public bool? IsPaid { get; set; }
 
+    public int? LessonId { get; set; }
+
     public virtual TbUser? ApprovedByNavigation { get; set; }
 
     public virtual TbUser? CreatedByNavigation { get; set; }
 
     public virtual TbSubject Subject { get; set; } = null!;
+
+    public virtual TbLesson? Lesson { get; set; }
 
     public virtual ICollection<TbExamResult> TbExamResults { get; set; } = new List<TbExamResult>();
 

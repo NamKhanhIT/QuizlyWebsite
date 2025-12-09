@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace QuizlyWebsite.Models;
@@ -40,8 +40,6 @@ public partial class TbUser
     public virtual ICollection<TbLesson> TbLessons { get; set; } = new List<TbLesson>();
 
     public virtual ICollection<TbPayment> TbPayments { get; set; } = new List<TbPayment>();
-
-    public virtual ICollection<TbUserMembership> TbUserMemberships { get; set; } = new List<TbUserMembership>();
 
     public virtual ICollection<TbUserPurchase> TbUserPurchases { get; set; } = new List<TbUserPurchase>();
 
