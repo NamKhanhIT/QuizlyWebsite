@@ -8,7 +8,7 @@ namespace QuizlyWebsite.Services
         Task<bool> HasActiveSubscriptionAsync(int userId);
         Task<bool> IsPremiumPlanAsync(int userId);
         Task<bool> CanAccessPremiumContentAsync(int userId);
-        Task<TbUserSubscription> CreateSubscriptionAsync(int userId, string planType, int daysValid);
+        Task<TbUserSubscription> CreateSubscriptionAsync(int userId, string planType, int daysValid, int? planId = null);
         Task<IEnumerable<TbUserSubscription>> GetUserSubscriptionsAsync(int userId);
     }
 }

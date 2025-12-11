@@ -1,0 +1,358 @@
+@model List<TbBlog>
+@{
+    ViewData["Title"] = "Blog & Tin Tức";
+    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    var totalPages = ViewData["TotalPages"] as int? ?? 1;
+    var search = ViewData["Search"] as string;
+    var featuredBlog = Model.FirstOrDefault();
+    var otherBlogs = Model.Skip(1).Take(3).ToList();
+    var remainingBlogs = Model.Skip(4).ToList();
+}
+
+<main class="flex-grow w-full pb-16 bg-background-light dark:bg-background-dark font-display text-slate-600 dark:text-slate-300 antialiased selection:bg-primary/20 selection:text-primary">
+    <!-- Hero Section with Featured Blog -->
+    <section class="bg-gradient-to-b from-blue-50 to-background-light dark:from-background-dark dark:to-background-dark pt-8 pb-12">
+        <div class="container mx-auto px-4">
+            <!-- Trending Tags -->
+            <div class="flex flex-wrap items-center gap-3 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+                <span class="flex items-center gap-1 text-sm font-bold text-gray-800 dark:text-gray-200 whitespace-nowrap">
+                    <span class="material-symbols-outlined text-accent">trending_up</span>
+                    Xu hướng:
+                </span>
+                <a class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors whitespace-nowrap" href="@Url.Action("Index", "Blog", new { search = "ThiTHPT2025" })">#ThiTHPT2025</a>
+                <a class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors whitespace-nowrap" href="@Url.Action("Index", "Blog", new { search = "HocTiengAnh" })">#HocTiengAnh</a>
+                <a class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors whitespace-nowrap" href="@Url.Action("Index", "Blog", new { search = "KyNangMem" })">#KyNangMem</a>
+                <a class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-primary hover:text-primary transition-colors whitespace-nowrap" href="@Url.Action("Index", "Blog", new { search = "CongNgheAI" })">#CongNgheAI</a>
+            </div>
+            
+            <!-- Featured Blog and Hot News -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Featured Blog -->
+                @if (featuredBlog != null)
+                {
+                    <div class="lg:col-span-8 group cursor-pointer">
+                        <a href="@Url.Action("Detail", "Blog", new { id = featuredBlog.Id })">
+                            <div class="relative h-[400px] md:h-[500px] w-full rounded-2xl overflow-hidden shadow-xl">
+                                @if (!string.IsNullOrEmpty(featuredBlog.Thumbnail))
+                                {
+                                    <img alt="@featuredBlog.Title" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" src="@featuredBlog.Thumbnail" />
+                                }
+                                else
+                                {
+                                    <div class="h-full w-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-white text-8xl">article</span>
+                                    </div>
+                                }
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                                <div class="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                                    <div class="mb-3 flex items-center gap-2">
+                                        <span class="px-3 py-1 rounded-md bg-accent text-gray-900 text-xs font-bold uppercase tracking-wider">Mới nhất</span>
+                                        <span class="text-gray-300 text-sm font-medium flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-base">schedule</span> 
+                                            @(featuredBlog.CreatedAt?.ToString("dd/MM/yyyy") ?? "")
+                                        </span>
+                                    </div>
+                                    <h1 class="text-2xl md:text-4xl font-bold text-white mb-3 leading-tight group-hover:text-primary-300 transition-colors">
+                                        @featuredBlog.Title
+                                    </h1>
+                                    @if (!string.IsNullOrEmpty(featuredBlog.Summary))
+                                    {
+                                        <p class="text-gray-200 text-base md:text-lg line-clamp-2 max-w-3xl mb-4">
+                                            @featuredBlog.Summary
+                                        </p>
+                                    }
+                                    <div class="flex items-center gap-3">
+                                        @if (!string.IsNullOrEmpty(featuredBlog.Author?.AvatarUrl))
+                                        {
+                                            <img alt="@featuredBlog.Author.FullName" class="size-10 rounded-full border-2 border-white/20" src="@featuredBlog.Author.AvatarUrl" />
+                                        }
+                                        else
+                                        {
+                                            <div class="size-10 rounded-full border-2 border-white/20 bg-white/20 flex items-center justify-center">
+                                                <span class="material-symbols-outlined text-white">person</span>
+                                            </div>
+                                        }
+                                        <div class="flex flex-col">
+                                            <span class="text-white text-sm font-semibold">@(featuredBlog.Author?.FullName ?? featuredBlog.Author?.Username ?? "Admin")</span>
+                                            <span class="text-gray-400 text-xs">@(featuredBlog.Author?.Role ?? "Tác giả")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="lg:col-span-8 group cursor-pointer">
+                        <div class="relative h-[400px] md:h-[500px] w-full rounded-2xl overflow-hidden shadow-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <span class="material-symbols-outlined text-8xl mb-4">article</span>
+                                <p class="text-xl">Chưa có bài viết nào</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+                
+                <!-- Hot News Sidebar -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <div class="bg-white dark:bg-card-dark rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 h-full">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-red-500">local_fire_department</span>
+                                Tin Nóng 24h
+                            </h3>
+                            <a class="text-sm font-medium text-primary hover:underline" href="@Url.Action("Index", "Blog")">Xem tất cả</a>
+                        </div>
+                        <div class="flex flex-col gap-6">
+                            @for (int i = 0; i < Math.Min(3, otherBlogs.Count); i++)
+                            {
+                                var blog = otherBlogs[i];
+                                <article class="flex gap-4 group cursor-pointer">
+                                    <a href="@Url.Action("Detail", "Blog", new { id = blog.Id })" class="flex gap-4 w-full">
+                                        <span class="text-2xl font-black text-gray-200 dark:text-gray-700 leading-none">@(i + 1).ToString("00")</span>
+                                        <div class="flex flex-col gap-1">
+                                            <span class="text-xs font-semibold text-primary uppercase">Tin tức</span>
+                                            <h4 class="text-base font-bold text-gray-800 dark:text-gray-100 group-hover:text-primary transition-colors line-clamp-2">
+                                                @blog.Title
+                                            </h4>
+                                            <span class="text-xs text-gray-400">@(blog.CreatedAt?.ToString("dd/MM/yyyy") ?? "")</span>
+                                        </div>
+                                    </a>
+                                </article>
+                            }
+                            
+                            @if (otherBlogs.Count == 0)
+                            {
+                                <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">Chưa có tin nóng</p>
+                            }
+                            
+                            <!-- Newsletter Subscription -->
+                            <div class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Đăng ký nhận tin mới mỗi tuần!</p>
+                                <div class="flex gap-2">
+                                    <input class="w-full rounded-lg border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm focus:border-primary focus:ring-primary dark:text-white" placeholder="Email của bạn" type="email"/>
+                                    <button class="rounded-lg bg-primary p-2 text-white hover:bg-primary-dark transition-colors">
+                                        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 space-y-16">
+        <!-- Analysis & Insights Section -->
+        <section>
+            <div class="flex items-end justify-between mb-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Phân tích & Góc nhìn</h2>
+                    <p class="text-gray-500 dark:text-gray-400">Những bài viết chuyên sâu mở rộng kiến thức.</p>
+                </div>
+                <a class="hidden sm:flex items-center gap-1 text-primary font-semibold hover:gap-2 transition-all" href="@Url.Action("Index", "Blog")">
+                    Xem thêm <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </a>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                @foreach (var blog in remainingBlogs.Take(6))
+                {
+                    <article class="flex flex-col h-full bg-white dark:bg-card-dark rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-800 group">
+                        <a href="@Url.Action("Detail", "Blog", new { id = blog.Id })">
+                            <div class="relative h-48 overflow-hidden">
+                                @if (!string.IsNullOrEmpty(blog.Thumbnail))
+                                {
+                                    <img alt="@blog.Title" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" src="@blog.Thumbnail" />
+                                }
+                                else
+                                {
+                                    <div class="w-full h-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-white text-6xl">article</span>
+                                    </div>
+                                }
+                                <div class="absolute top-4 left-4">
+                                    <span class="px-3 py-1 bg-white/90 dark:bg-black/80 backdrop-blur text-xs font-bold rounded-full text-blue-600">Tin tức</span>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <a href="@Url.Action("Detail", "Blog", new { id = blog.Id })">
+                                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                                    @blog.Title
+                                </h3>
+                            </a>
+                            @if (!string.IsNullOrEmpty(blog.Summary))
+                            {
+                                <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 line-clamp-3 flex-grow">
+                                    @blog.Summary
+                                </p>
+                            }
+                            <div class="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(blog.Author?.AvatarUrl))
+                                    {
+                                        <img alt="@blog.Author.FullName" class="size-6 rounded-full" src="@blog.Author.AvatarUrl" />
+                                    }
+                                    else
+                                    {
+                                        <div class="size-6 rounded-full bg-primary/20 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-primary text-sm">person</span>
+                                        </div>
+                                    }
+                                    <span class="text-xs font-medium text-gray-600 dark:text-gray-300">@(blog.Author?.FullName ?? blog.Author?.Username ?? "Admin")</span>
+                                </div>
+                                <span class="text-xs text-gray-400">@(blog.CreatedAt?.ToString("dd/MM/yyyy") ?? "")</span>
+                            </div>
+                        </div>
+                    </article>
+                }
+                
+                @if (remainingBlogs.Count == 0 && Model.Count <= 4)
+                {
+                    <div class="col-span-full text-center py-12">
+                        <span class="material-symbols-outlined text-6xl text-gray-400 mb-4">article</span>
+                        <p class="text-gray-600 dark:text-gray-400 text-lg">Chưa có bài viết nào</p>
+                    </div>
+                }
+            </div>
+        </section>
+        
+        <!-- Knowledge Challenge Section -->
+        <section class="rounded-3xl bg-gray-900 overflow-hidden relative">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl -ml-16 -mb-16"></div>
+            <div class="relative z-10 p-8 md:p-12">
+                <div class="flex flex-col md:flex-row items-center justify-between mb-10 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                            <span class="p-2 rounded-lg bg-white/10 text-accent">
+                                <span class="material-symbols-outlined text-3xl">sports_esports</span>
+                            </span>
+                            Thử thách Tri thức
+                        </h2>
+                        <p class="text-gray-300">Kết hợp tin tức thời sự với các bài kiểm tra nhanh thú vị.</p>
+                    </div>
+                    <a href="@Url.Action("List", "Quiz")" class="px-6 py-2 rounded-full border border-white/20 text-white hover:bg-white hover:text-gray-900 transition-all font-semibold text-sm">
+                        Xem tất cả Quiz
+                    </a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors group cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-bold uppercase rounded border border-red-500/30">Hot Event</span>
+                            <span class="text-gray-400 text-xs flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">person</span> 1.2k tham gia
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-accent transition-colors">Quiz: Bạn biết gì về AI và Tương lai?</h3>
+                        <p class="text-gray-400 text-sm mb-6">Kiểm tra kiến thức công nghệ của bạn qua 10 câu hỏi trắc nghiệm xoay quanh ChatGPT và Midjourney.</p>
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-white shadow-lg shadow-primary/40 group-hover:scale-110 transition-transform">
+                                <span class="material-symbols-outlined">play_arrow</span>
+                            </div>
+                            <span class="text-white font-semibold text-sm">Bắt đầu ngay</span>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors group cursor-pointer">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold uppercase rounded border border-green-500/30">Văn hóa Việt</span>
+                            <span class="text-gray-400 text-xs flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm">person</span> 850 tham gia
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-accent transition-colors">Thử tài Văn học Dân gian</h3>
+                        <p class="text-gray-400 text-sm mb-6">Ca dao, tục ngữ và những câu chuyện cổ tích. Liệu bạn có còn nhớ những bài học đầu đời?</p>
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-accent group-hover:text-black group-hover:border-accent transition-all">
+                                <span class="material-symbols-outlined">play_arrow</span>
+                            </div>
+                            <span class="text-white font-semibold text-sm">Chơi thử</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Success Stories Section -->
+        <section>
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm mb-2 block">Góc cảm hứng</span>
+                <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Câu chuyện thành công</h2>
+                <p class="text-gray-500 dark:text-gray-400">Không có con đường nào trải đầy hoa hồng. Lắng nghe hành trình vượt khó của những học sinh ưu tú.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="relative rounded-2xl overflow-hidden h-[400px] shadow-2xl rotate-1 hover:rotate-0 transition-all duration-500">
+                    <div class="h-full w-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+                        <div class="text-center text-white p-8">
+                            <span class="material-symbols-outlined text-8xl mb-4">emoji_events</span>
+                            <p class="text-xl italic mb-2">"Đừng để điểm số định nghĩa con người bạn. Hãy để nỗ lực làm điều đó."</p>
+                            <p class="text-accent font-bold">— Nguyễn Thị Mai, Thủ khoa Khối D 2023</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="size-12 rounded-full bg-primary/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary text-2xl">person</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Trần Văn B.</h4>
+                                <span class="text-xs text-gray-500">Học sinh lớp 12 chuyên Lý</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Từ học sinh trung bình đến giải Nhất Quốc gia: Hành trình 300 ngày đêm "cày" đề và thay đổi tư duy giải bài tập...
+                        </p>
+                    </div>
+                    <div class="p-6 rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="size-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-green-500 text-2xl">school</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 dark:text-white">Lê Thị C.</h4>
+                                <span class="text-xs text-gray-500">Du học sinh Úc</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Bí quyết săn học bổng 100% khi không có thành tích ngoại khóa khủng. Câu chuyện về sự chân thành trong bài luận.
+                        </p>
+                    </div>
+                    <a href="@Url.Action("Index", "Blog")" class="w-full py-3 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 font-semibold hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">add</span>
+                        Chia sẻ câu chuyện của bạn
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #2b8cee 0%, #0ea5e9 100%);
+    }
+</style>

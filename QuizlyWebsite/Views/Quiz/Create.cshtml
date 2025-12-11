@@ -1,12 +1,13 @@
 @model TbExam
 @{
-    ViewData["Title"] = "Create New Exam";
+    ViewData["Title"] = "Tạo đề thi mới";
     var subjects = ViewData["Subjects"] as List<TbSubject>;
+    var categories = ViewData["Categories"] as List<TbCategory> ?? new List<TbCategory>();
 }
 
 <style>
     .create-exam-container {
-        max-width: 800px;
+        max-width: 1000px;
         margin: 40px auto;
         padding: 0 20px;
     }
@@ -152,6 +153,28 @@
         background: #e0e0e0;
     }
 
+    .btn-danger {
+        background: #f44336;
+        color: white;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .btn-danger:hover {
+        background: #d32f2f;
+    }
+
+    .btn-success {
+        background: #4caf50;
+        color: white;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+    }
+
+    .btn-success:hover {
+        background: #388e3c;
+    }
+
     .alert {
         padding: 15px;
         border-radius: 6px;
@@ -195,19 +218,81 @@
         color: #666;
         font-size: 0.95rem;
     }
+
+    .question-item {
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .question-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .question-number {
+        font-weight: 700;
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+
+    .option-group {
+        margin-bottom: 15px;
+    }
+
+    .option-group label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 5px;
+    }
+
+    .option-input {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .option-input input[type="radio"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .toggle-switch input[type="checkbox"] {
+        width: auto;
+    }
+
+    .custom-input {
+        margin-top: 10px;
+    }
+
+    .custom-input.hidden {
+        display: none;
+    }
 </style>
 
 <div class="create-exam-container">
     <!-- Hero Section -->
     <div class="exam-hero">
-        <h1>📝 Create New Exam</h1>
-        <p>Submit your exam for admin review and approval</p>
+        <h1>📝 Tạo đề thi mới</h1>
+        <p>Điền đầy đủ thông tin và câu hỏi để gửi đề thi lên duyệt</p>
     </div>
 
     <!-- Information Alert -->
     <div class="alert alert-info">
-        <strong>ℹ️ Important Notes:</strong>
-        Your exam will be reviewed by administrators before being published. You'll receive a notification once it's approved or rejected.
+        <strong>ℹ️ Lưu ý quan trọng:</strong>
+        Đề thi của bạn sẽ được xem xét bởi quản trị viên trước khi được xuất bản. Bạn sẽ nhận được thông báo khi đề thi được duyệt hoặc từ chối.
     </div>
 
     <!-- Form -->
@@ -215,7 +300,7 @@
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger">
-                <strong>⚠️ Validation Errors:</strong>
+                <strong>⚠️ Lỗi xác thực:</strong>
                 <ul>
                     @foreach (var modelState in ViewData.ModelState.Values)
                     {
@@ -228,60 +313,119 @@
             </div>
         }
 
-        <form method="post" action="@Url.Action("Create", "Quiz")">
+        <form method="post" action="@Url.Action("Create", "Quiz")" id="examForm">
             @Html.AntiForgeryToken()
+            
             <!-- Basic Information -->
             <div class="form-section">
-                <h3 class="section-title">📋 Basic Information</h3>
+                <h3 class="section-title">📋 Thông tin cơ bản</h3>
 
                 <div class="form-group">
-                    <label for="Title">Exam Title *</label>
-                    <input type="text" id="Title" name="Title" placeholder="e.g., Advanced C# Programming Quiz" required />
+                    <label for="Title">Tên đề thi *</label>
+                    <input type="text" id="Title" name="Title" placeholder="Ví dụ: Đề thi C# nâng cao" required />
                     <span class="validation-errors"></span>
-                    <div class="help-text">Give your exam a clear, descriptive title</div>
+                    <div class="help-text">Đặt tên rõ ràng, mô tả cho đề thi của bạn</div>
                 </div>
 
                 <div class="form-group">
-                    <label for="SubjectId">Subject *</label>
+                    <label>Danh mục *</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="useNewCategory" onchange="toggleCategoryInput()">
+                        <input type="hidden" id="useNewCategoryValue" name="UseNewCategory" value="false">
+                        <label for="useNewCategory" style="margin: 0; font-weight: normal;">Tạo danh mục mới</label>
+                    </div>
+                    <select id="CategoryId" name="CategoryId" required>
+                        <option value="">-- Chọn danh mục --</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Id">@category.Title</option>
+                        }
+                    </select>
+                    <div class="custom-input hidden" id="newCategoryInput">
+                        <input type="text" id="NewCategoryTitle" name="NewCategoryTitle" placeholder="Nhập tên danh mục mới" />
+                    </div>
+                    <span class="validation-errors"></span>
+                    <div class="help-text">Chọn danh mục có sẵn hoặc tạo danh mục mới</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Môn học *</label>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="useNewSubject" onchange="toggleSubjectInput()">
+                        <input type="hidden" id="useNewSubjectValue" name="UseNewSubject" value="false">
+                        <label for="useNewSubject" style="margin: 0; font-weight: normal;">Tạo môn học mới</label>
+                    </div>
                     <select id="SubjectId" name="SubjectId" required>
-                        <option value="">-- Select a Subject --</option>
-                        @foreach (var subject in (List<TbSubject>)ViewData["Subjects"])
+                        <option value="">-- Chọn môn học --</option>
+                        @foreach (var subject in subjects)
                         {
                             <option value="@subject.Id">@subject.Title</option>
                         }
                     </select>
+                    <div class="custom-input hidden" id="newSubjectInput">
+                        <input type="text" id="NewSubjectTitle" name="NewSubjectTitle" placeholder="Nhập tên môn học mới" />
+                        <textarea id="NewSubjectDescription" name="NewSubjectDescription" rows="2" placeholder="Mô tả môn học (tùy chọn)" style="margin-top: 10px;"></textarea>
+                    </div>
                     <span class="validation-errors"></span>
-                    <div class="help-text">Select the academic subject for this exam</div>
+                    <div class="help-text">Chọn môn học có sẵn hoặc tạo môn học mới</div>
                 </div>
             </div>
 
             <!-- Configuration -->
             <div class="form-section">
-                <h3 class="section-title">⚙️ Exam Configuration</h3>
+                <h3 class="section-title">⚙️ Cấu hình đề thi</h3>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="Duration">Duration (minutes) *</label>
-                        <input type="number" id="Duration" name="Duration" min="5" max="300" placeholder="e.g., 60" required />
+                        <label for="Duration">Thời gian (phút) *</label>
+                        <input type="number" id="Duration" name="Duration" min="5" max="300" placeholder="Ví dụ: 60" required />
                         <span class="validation-errors"></span>
-                        <div class="help-text">How long should users have to complete this exam?</div>
+                        <div class="help-text">Thời gian làm bài (tối thiểu 5 phút, tối đa 300 phút)</div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="Difficulty">Độ khó *</label>
+                        <select id="Difficulty" name="Difficulty" required>
+                            <option value="Dễ">Dễ</option>
+                            <option value="Trung bình" selected>Trung bình</option>
+                            <option value="Khó">Khó</option>
+                        </select>
+                        <span class="validation-errors"></span>
+                        <div class="help-text">Chọn mức độ khó của đề thi</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Section -->
+            <div class="form-section">
+                <h3 class="section-title">❓ Câu hỏi</h3>
+                
+                <div id="questionsContainer">
+                    <!-- Questions will be added here dynamically -->
+                </div>
+
+                <button type="button" class="btn btn-success" onclick="addQuestion()">
+                    + Thêm câu hỏi
+                </button>
+
+                <div class="help-text" style="margin-top: 10px;">
+                    Thêm ít nhất 1 câu hỏi cho đề thi. Mỗi câu hỏi cần có 4 đáp án và đáp án đúng.
                 </div>
             </div>
 
             <!-- Info Box -->
             <div class="info-box">
-                <strong>📌 What's Next?</strong>
-                <p>After creating the exam, you can add questions. Your exam will be pending approval before publishing.</p>
+                <strong>📌 Lưu ý:</strong>
+                <p>Sau khi tạo đề thi, bạn cần thêm câu hỏi. Đề thi sẽ ở trạng thái "Chờ duyệt" cho đến khi được quản trị viên phê duyệt.</p>
             </div>
 
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    ✓ Create Exam
+                    ✓ Gửi đề thi để duyệt
                 </button>
                 <a href="@Url.Action("Index", "Profile")" class="btn btn-secondary">
-                    Cancel
+                    Hủy
                 </a>
             </div>
         </form>
@@ -290,4 +434,169 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        let questionCount = 0;
+
+        function toggleCategoryInput() {
+            const checkbox = document.getElementById('useNewCategory');
+            const hiddenInput = document.getElementById('useNewCategoryValue');
+            const select = document.getElementById('CategoryId');
+            const input = document.getElementById('newCategoryInput');
+            const newCategoryTitle = document.getElementById('NewCategoryTitle');
+            
+            if (checkbox.checked) {
+                select.required = false;
+                select.value = '';
+                input.classList.remove('hidden');
+                newCategoryTitle.required = true;
+                hiddenInput.value = 'true';
+            } else {
+                select.required = true;
+                input.classList.add('hidden');
+                newCategoryTitle.required = false;
+                newCategoryTitle.value = ''; // Clear value when unchecked
+                hiddenInput.value = 'false';
+            }
+        }
+
+        function toggleSubjectInput() {
+            const checkbox = document.getElementById('useNewSubject');
+            const hiddenInput = document.getElementById('useNewSubjectValue');
+            const select = document.getElementById('SubjectId');
+            const input = document.getElementById('newSubjectInput');
+            const newSubjectTitle = document.getElementById('NewSubjectTitle');
+            const newSubjectDescription = document.getElementById('NewSubjectDescription');
+            
+            if (checkbox.checked) {
+                select.required = false;
+                select.value = '';
+                input.classList.remove('hidden');
+                newSubjectTitle.required = true;
+                hiddenInput.value = 'true';
+            } else {
+                select.required = true;
+                input.classList.add('hidden');
+                newSubjectTitle.required = false;
+                newSubjectTitle.value = ''; // Clear value when unchecked
+                newSubjectDescription.value = ''; // Clear value when unchecked
+                hiddenInput.value = 'false';
+            }
+        }
+
+        function addQuestion() {
+            questionCount++;
+            const container = document.getElementById('questionsContainer');
+            
+            const questionHtml = `
+                <div class="question-item" data-question-index="${questionCount}">
+                    <div class="question-header">
+                        <span class="question-number">Câu hỏi ${questionCount}</span>
+                        <button type="button" class="btn btn-danger" onclick="removeQuestion(${questionCount})">
+                            Xóa
+                        </button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Nội dung câu hỏi *</label>
+                        <textarea name="Questions[${questionCount - 1}].Content" required placeholder="Nhập nội dung câu hỏi..."></textarea>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Đáp án A *</label>
+                        <div class="option-input">
+                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="A" required>
+                            <input type="text" name="Questions[${questionCount - 1}].OptionA" required placeholder="Nhập đáp án A" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Đáp án B *</label>
+                        <div class="option-input">
+                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="B" required>
+                            <input type="text" name="Questions[${questionCount - 1}].OptionB" required placeholder="Nhập đáp án B" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Đáp án C *</label>
+                        <div class="option-input">
+                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="C" required>
+                            <input type="text" name="Questions[${questionCount - 1}].OptionC" required placeholder="Nhập đáp án C" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Đáp án D *</label>
+                        <div class="option-input">
+                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="D" required>
+                            <input type="text" name="Questions[${questionCount - 1}].OptionD" required placeholder="Nhập đáp án D" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Điểm số</label>
+                        <input type="number" name="Questions[${questionCount - 1}].Marks" min="0" step="0.5" value="1" placeholder="1.0">
+                        <div class="help-text">Điểm số cho câu hỏi này (mặc định: 1 điểm)</div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', questionHtml);
+        }
+
+        function removeQuestion(index) {
+            const question = document.querySelector(`[data-question-index="${index}"]`);
+            if (question) {
+                question.remove();
+                updateQuestionNumbers();
+            }
+        }
+
+        function updateQuestionNumbers() {
+            const questions = document.querySelectorAll('.question-item');
+            questions.forEach((q, index) => {
+                const number = index + 1;
+                q.querySelector('.question-number').textContent = `Câu hỏi ${number}`;
+                
+                // Update all input names
+                const inputs = q.querySelectorAll('input, textarea');
+                inputs.forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(/Questions\[\d+\]/, `Questions[${index}]`);
+                    }
+                });
+            });
+            questionCount = questions.length;
+        }
+
+        // Add first question by default
+        document.addEventListener('DOMContentLoaded', function() {
+            addQuestion();
+        });
+
+        // Form validation
+        document.getElementById('examForm').addEventListener('submit', function(e) {
+            const questions = document.querySelectorAll('.question-item');
+            if (questions.length === 0) {
+                e.preventDefault();
+                alert('Vui lòng thêm ít nhất 1 câu hỏi!');
+                return false;
+            }
+
+            // Validate each question has a correct answer selected
+            let allValid = true;
+            questions.forEach((q, index) => {
+                const correctOption = q.querySelector('input[type="radio"]:checked');
+                if (!correctOption) {
+                    allValid = false;
+                }
+            });
+
+            if (!allValid) {
+                e.preventDefault();
+                alert('Vui lòng chọn đáp án đúng cho tất cả các câu hỏi!');
+                return false;
+            }
+        });
+    </script>
 }

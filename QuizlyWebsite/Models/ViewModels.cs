@@ -48,4 +48,19 @@ namespace QuizlyWebsite.Models
         public string? CorrectAnswer { get; set; }
         public bool IsCorrect { get; set; }
     }
+
+    /// <summary>
+    /// Ranking view model
+    /// </summary>
+    public class RankingViewModel
+    {
+        public int Rank { get; set; }
+        public int UserId { get; set; }
+        public string Username { get; set; } = "";
+        public string FullName { get; set; } = "";
+        public string? AvatarUrl { get; set; }
+        public int Score { get; set; }
+        public string ScoreLabel { get; set; } = "";
+        public string? AdditionalInfo { get; set; }
+    }
 }

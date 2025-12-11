@@ -1,0 +1,108 @@
+@model TbBlog
+@{
+    ViewData["Title"] = Model.Title;
+    var relatedBlogs = ViewBag.RelatedBlogs as List<TbBlog> ?? new List<TbBlog>();
+}
+
+<main class="min-h-screen bg-background-light dark:bg-background-dark">
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <article class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden">
+            <!-- Hero Image -->
+            @if (!string.IsNullOrEmpty(Model.Thumbnail))
+            {
+                <div class="relative h-64 md:h-96 overflow-hidden">
+                    <img src="@Model.Thumbnail" alt="@Model.Title" class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                </div>
+            }
+            
+            <div class="p-6 md:p-8">
+                <!-- Header -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 flex-wrap">
+                        <span class="material-symbols-outlined text-sm">person</span>
+                        <span>@(Model.Author?.FullName ?? Model.Author?.Username ?? "Admin")</span>
+                        <span class="mx-2">•</span>
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        <span>@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")</span>
+                        @if (!string.IsNullOrEmpty(Model.Summary))
+                        {
+                            <span class="mx-2">•</span>
+                            <span>@(Model.Summary.Length / 200 + 1) phút đọc</span>
+                        }
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-4 leading-tight">@Model.Title</h1>
+                    @if (!string.IsNullOrEmpty(Model.Summary))
+                    {
+                        <p class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed">@Model.Summary</p>
+                    }
+                </div>
+
+                <!-- Content -->
+                <div class="prose prose-slate dark:prose-invert max-w-none prose-headings:text-slate-900 dark:prose-headings:text-white prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-a:text-primary prose-strong:text-slate-900 dark:prose-strong:text-white">
+                    @Html.Raw(Model.Content)
+                </div>
+                
+                <!-- Author Info -->
+                <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-4">
+                        @if (!string.IsNullOrEmpty(Model.Author?.AvatarUrl))
+                        {
+                            <img src="@Model.Author.AvatarUrl" alt="@Model.Author.FullName" class="w-16 h-16 rounded-full object-cover" />
+                        }
+                        else
+                        {
+                            <div class="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-primary text-3xl">person</span>
+                            </div>
+                        }
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-white text-lg">@(Model.Author?.FullName ?? Model.Author?.Username ?? "Admin")</h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm">@(Model.Author?.Role ?? "Tác giả")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <!-- Related Blogs -->
+        @if (relatedBlogs.Any())
+        {
+            <div class="mt-12">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Bài viết liên quan</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    @foreach (var blog in relatedBlogs)
+                    {
+                        <article class="bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow group">
+                            <a href="@Url.Action("Detail", "Blog", new { id = blog.Id })">
+                                @if (!string.IsNullOrEmpty(blog.Thumbnail))
+                                {
+                                    <div class="relative h-32 overflow-hidden">
+                                        <img src="@blog.Thumbnail" alt="@blog.Title" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                    </div>
+                                }
+                            </a>
+                            <div class="p-4">
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2 line-clamp-2">
+                                    <a href="@Url.Action("Detail", "Blog", new { id = blog.Id })" class="hover:text-primary transition-colors">
+                                        @blog.Title
+                                    </a>
+                                </h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">@(blog.CreatedAt?.ToString("dd/MM/yyyy") ?? "")</p>
+                            </div>
+                        </article>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</main>
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>

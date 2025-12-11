@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bảng Xếp Hạng</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#3B82F6","primary-dark": "#2563EB","accent": "#FBBF24","success": "#22C55E",
+              "danger": "#EF4444",
+              "background-light": "#F8FAFC",
+              "surface": "#FFFFFF",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "0.75rem", "xl": "1rem", "2xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+  .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .filled-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+</style>
+</head>
+<body class="bg-background-light font-display text-slate-800">
+<div class="flex h-screen overflow-hidden">
+<aside class="flex flex-col w-64 bg-white border-r border-slate-200 hidden md:flex">
+<div class="flex items-center gap-3 p-6 border-b border-slate-100">
+<div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center size-10 text-white font-bold text-xl shadow-md">Q</div>
+<div class="flex flex-col">
+<h1 class="text-slate-900 text-lg font-bold leading-none tracking-tight">Quizly</h1>
+<p class="text-slate-500 text-xs font-medium mt-1">Student Portal</p>
+</div>
+</div>
+<nav class="flex-1 px-4 py-6 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="text-sm font-medium">Tổng quan</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">school</span>
+<span class="text-sm font-medium">Khóa học của tôi</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-blue-50 text-primary" href="#">
+<span class="material-symbols-outlined filled-icon">leaderboard</span>
+<span class="text-sm font-bold">Bảng Xếp Hạng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">emoji_events</span>
+<span class="text-sm font-medium">Thành tích</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">forum</span>
+<span class="text-sm font-medium">Thảo luận</span>
+</a>
+</nav>
+<div class="p-4 m-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl text-white relative overflow-hidden shadow-lg shadow-blue-500/30">
+<div class="absolute -top-6 -right-6 w-20 h-20 bg-white opacity-10 rounded-full"></div>
+<div class="absolute bottom-4 right-2 w-10 h-10 bg-white opacity-10 rounded-full"></div>
+<p class="text-xs font-medium opacity-90 mb-1">Cấp độ hiện tại</p>
+<p class="text-lg font-bold mb-3">Level 12</p>
+<div class="w-full bg-black/20 rounded-full h-1.5 mb-1">
+<div class="bg-yellow-400 h-1.5 rounded-full" style="width: 75%"></div>
+</div>
+<p class="text-[10px] opacity-80 text-right">1,250 / 1,500 XP</p>
+</div>
+<div class="px-4 py-4 border-t border-slate-100">
+<a class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-primary transition-colors" href="#">
+<div class="size-8 rounded-full bg-slate-200 bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCU4OFmy_rTADpaneIvwZr92BZaTxn7U3Jv9xSC6xmIfm4zV-hvDtcMNp3wjxng3jG7z4Xy0I8hc9FQxyUF06n7B4giLsE0spqOUKqImexp2QueQfPp8QGrrS9QZh57jjs6qcaI1ZvaWCFCP16xiITFIQV21ixqgWq9qgN7GQlNwgnKMq3MZRW5iFuh0TPxiP4t8vnS46oUu9i0RAnSNeAPQoHdNbIVd6DuB6NcKh6GDsMQem8WIge7XL__1PmwykpYMy335UV-T_mY");'></div>
+<div class="flex flex-col">
+<span class="text-sm font-bold text-slate-900">Minh Anh</span>
+<span class="text-xs text-slate-500">Học viên</span>
+</div>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden bg-background-light">
+<header class="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-200">
+<div>
+<h2 class="text-2xl font-bold text-slate-900">Bảng Xếp Hạng</h2>
+<p class="text-sm text-slate-500 mt-1">Cạnh tranh lành mạnh, cùng nhau tiến bộ!</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="relative p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+</button>
+<button class="p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button class="md:hidden p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-4 md:p-8">
+<div class="flex flex-col xl:flex-row gap-6 mb-8 items-start xl:items-center justify-between">
+<div class="flex bg-white p-1.5 rounded-xl shadow-sm border border-slate-200">
+<button class="px-4 py-2 rounded-lg bg-blue-50 text-primary font-bold text-sm shadow-sm transition-all">Tuần này</button>
+<button class="px-4 py-2 rounded-lg text-slate-500 hover:bg-slate-50 font-medium text-sm transition-colors">Tháng này</button>
+<button class="px-4 py-2 rounded-lg text-slate-500 hover:bg-slate-50 font-medium text-sm transition-colors">Tất cả</button>
+</div>
+<div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+<div class="relative flex-1 xl:flex-none">
+<select class="w-full appearance-none pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-shadow cursor-pointer">
+<option>Tất cả môn học</option>
+<option>Toán học</option>
+<option>Vật lý</option>
+<option>Hóa học</option>
+<option>Tiếng Anh</option>
+</select>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">category</span>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">expand_more</span>
+</div>
+<div class="relative flex-1 xl:flex-none">
+<input class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-shadow xl:w-64" placeholder="Tìm kiếm bạn bè..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-end max-w-4xl mx-auto px-4 pt-8">
+<div class="order-2 md:order-1 flex flex-col items-center">
+<div class="relative mb-4 group cursor-pointer">
+<div class="w-24 h-24 rounded-full border-4 border-slate-300 p-1 bg-white shadow-sm transition-transform group-hover:scale-105">
+<img alt="User" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGM_uDK0TdbO-dBq45Z0SeHnRrW_hAa5LQJg8NRRJnSAF4qQOxSY5f7CvmBeCEdNcuXC0H_pVkhULa2HYlS8rYlm0H8PP8YT0o8uAQyYuj7LWaycnZHw48nKdrUNKDZ1Kwo2iNd6IvGh25tewwBonEeeH9y_VXOIQEG6E3fzaZMaQysZc_mAx4I-I3NqrNqzYBVAsSis1vb_nwdI1XhnrEAZNnIbDw56j47h22I2_PMlS5AJeIGi2zjeM06wA69iWzijuGtfsfOoN8"/>
+</div>
+<div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-200 text-slate-700 font-bold px-3 py-0.5 rounded-full text-sm shadow-sm border border-white min-w-[2rem] text-center">2</div>
+</div>
+<h3 class="text-slate-900 font-bold text-lg">Trần Văn B</h3>
+<p class="text-primary font-bold text-xl mb-4">2,140 XP</p>
+<div class="w-full bg-white rounded-t-2xl h-32 shadow-sm border border-slate-100 flex flex-col items-center justify-end pb-4 relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-t from-slate-100 to-transparent opacity-50"></div>
+<span class="material-symbols-outlined text-slate-300 text-5xl mb-1 drop-shadow-sm">military_tech</span>
+<span class="text-slate-400 font-bold text-sm uppercase tracking-wider">Hạng Bạc</span>
+</div>
+</div>
+<div class="order-1 md:order-2 flex flex-col items-center md:-translate-y-4 z-10">
+<div class="relative mb-4 group cursor-pointer">
+<span class="absolute -top-10 left-1/2 -translate-x-1/2 text-4xl animate-bounce">👑</span>
+<div class="w-32 h-32 rounded-full border-4 border-yellow-400 p-1 shadow-lg shadow-yellow-400/20 bg-white transition-transform group-hover:scale-105">
+<img alt="User" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAqqXYbiNXXGIh32OGkSD_vmwI_SaWYKgWTxnuIfD1R_ufH3XBOvCoX_eeuuGo91Cw8z2OidZET0WSXyNRERA_lhYCzQ5AKslhwv4pL_kyH2bETjaPUewWcn32sqxh4FCai9z6TfBoM01Xb_as6GP9rR9DxgRlKQBtW_JUruQ-kNq7aMdvYQg9xqhJQwnxbcpEvlPJcKFvA2WLu0JPtPFKaol8uEU2YnqPxlfxhy6d5X_wtWUVBcM53RKQM0Zn3w1Cqe9Q_VxYVCR8"/>
+</div>
+<div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-white font-bold px-4 py-1 rounded-full text-base shadow-md border-2 border-white min-w-[2.5rem] text-center">1</div>
+</div>
+<h3 class="text-slate-900 font-bold text-xl">Nguyễn Thị A</h3>
+<p class="text-primary font-bold text-2xl mb-4">2,450 XP</p>
+<div class="w-full bg-gradient-to-b from-yellow-50 to-white rounded-t-2xl h-44 shadow-md border border-yellow-100 flex flex-col items-center justify-end pb-6 relative overflow-hidden">
+<div class="absolute inset-x-0 top-0 h-1 bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]"></div>
+<span class="material-symbols-outlined text-yellow-400 text-6xl mb-2 filled-icon drop-shadow-sm">emoji_events</span>
+<span class="text-yellow-600 font-bold text-sm uppercase tracking-wider">Vô địch</span>
+</div>
+</div>
+<div class="order-3 flex flex-col items-center">
+<div class="relative mb-4 group cursor-pointer">
+<div class="w-24 h-24 rounded-full border-4 border-orange-300 p-1 bg-white shadow-sm transition-transform group-hover:scale-105">
+<img alt="User" class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCxxBPpJlVALvhn6--DZ5jfiW9IqMnPjx8BxtYGat88KBJMzGEBtvWyJlrj3AazqNyMyCTNDqPZtmld8gBYnNJgx5U7E1hXlO9_Ouh1R6MefgEUMsEPk8JtOLTO0dhi1fZPjhssDI9JKRD8-96WJzVzBXjUwZx9en5MHQOomcx0PdzstjG-t6pKa69dV-aqwb7lGC0-dTpeo7nEdsfFy6y8OBfZt3JW9ebzW7aZCrYUwUWmAm9sBj__Q7TGBCrkyVGZ2DMCju_nELVH"/>
+</div>
+<div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-orange-300 text-white font-bold px-3 py-0.5 rounded-full text-sm shadow-sm border border-white min-w-[2rem] text-center">3</div>
+</div>
+<h3 class="text-slate-900 font-bold text-lg">Lê Hoàng C</h3>
+<p class="text-primary font-bold text-xl mb-4">1,980 XP</p>
+<div class="w-full bg-white rounded-t-2xl h-24 shadow-sm border border-slate-100 flex flex-col items-center justify-end pb-4 relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-t from-orange-50 to-transparent opacity-50"></div>
+<span class="material-symbols-outlined text-orange-300 text-5xl mb-1 drop-shadow-sm">military_tech</span>
+<span class="text-orange-400 font-medium text-sm uppercase tracking-wider">Hạng Đồng</span>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
+<th class="px-6 py-4 w-20 text-center">Hạng</th>
+<th class="px-6 py-4">Học viên</th>
+<th class="px-6 py-4">Cấp độ</th>
+<th class="px-6 py-4">Môn học ưu thế</th>
+<th class="px-6 py-4 text-right">Tổng điểm XP</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="bg-blue-50/60 hover:bg-blue-100/50 transition-colors group">
+<td class="px-6 py-4 text-center">
+<span class="text-primary font-black text-lg">4</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="size-10 rounded-full bg-slate-200 bg-cover bg-center ring-2 ring-white shadow-md" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCU4OFmy_rTADpaneIvwZr92BZaTxn7U3Jv9xSC6xmIfm4zV-hvDtcMNp3wjxng3jG7z4Xy0I8hc9FQxyUF06n7B4giLsE0spqOUKqImexp2QueQfPp8QGrrS9QZh57jjs6qcaI1ZvaWCFCP16xiITFIQV21ixqgWq9qgN7GQlNwgnKMq3MZRW5iFuh0TPxiP4t8vnS46oUu9i0RAnSNeAPQoHdNbIVd6DuB6NcKh6GDsMQem8WIge7XL__1PmwykpYMy335UV-T_mY");'></div>
+<div class="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-[2px] border border-white" title="Đang thăng hạng">
+<span class="material-symbols-outlined text-white text-[10px] font-bold block">arrow_upward</span>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<p class="text-slate-900 font-bold text-sm">Minh Anh (Bạn)</p>
+<span class="bg-blue-100 text-primary text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">PRO</span>
+</div>
+<p class="text-slate-500 text-xs font-medium">@minhanh_2024</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold border border-purple-200">
+<span class="material-symbols-outlined text-[16px] filled-icon text-purple-500">star</span>
+                                    Lvl 12
+                                </div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 text-sm font-medium">Toán học</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-slate-900 font-bold text-base">1,850 XP</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center">
+<span class="text-slate-500 font-bold text-lg">5</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="User" class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACDj9B-D-l3f-SE3yB8Sih1G489ZfQR9SrFD1flub2OHBfeCcv2bQ5ipBoqHxAVPiWPCNNMV3NAvYJEJYeOVNRwt3UyaqTo8AGUaD9vRmGNVwgOgW9Gz1Q-yalsh8KqvStaw9i_lwH7xs813oKfNyvpWHfXXRhwTvhn95TtkJe11cOv10m455p_ozsb8CTJgxl0yYjNn2T9DtcCS_osN9AD_cOtukVV0tuT-jLSt39AABYJQ7b_x7wSoLlLBauZGW2qF4L4vzHbxd4"/>
+<div>
+<p class="text-slate-900 font-bold text-sm">Phạm Văn D</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                                    Lvl 11
+                                </div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 text-sm font-medium">Vật lý</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-slate-900 font-bold text-base">1,720 XP</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center">
+<span class="text-slate-500 font-bold text-lg">6</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="User" class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAONS9Fvawl0_Fb17ijTTw5ci7-t5Pelj8aqDzEsHCHQHNc70sWHNgF72ATXb7KxoQ2ri2qDo9ieFe-XOsqdfulKtQlRFnYSbwwIX2ypjcCT4JXHjJIei5pmJPa901LT7QVp9Sv96aziw3upCnPyc6sTr2M2ujCdt_5PyNntfONiR_F_9biWvunNWMduzrK8AuWK332sSrs4j7C9LYOiUEs10E-8Vwv9cKR00lt2pjZgdr0rCqQDTFSEwzLTocJE1CSPycueQip19AR"/>
+<div>
+<p class="text-slate-900 font-bold text-sm">Đỗ Thị E</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                                    Lvl 11
+                                </div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 text-sm font-medium">Tiếng Anh</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-slate-900 font-bold text-base">1,650 XP</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center">
+<span class="text-slate-500 font-bold text-lg">7</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="User" class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4CMWOjlTOFee-7mlCL-P9cmaxHqRLOv5qT4JKqfZpkaXfc1NPcl9zGszK8ahc7I4M32Q2EFVthZRT3I8TQITaNjPQmRSZUZMDF99WgoZ4Zpzqe2b_BkF3gaYwXfb09xpE998w9-oIApWcn0-cwWx56nWEVO3dbeVZTS1h4cF9OkffaAGmNIS7S_f5X7M-jYc6Ghew_aSqSfFJ5LnirbHHuvogkF1i87qM7nwjIXL3AtZ-mhU41ukYI1UCwMyYwU65zI71tiP9oIEE"/>
+<div>
+<p class="text-slate-900 font-bold text-sm">Hoàng Văn F</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                                    Lvl 10
+                                </div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 text-sm font-medium">Hóa học</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-slate-900 font-bold text-base">1,580 XP</span>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center">
+<span class="text-slate-500 font-bold text-lg">8</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<img alt="User" class="w-10 h-10 rounded-full object-cover ring-2 ring-slate-100" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAOnV3rQ4B3FWk_MFjypWpLnrlYzFC7d4aYrr28alM9nseCgccK3h2iNVMn4Ax-x1KLIPFSPcHLw6ZEOJkK3qDpNmBV1uwxl1qzzqGACxjwI64VgwiNx0tYL4FvELJEL8JuinKZ2xUFoI91bumiIPwIvg00PapY0x5XGgPDzIV-H9oTWtYtIvCUJJBSp4ZNV_cnQYw8w0Xx9wNhGNBeBrssxGoqEJSFd7JesRHM4_7RXhGdh8MSC7zR_hWmtSI3bEKUpsMsK6q3RKKh"/>
+<div>
+<p class="text-slate-900 font-bold text-sm">Ngô Thị G</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">
+                                    Lvl 10
+                                </div>
+</td>
+<td class="px-6 py-4">
+<span class="text-slate-600 text-sm font-medium">Sinh học</span>
+</td>
+<td class="px-6 py-4 text-right">
+<span class="text-slate-900 font-bold text-base">1,540 XP</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+<p class="text-sm text-slate-500">Hiển thị <span class="font-medium text-slate-700">4-8</span> trong <span class="font-medium text-slate-700">50</span> học viên</p>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">Trước</button>
+<button class="px-3 py-1.5 text-sm font-medium border border-slate-200 rounded-lg bg-white hover:bg-slate-50 text-slate-600 transition-colors shadow-sm">Sau</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

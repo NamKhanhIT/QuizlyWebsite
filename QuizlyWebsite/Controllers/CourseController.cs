@@ -33,6 +33,7 @@ namespace QuizlyWebsite.Controllers
         {
             var query = _context.TbCourses
                 .Where(c => c.IsApproved == true)
+                .AsSplitQuery()
                 .Include(c => c.CreatedByNavigation)
                 .Include(c => c.TbLessons)
                 .AsQueryable();
@@ -175,6 +176,7 @@ namespace QuizlyWebsite.Controllers
                 return NotFound();
 
             var course = await _context.TbCourses
+                .AsSplitQuery()
                 .Include(c => c.TbLessons)
                     .ThenInclude(l => l.TbLessonProgresses)
                         .ThenInclude(p => p.User)

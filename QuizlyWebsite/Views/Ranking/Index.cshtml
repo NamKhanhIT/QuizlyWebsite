@@ -1,0 +1,244 @@
+@model List<RankingViewModel>
+@{
+    ViewData["Title"] = "Bảng Xếp Hạng";
+    var type = ViewData["Type"] as string ?? "xp";
+    var userRank = ViewBag.UserRank as RankingViewModel;
+    var userId = ViewContext.HttpContext.Session.GetInt32("UserId");
+}
+
+<main class="flex-1 flex flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+    <header class="flex items-center justify-between px-4 md:px-8 py-5 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-white">Bảng Xếp Hạng</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Cạnh tranh lành mạnh, cùng nhau tiến bộ!</p>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="relative p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button class="p-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-colors">
+                <span class="material-symbols-outlined">settings</span>
+            </button>
+        </div>
+    </header>
+    
+    <div class="flex-1 overflow-y-auto p-4 md:p-8">
+        <div class="flex flex-col xl:flex-row gap-6 mb-8 items-start xl:items-center justify-between">
+            <div class="flex bg-white dark:bg-slate-900 p-1.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <a href="@Url.Action("Index", "Ranking", new { type = "xp" })" 
+                   class="px-4 py-2 rounded-lg @(type == "xp" ? "bg-blue-50 dark:bg-blue-900/20 text-primary font-bold shadow-sm" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800") font-medium text-sm transition-all">
+                    Tuần này
+                </a>
+                <a href="@Url.Action("Index", "Ranking", new { type = "exam" })" 
+                   class="px-4 py-2 rounded-lg @(type == "exam" ? "bg-blue-50 dark:bg-blue-900/20 text-primary font-bold shadow-sm" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800") font-medium text-sm transition-colors">
+                    Tháng này
+                </a>
+                <a href="@Url.Action("Index", "Ranking", new { type = "courses" })" 
+                   class="px-4 py-2 rounded-lg @(type == "courses" ? "bg-blue-50 dark:bg-blue-900/20 text-primary font-bold shadow-sm" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800") font-medium text-sm transition-colors">
+                    Tất cả
+                </a>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+                <div class="relative flex-1 xl:flex-none">
+                    <select class="w-full appearance-none pl-10 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-shadow cursor-pointer">
+                        <option>Tất cả môn học</option>
+                        <option>Toán học</option>
+                        <option>Vật lý</option>
+                        <option>Hóa học</option>
+                        <option>Tiếng Anh</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">category</span>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">expand_more</span>
+                </div>
+                <div class="relative flex-1 xl:flex-none">
+                    <input class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-sm transition-shadow xl:w-64" placeholder="Tìm kiếm bạn bè..." type="text"/>
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px]">search</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top 3 Podium -->
+        @if (Model.Count >= 3)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 items-end max-w-4xl mx-auto px-4 pt-8">
+                <!-- 2nd Place -->
+                <div class="order-2 md:order-1 flex flex-col items-center">
+                    <div class="relative mb-4 group cursor-pointer">
+                        <div class="w-24 h-24 rounded-full border-4 border-slate-300 dark:border-slate-600 p-1 bg-white dark:bg-slate-900 shadow-sm transition-transform group-hover:scale-105">
+                            @if (!string.IsNullOrEmpty(Model[1].AvatarUrl))
+                            {
+                                <img alt="@Model[1].FullName" class="w-full h-full rounded-full object-cover" src="@Model[1].AvatarUrl" />
+                            }
+                            else
+                            {
+                                <div class="w-full h-full rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-slate-500 dark:text-slate-400 text-3xl">person</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold px-3 py-0.5 rounded-full text-sm shadow-sm border border-white dark:border-slate-900 min-w-[2rem] text-center">2</div>
+                    </div>
+                    <h3 class="text-slate-900 dark:text-white font-bold text-lg">@Model[1].FullName</h3>
+                    <p class="text-primary font-bold text-xl mb-4">@Model[1].Score.ToString("N0") @Model[1].ScoreLabel</p>
+                    <div class="w-full bg-white dark:bg-slate-900 rounded-t-2xl h-32 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-end pb-4 relative overflow-hidden group">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-100 dark:from-slate-800 to-transparent opacity-50"></div>
+                        <span class="material-symbols-outlined text-slate-300 dark:text-slate-600 text-5xl mb-1 drop-shadow-sm" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+                        <span class="text-slate-400 dark:text-slate-500 font-bold text-sm uppercase tracking-wider">Hạng Bạc</span>
+                    </div>
+                </div>
+                
+                <!-- 1st Place -->
+                <div class="order-1 md:order-2 flex flex-col items-center md:-translate-y-4 z-10">
+                    <div class="relative mb-4 group cursor-pointer">
+                        <span class="absolute -top-10 left-1/2 -translate-x-1/2 text-4xl animate-bounce">👑</span>
+                        <div class="w-32 h-32 rounded-full border-4 border-yellow-400 p-1 shadow-lg shadow-yellow-400/20 bg-white dark:bg-slate-900 transition-transform group-hover:scale-105">
+                            @if (!string.IsNullOrEmpty(Model[0].AvatarUrl))
+                            {
+                                <img alt="@Model[0].FullName" class="w-full h-full rounded-full object-cover" src="@Model[0].AvatarUrl" />
+                            }
+                            else
+                            {
+                                <div class="w-full h-full rounded-full bg-yellow-400/20 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-yellow-400 text-4xl">person</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-yellow-400 text-white font-bold px-4 py-1 rounded-full text-base shadow-md border-2 border-white dark:border-slate-900 min-w-[2.5rem] text-center">1</div>
+                    </div>
+                    <h3 class="text-slate-900 dark:text-white font-bold text-xl">@Model[0].FullName</h3>
+                    <p class="text-primary font-bold text-2xl mb-4">@Model[0].Score.ToString("N0") @Model[0].ScoreLabel</p>
+                    <div class="w-full bg-gradient-to-b from-yellow-50 to-white dark:from-yellow-900/20 dark:to-slate-900 rounded-t-2xl h-44 shadow-md border border-yellow-100 dark:border-yellow-800 flex flex-col items-center justify-end pb-6 relative overflow-hidden">
+                        <div class="absolute inset-x-0 top-0 h-1 bg-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]"></div>
+                        <span class="material-symbols-outlined text-yellow-400 text-6xl mb-2 drop-shadow-sm" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+                        <span class="text-yellow-600 dark:text-yellow-400 font-bold text-sm uppercase tracking-wider">Vô địch</span>
+                    </div>
+                </div>
+                
+                <!-- 3rd Place -->
+                <div class="order-3 flex flex-col items-center">
+                    <div class="relative mb-4 group cursor-pointer">
+                        <div class="w-24 h-24 rounded-full border-4 border-orange-300 dark:border-orange-600 p-1 bg-white dark:bg-slate-900 shadow-sm transition-transform group-hover:scale-105">
+                            @if (!string.IsNullOrEmpty(Model[2].AvatarUrl))
+                            {
+                                <img alt="@Model[2].FullName" class="w-full h-full rounded-full object-cover" src="@Model[2].AvatarUrl" />
+                            }
+                            else
+                            {
+                                <div class="w-full h-full rounded-full bg-orange-400/20 flex items-center justify-center">
+                                    <span class="material-symbols-outlined text-orange-400 text-3xl">person</span>
+                                </div>
+                            }
+                        </div>
+                        <div class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-orange-300 dark:bg-orange-600 text-white font-bold px-3 py-0.5 rounded-full text-sm shadow-sm border border-white dark:border-slate-900 min-w-[2rem] text-center">3</div>
+                    </div>
+                    <h3 class="text-slate-900 dark:text-white font-bold text-lg">@Model[2].FullName</h3>
+                    <p class="text-primary font-bold text-xl mb-4">@Model[2].Score.ToString("N0") @Model[2].ScoreLabel</p>
+                    <div class="w-full bg-white dark:bg-slate-900 rounded-t-2xl h-24 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-end pb-4 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-t from-orange-50 dark:from-orange-900/20 to-transparent opacity-50"></div>
+                        <span class="material-symbols-outlined text-orange-300 dark:text-orange-500 text-5xl mb-1 drop-shadow-sm" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+                        <span class="text-orange-400 dark:text-orange-300 font-medium text-sm uppercase tracking-wider">Hạng Đồng</span>
+                    </div>
+                </div>
+            </div>
+        }
+        
+        <!-- Ranking Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700 text-xs uppercase text-slate-500 dark:text-slate-400 font-semibold tracking-wider">
+                            <th class="px-6 py-4 w-20 text-center">Hạng</th>
+                            <th class="px-6 py-4">Học viên</th>
+                            <th class="px-6 py-4">Cấp độ</th>
+                            <th class="px-6 py-4">Môn học ưu thế</th>
+                            <th class="px-6 py-4 text-right">Tổng điểm @(type == "xp" ? "XP" : type == "exam" ? "TB" : "Khóa học")</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                        @for (int i = (Model.Count >= 3 ? 3 : 0); i < Model.Count; i++)
+                        {
+                            var rank = Model[i];
+                            var isCurrentUser = userId.HasValue && rank.UserId == userId.Value;
+                            
+                            <tr class="@(isCurrentUser ? "bg-blue-50/60 dark:bg-blue-900/20" : "") hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
+                                <td class="px-6 py-4 text-center">
+                                    <span class="text-slate-500 dark:text-slate-400 font-bold text-lg">@rank.Rank</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="relative">
+                                            @if (!string.IsNullOrEmpty(rank.AvatarUrl))
+                                            {
+                                                <div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 bg-cover bg-center ring-2 ring-white dark:ring-slate-900 shadow-md" style="background-image: url('@rank.AvatarUrl');"></div>
+                                            }
+                                            else
+                                            {
+                                                <div class="size-10 rounded-full bg-slate-200 dark:bg-slate-700 ring-2 ring-white dark:ring-slate-900 shadow-md flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-slate-500 dark:text-slate-400">person</span>
+                                                </div>
+                                            }
+                                            @if (isCurrentUser)
+                                            {
+                                                <div class="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-[2px] border border-white dark:border-slate-900" title="Đang thăng hạng">
+                                                    <span class="material-symbols-outlined text-white text-[10px] font-bold block">arrow_upward</span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-slate-900 dark:text-white font-bold text-sm">@rank.FullName @(isCurrentUser ? "(Bạn)" : "")</p>
+                                                @if (isCurrentUser)
+                                                {
+                                                    <span class="bg-blue-100 dark:bg-blue-900/40 text-primary text-[10px] px-1.5 py-0.5 rounded font-bold uppercase">PRO</span>
+                                                }
+                                            </div>
+                                            <p class="text-slate-500 dark:text-slate-400 text-xs font-medium">@@@rank.Username</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if (type == "xp" || type == "level")
+                                    {
+                                        var level = type == "xp" ? ((rank.Score / 1000) + 1) : rank.Score;
+                                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 text-xs font-bold border border-purple-200 dark:border-purple-800">
+                                            <span class="material-symbols-outlined text-[16px] text-purple-500" style="font-variation-settings: 'FILL' 1;">star</span>
+                                            Lvl @level
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold">
+                                            Lvl @(rank.Score / 100 + 1)
+                                        </div>
+                                    }
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-slate-600 dark:text-slate-400 text-sm font-medium">@(rank.AdditionalInfo ?? "-")</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="text-slate-900 dark:text-white font-bold text-base">@rank.Score.ToString("N0")</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Hiển thị <span class="font-medium text-slate-700 dark:text-slate-300">@((Model.Count >= 3 ? 4 : 1))-@Model.Count</span> trong <span class="font-medium text-slate-700 dark:text-slate-300">@Model.Count</span> học viên
+                </p>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1.5 text-sm font-medium border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">Trước</button>
+                    <button class="px-3 py-1.5 text-sm font-medium border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-colors shadow-sm">Sau</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+    .filled-icon {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+</style>

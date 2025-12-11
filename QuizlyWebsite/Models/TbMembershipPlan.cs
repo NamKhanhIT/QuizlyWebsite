@@ -12,4 +12,7 @@ public partial class TbMembershipPlan
     public decimal? Price { get; set; }
 
     public int? DurationDays { get; set; }
+
+    public virtual ICollection<TbUserSubscription> UserSubscriptions { get; set; }
+
 }

@@ -12,8 +12,8 @@
     var payments = ViewBag.Payments as List<QuizlyWebsite.Models.TbPayment> ?? new List<QuizlyWebsite.Models.TbPayment>();
     var coursesWithProgress = ViewBag.CoursesWithProgress as List<dynamic> ?? new List<dynamic>();
     var subjects = ViewBag.Subjects as List<QuizlyWebsite.Models.TbSubject> ?? new List<QuizlyWebsite.Models.TbSubject>();
+    var categories = ViewBag.Categories as List<QuizlyWebsite.Models.TbCategory> ?? new List<QuizlyWebsite.Models.TbCategory>();
     
-    // Safely get UserXP from Statistics
     int userXP = 0;
     try {
         if (ViewBag.Statistics != null) {
@@ -28,7 +28,6 @@
         userXP = 0;
     }
     
-    // Safely get LearningProgress properties
     int lessonsCompleted = 0;
     int totalLessons = 0;
     int completionPercentage = 0;
@@ -65,10 +64,9 @@
             }
         }
     } catch {
-        // Use defaults
+
     }
     
-    // Safely get ActiveSubscription EndDate
     DateTime? subscriptionEndDate = null;
     try {
         if (ViewBag.ActiveSubscription != null) {
@@ -80,7 +78,7 @@
             }
         }
     } catch {
-        // Use default
+
     }
 }
 
@@ -166,13 +164,7 @@
                     @TempData["Error"]
                 </div>
             }
-            
-            <!-- Debug: Current Tab (remove in production) -->
-            @* <div class="mb-4 p-2 bg-yellow-100 text-yellow-800 text-xs">
-                Debug: Current Tab = @currentTab
-            </div> *@
 
-            <!-- Overview Tab -->
             @if (currentTab == "overview")
             {
                 <div class="space-y-6 animate-fade-in">
@@ -575,7 +567,7 @@
 
                     <!-- Create Exam Modal (hidden by default) -->
                     <div id="createExamModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[95vh] overflow-y-auto">
                             <div class="p-6">
                                 <div class="flex items-center justify-between mb-6">
                                     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Tạo đề thi mới</h2>
@@ -584,53 +576,95 @@
                                     </button>
                                 </div>
                                 
-                                <form method="post" action="@Url.Action("Create", "Quiz")" class="space-y-4" onsubmit="handleCreateExam(event)">
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                                        <span class="font-semibold">Lưu ý:</span> Điền đầy đủ thông tin và câu hỏi. Đề thi sẽ được gửi lên để quản trị viên duyệt.
+                                    </p>
+                                </div>
+                                
+                                <form method="post" action="@Url.Action("Create", "Quiz")" id="examFormModal" class="space-y-4">
                                     @Html.AntiForgeryToken()
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tên đề thi *</label>
-                                        <input type="text" name="Title" id="examTitle" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Nhập tên đề thi">
-                                    </div>
                                     
+                                    <!-- Basic Information -->
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Môn học *</label>
-                                        <select name="SubjectId" id="examSubjectId" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
-                                            <option value="">Chọn môn học</option>
-                                            @foreach (var subject in subjects)
-                                            {
-                                                <option value="@subject.Id">@subject.Title</option>
-                                            }
-                                        </select>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mô tả</label>
-                                        <textarea name="Description" id="examDescription" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Mô tả về đề thi..."></textarea>
-                                    </div>
-                                    
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Thời gian (phút) *</label>
-                                            <input type="number" name="Duration" id="examDuration" required min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="60">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">📋 Thông tin cơ bản</h3>
+                                        
+                                        <div class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tên đề thi *</label>
+                                                <input type="text" name="Title" id="examTitle" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Nhập tên đề thi">
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Danh mục *</label>
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <input type="checkbox" id="useNewCategoryModal" onchange="toggleCategoryInputModal()">
+                                                    <label for="useNewCategoryModal" class="text-sm text-gray-600 dark:text-gray-400">Tạo danh mục mới</label>
+                                                </div>
+                                                <select id="CategoryIdModal" name="CategoryId" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                    <option value="">-- Chọn danh mục --</option>
+                                                    @foreach (var category in categories)
+                                                    {
+                                                        <option value="@category.Id">@category.Title</option>
+                                                    }
+                                                </select>
+                                                <div class="hidden mt-2" id="newCategoryInputModal">
+                                                    <input type="text" id="NewCategoryTitleModal" name="NewCategoryTitle" placeholder="Nhập tên danh mục mới" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                                </div>
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Môn học *</label>
+                                                <div class="flex items-center gap-2 mb-2">
+                                                    <input type="checkbox" id="useNewSubjectModal" onchange="toggleSubjectInputModal()">
+                                                    <label for="useNewSubjectModal" class="text-sm text-gray-600 dark:text-gray-400">Tạo môn học mới</label>
+                                                </div>
+                                                <select id="SubjectIdModal" name="SubjectId" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                    <option value="">-- Chọn môn học --</option>
+                                                    @foreach (var subject in subjects)
+                                                    {
+                                                        <option value="@subject.Id">@subject.Title</option>
+                                                    }
+                                                </select>
+                                                <div class="hidden mt-2 space-y-2" id="newSubjectInputModal">
+                                                    <input type="text" id="NewSubjectTitleModal" name="NewSubjectTitle" placeholder="Nhập tên môn học mới" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                                    <textarea id="NewSubjectDescriptionModal" name="NewSubjectDescription" rows="2" placeholder="Mô tả môn học (tùy chọn)" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Thời gian (phút) *</label>
+                                                    <input type="number" name="Duration" id="examDuration" required min="5" max="300" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="60">
+                                                </div>
+                                                <div>
+                                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mức độ *</label>
+                                                    <select name="Difficulty" id="examDifficulty" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                        <option value="Dễ">Dễ</option>
+                                                        <option value="Trung bình" selected>Trung bình</option>
+                                                        <option value="Khó">Khó</option>
+                                                    </select>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Mức độ</label>
-                                            <select name="Difficulty" id="examDifficulty" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
-                                                <option value="Dễ">Dễ</option>
-                                                <option value="Trung bình" selected>Trung bình</option>
-                                                <option value="Khó">Khó</option>
-                                            </select>
+                                    </div>
+                                    
+                                    <!-- Questions Section -->
+                                    <div class="mt-6">
+                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">❓ Câu hỏi</h3>
+                                        
+                                        <div id="questionsContainerModal" class="space-y-4">
+                                            <!-- Questions will be added here dynamically -->
                                         </div>
+                                        
+                                        <button type="button" onclick="addQuestionModal()" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition">
+                                            + Thêm câu hỏi
+                                        </button>
                                     </div>
                                     
-                                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                                        <p class="text-sm text-blue-800 dark:text-blue-200">
-                                            <span class="font-semibold">Lưu ý:</span> Đề thi sau khi tạo sẽ ở trạng thái "Chờ duyệt". Bạn có thể thêm câu hỏi sau khi đề thi được duyệt.
-                                        </p>
-                                    </div>
-                                    
-                                    <div class="flex gap-3 pt-4">
+                                    <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                                         <button type="submit" class="flex-1 px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">
-                                            Tạo đề thi
+                                            ✓ Gửi đề thi để duyệt
                                         </button>
                                         <button type="button" onclick="closeCreateExamModal()" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                                             Hủy
@@ -707,6 +741,7 @@
             <!-- Membership Tab -->
             @if (currentTab == "membership")
             {
+                var membershipPlans = ViewBag.Plans as List<QuizlyWebsite.Models.TbMembershipPlan> ?? new List<QuizlyWebsite.Models.TbMembershipPlan>();
                 <div class="space-y-6 animate-fade-in">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Gói hội viên</h1>
@@ -716,70 +751,156 @@
                     @if (ViewBag.ActiveSubscription != null && isPremium)
                     {
                         var endDate = subscriptionEndDate;
+                        var currentPlan = ViewBag.ActiveSubscription.Plan as QuizlyWebsite.Models.TbMembershipPlan;
+                        var planName = currentPlan?.Title ?? (ViewBag.ActiveSubscription?.PlanType ?? "Gói hội viên");
+                        var planPrice = currentPlan?.Price ?? 0;
+                        var durationDays = currentPlan?.DurationDays ?? 30;
+                        
                         <div class="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white shadow-lg">
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-start justify-between mb-4">
                                 <div>
-                                    <h3 class="text-xl font-bold mb-2">Gói Premium</h3>
-                                    <p class="text-primary-100">Hết hạn: @(endDate.HasValue ? endDate.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                                    <h3 class="text-2xl font-bold mb-1">@planName</h3>
+                                    <p class="text-primary-100">@planPrice.ToString("N0")đ / @durationDays ngày</p>
                                 </div>
                                 <span class="px-4 py-2 bg-white/20 rounded-lg font-semibold">Đang hoạt động</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-white/20">
+                                <div>
+                                    <p class="text-primary-100 text-sm">Kết thúc vào:</p>
+                                    <p class="text-lg font-semibold">@(endDate.HasValue ? endDate.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                                </div>
+                                <div>
+                                    <p class="text-primary-100 text-sm">Thời gian còn lại:</p>
+                                    <p class="text-lg font-semibold">
+                                        @{
+                                            if (endDate.HasValue)
+                                            {
+                                                var remainingDays = (endDate.Value - DateTime.Now).Days;
+                                                if (remainingDays > 0)
+                                                {
+                                                    @Html.Raw($"{remainingDays} ngày")
+                                                }
+                                                else if (remainingDays == 0)
+                                                {
+                                                    @Html.Raw("Hôm nay hết hạn")
+                                                }
+                                                else
+                                                {
+                                                    @Html.Raw("Đã hết hạn")
+                                                }
+                                            }
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <a href="/subscription/pricing" class="flex-1 px-4 py-2 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition text-center">
+                                    Nâng cấp gói
+                                </a>
+                                <form method="post" action="@Url.Action("CancelSubscription", "Subscription")" class="flex-1" onsubmit="return confirm('Bạn có chắc muốn hủy gói hội viên? Bạn sẽ mất toàn bộ quyền lợi.');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="w-full px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition border border-white/30">
+                                        Hủy gói
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     }
                     else
                     {
                         <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
-                            <p class="text-gray-600 dark:text-gray-400 mb-4">Bạn chưa đăng ký gói nào</p>
-                            <a href="/subscription" class="inline-block px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Xem gói hội viên</a>
+                            <div class="text-center py-8">
+                                <span class="material-symbols-outlined text-6xl text-gray-400 mb-4 block">workspace_premium</span>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4">Bạn chưa đăng ký gói nào</p>
+                                <a href="/subscription/pricing" class="inline-block px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition btn-glow">Xem gói hội viên</a>
+                            </div>
                         </div>
                     }
+
+                    <!-- Available Plans -->
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Các gói khác</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            @foreach (var plan in membershipPlans.OrderBy(p => p.Price))
+                            {
+                                var isCurrentPlan = ViewBag.ActiveSubscription != null && plan.Id == ViewBag.ActiveSubscription.PlanId && isPremium;
+                                if (!isCurrentPlan)
+                                {
+                                    <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                                        <h3 class="font-bold text-gray-900 dark:text-white mb-2">@plan.Title</h3>
+                                        <p class="text-2xl font-bold text-primary mb-1">@(plan.Price?.ToString("N0") ?? "0")đ</p>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">@(plan.DurationDays ?? 30) ngày</p>
+                                        <a href="/subscription/pricing" class="block w-full px-3 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition text-center text-sm">
+                                            @(isPremium ? "Nâng cấp" : "Chọn gói")
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
                 </div>
             }
 
             <!-- Payment Tab -->
             @if (currentTab == "payment")
             {
+                var plans = ViewBag.Plans as List<QuizlyWebsite.Models.TbMembershipPlan> ?? new List<QuizlyWebsite.Models.TbMembershipPlan>();
+                var premiumPlan = plans.FirstOrDefault(p => p.Title?.ToLower().Contains("premium") == true) ?? new QuizlyWebsite.Models.TbMembershipPlan { Title = "Premium", Price = 199000, DurationDays = 30 };
+                var monthlyPrice = premiumPlan.Price ?? 199000;
+                var yearlyPrice = (int)(monthlyPrice * 12 * 0.8m);
+                
                 <div class="space-y-6 animate-fade-in">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Thanh toán</h1>
                         <p class="text-gray-600 dark:text-gray-400">Quản lý phương thức thanh toán và lịch sử giao dịch</p>
                     </div>
 
+                    <!-- Upgrade to Premium Section -->
+                    @if (!isPremium)
+                    {
+                        <div class="bg-gradient-to-r from-primary to-primary-dark rounded-xl p-6 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold mb-2">Nâng cấp lên Premium</h3>
+                                    <p class="text-white/90">Mở khóa toàn bộ tính năng với gói Premium</p>
+                                </div>
+                                <a href="/subscription/pricing" class="px-6 py-2 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition">
+                                    Xem gói
+                                </a>
+                            </div>
+                        </div>
+                    }
+
                     <!-- Payment Methods -->
                     <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Phương thức thanh toán</h3>
-                        <div class="space-y-4">
-                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-primary">credit_card</span>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">Thẻ tín dụng / Ghi nợ</p>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400">Chưa có thẻ được lưu</p>
-                                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-primary transition-colors">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-primary">credit_card</span>
                                     </div>
-                                    <button onclick="showPaymentMethodModal()" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition btn-glow">
-                                        Thêm thẻ
-                                    </button>
+                                    <p class="font-medium text-gray-900 dark:text-white">Stripe</p>
                                 </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Thẻ tín dụng / Ghi nợ</p>
                             </div>
-                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-green-600 dark:text-green-400">account_balance_wallet</span>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900 dark:text-white">Ví điện tử</p>
-                                            <p class="text-sm text-gray-600 dark:text-gray-400">Momo, ZaloPay, VNPay</p>
-                                        </div>
-                                    </div>
-                                    <button onclick="showPaymentMethodModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                                        Thêm ví
-                                    </button>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-primary transition-colors">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <svg class="w-10 h-10" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="200" height="60" rx="4" fill="#E8F4FD"/>
+                                        <text x="100" y="35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#0052A5" text-anchor="middle">VNPay</text>
+                                    </svg>
                                 </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Ví điện tử VNPay</p>
+                            </div>
+                            <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:border-primary transition-colors">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <svg class="w-10 h-10" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect width="200" height="60" rx="4" fill="#A50064"/>
+                                        <text x="100" y="35" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">MoMo</text>
+                                    </svg>
+                                </div>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Ví điện tử MoMo</p>
                             </div>
                         </div>
                     </div>
@@ -1039,10 +1160,6 @@
         localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
     }
 
-    function showCreateExamModal() {
-        document.getElementById('createExamModal').classList.remove('hidden');
-    }
-
     function closeCreateExamModal() {
         document.getElementById('createExamModal').classList.add('hidden');
     }
@@ -1074,10 +1191,166 @@
         }
     }
 
+    let questionCountModal = 0;
+
+    function toggleCategoryInputModal() {
+        const checkbox = document.getElementById('useNewCategoryModal');
+        const select = document.getElementById('CategoryIdModal');
+        const input = document.getElementById('newCategoryInputModal');
+        
+        if (checkbox.checked) {
+            select.required = false;
+            select.value = '';
+            input.classList.remove('hidden');
+            document.getElementById('NewCategoryTitleModal').required = true;
+        } else {
+            select.required = true;
+            input.classList.add('hidden');
+            document.getElementById('NewCategoryTitleModal').required = false;
+        }
+    }
+
+    function toggleSubjectInputModal() {
+        const checkbox = document.getElementById('useNewSubjectModal');
+        const select = document.getElementById('SubjectIdModal');
+        const input = document.getElementById('newSubjectInputModal');
+        
+        if (checkbox.checked) {
+            select.required = false;
+            select.value = '';
+            input.classList.remove('hidden');
+            document.getElementById('NewSubjectTitleModal').required = true;
+        } else {
+            select.required = true;
+            input.classList.add('hidden');
+            document.getElementById('NewSubjectTitleModal').required = false;
+        }
+    }
+
+    function addQuestionModal() {
+        questionCountModal++;
+        const container = document.getElementById('questionsContainerModal');
+        
+        const questionHtml = `
+            <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4" data-question-index-modal="${questionCountModal}">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-semibold text-primary">Câu hỏi ${questionCountModal}</span>
+                    <button type="button" onclick="removeQuestionModal(${questionCountModal})" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+                        Xóa
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nội dung câu hỏi *</label>
+                        <textarea name="Questions[${questionCountModal - 1}].Content" required placeholder="Nhập nội dung câu hỏi..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="A" required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án A *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionA" required placeholder="Nhập đáp án A" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="B" required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án B *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionB" required placeholder="Nhập đáp án B" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="C" required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án C *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionC" required placeholder="Nhập đáp án C" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="D" required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án D *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionD" required placeholder="Nhập đáp án D" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Điểm số</label>
+                        <input type="number" name="Questions[${questionCountModal - 1}].Marks" min="0" step="0.5" value="1" placeholder="1.0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', questionHtml);
+    }
+
+    function removeQuestionModal(index) {
+        const question = document.querySelector(`[data-question-index-modal="${index}"]`);
+        if (question) {
+            question.remove();
+            updateQuestionNumbersModal();
+        }
+    }
+
+    function updateQuestionNumbersModal() {
+        const questions = document.querySelectorAll('[data-question-index-modal]');
+        questions.forEach((q, index) => {
+            const number = index + 1;
+            q.querySelector('.font-semibold').textContent = `Câu hỏi ${number}`;
+            
+            const inputs = q.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                if (input.name) {
+                    input.name = input.name.replace(/Questions\[\d+\]/, `Questions[${index}]`);
+                }
+            });
+        });
+        questionCountModal = questions.length;
+    }
+
     function handleCreateExam(event) {
-        // Form will submit normally, but we can add validation here if needed
-        // The form action will handle the redirect
+        const questions = document.querySelectorAll('[data-question-index-modal]');
+        if (questions.length === 0) {
+            event.preventDefault();
+            alert('Vui lòng thêm ít nhất 1 câu hỏi!');
+            return false;
+        }
+
+        let allValid = true;
+        questions.forEach((q) => {
+            const correctOption = q.querySelector('input[type="radio"]:checked');
+            if (!correctOption) {
+                allValid = false;
+            }
+        });
+
+        if (!allValid) {
+            event.preventDefault();
+            alert('Vui lòng chọn đáp án đúng cho tất cả các câu hỏi!');
+            return false;
+        }
+
         return true;
+    }
+
+    // Add first question when modal opens
+    function showCreateExamModal() {
+        document.getElementById('createExamModal').classList.remove('hidden');
+        // Reset and add first question
+        questionCountModal = 0;
+        document.getElementById('questionsContainerModal').innerHTML = '';
+        addQuestionModal();
+        
+        // Add form submit listener
+        const form = document.getElementById('examFormModal');
+        if (form) {
+            form.onsubmit = handleCreateExam;
+        }
     }
 
     function toggleMobileSidebar() {

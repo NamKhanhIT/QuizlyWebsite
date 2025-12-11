@@ -30,6 +30,15 @@ builder.Services.AddScoped<IApprovalService, ApprovalService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<ILessonPreviewService, LessonPreviewService>();
+builder.Services.AddScoped<IVNPayService>(provider =>
+{
+    var config = builder.Configuration;
+    var tmnCode = config["VNPay:TmnCode"] ?? "";
+    var hashSecret = config["VNPay:HashSecret"] ?? "";
+    var paymentUrl = config["VNPay:Url"] ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    var baseReturnUrl = $"{config["AppUrl"]}/subscription/vnpay-callback";
+    return new VNPayService(tmnCode, hashSecret, paymentUrl, baseReturnUrl);
+});
 builder.Services.AddScoped<QuizlySeeder>();    
 
 var app = builder.Build();

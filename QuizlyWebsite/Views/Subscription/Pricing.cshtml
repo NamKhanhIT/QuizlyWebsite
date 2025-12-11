@@ -1,0 +1,398 @@
+@{
+    ViewData["Title"] = "Thanh Toán & Gói Hội Viên";
+    var plans = ViewBag.Plans as List<TbMembershipPlan> ?? new List<TbMembershipPlan>();
+    var currentSubscription = ViewBag.CurrentSubscription;
+    var isPremium = ViewBag.IsPremium as bool? ?? false;
+    var userId = ViewBag.UserId as int?;
+    var currentPlanId = (currentSubscription?.PlanId ?? 0);
+    
+    // Get specific plans
+    var plusPlan = plans.FirstOrDefault(p => p.Title?.ToLower().Contains("plus") == true);
+    var premiumPlan = plans.FirstOrDefault(p => p.Title?.ToLower().Contains("premium") == true);
+    var vipPlan = plans.FirstOrDefault(p => p.Title?.ToLower().Contains("vip") == true);
+}
+
+<main class="px-4 md:px-10 flex flex-1 justify-center py-5 md:py-10">
+    <div class="layout-content-container flex flex-col w-full max-w-7xl flex-1 gap-8">
+        <div class="flex flex-col items-center gap-3 p-4 text-center">
+            <p class="text-slate-900 dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em]">Chọn Gói Phù Hợp Với Bạn</p>
+            <p class="text-slate-600 dark:text-slate-400 text-base lg:text-lg font-normal leading-normal max-w-2xl">Mở khóa toàn bộ tính năng và đạt được kết quả tốt nhất trong các kỳ thi với gói hội viên cao cấp của chúng tôi.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 py-3">
+            <!-- Plus Plan -->
+            @if (plusPlan != null)
+            {
+                var plusPrice = plusPlan.Price ?? 99000;
+                var plusYearlyPrice = (int)(plusPrice * 12 * 0.8m);
+                <div class="flex flex-1 flex-col gap-6 rounded-xl border border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                    <div class="flex flex-col gap-2">
+                        <h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">@plusPlan.Title</h3>
+                        <p class="flex items-baseline gap-1 text-slate-900 dark:text-white">
+                            <span class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]" id="plus-price">@plusPrice.ToString("N0")đ</span>
+                            <span class="text-slate-600 dark:text-slate-400 text-base font-medium">/ <span id="plus-period">@(plusPlan.DurationDays ?? 30) ngày</span></span>
+                        </p>
+                    </div>
+                    @if (plusPlan.Id == currentPlanId && isPremium)
+                    {
+                        <button class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-bold leading-normal tracking-[0.015em]" disabled>
+                            <span class="truncate">✓ Gói Hiện Tại</span>
+                        </button>
+                    }
+                    else if (!isPremium)
+                    {
+                        <button onclick="selectPlan(@plusPlan.Id, 'plus', @plusPrice)" class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Chọn Gói</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button onclick="selectPlan(@plusPlan.Id, 'plus', @plusPrice)" class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Nâng Cấp</span>
+                        </button>
+                    }
+                    <div class="flex flex-col gap-3">
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Truy cập @(plusPlan.DurationDays ?? 30) ngày
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Truy cập bài test cơ bản
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Phân tích kết quả
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Premium Plan -->
+            @if (premiumPlan != null)
+            {
+                var premiumPrice = premiumPlan.Price ?? 149000;
+                var premiumYearlyPrice = (int)(premiumPrice * 12 * 0.8m);
+                <div class="relative flex flex-1 flex-col gap-6 rounded-xl border-2 border-solid border-primary bg-white dark:bg-slate-900 p-6">
+                    <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+                        <p class="text-white text-xs font-medium leading-normal tracking-[0.015em] rounded-full bg-primary px-3 py-1 text-center">Phổ Biến Nhất</p>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">@premiumPlan.Title</h3>
+                        <p class="flex items-baseline gap-1 text-slate-900 dark:text-white">
+                            <span class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]" id="premium-price">@premiumPrice.ToString("N0")đ</span>
+                            <span class="text-slate-600 dark:text-slate-400 text-base font-medium">/ <span id="premium-period">@(premiumPlan.DurationDays ?? 90) ngày</span></span>
+                        </p>
+                    </div>
+                    @if (premiumPlan.Id == currentPlanId && isPremium)
+                    {
+                        <button class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-bold leading-normal tracking-[0.015em]" disabled>
+                            <span class="truncate">✓ Gói Hiện Tại</span>
+                        </button>
+                    }
+                    else if (!isPremium)
+                    {
+                        <button onclick="selectPlan(@premiumPlan.Id, 'premium', @premiumPrice)" class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Nâng Cấp Ngay</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button onclick="selectPlan(@premiumPlan.Id, 'premium', @premiumPrice)" class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Nâng Cấp</span>
+                        </button>
+                    }
+                    <div class="flex flex-col gap-3">
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Truy cập @(premiumPlan.DurationDays ?? 90) ngày
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Truy cập không giới hạn bài test
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Phân tích kết quả nâng cao
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Không quảng cáo
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- VIP Plan -->
+            @if (vipPlan != null)
+            {
+                var vipPrice = vipPlan.Price ?? 249000;
+                var vipYearlyPrice = (int)(vipPrice * 12 * 0.8m);
+                <div class="flex flex-1 flex-col gap-6 rounded-xl border border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
+                    <div class="flex flex-col gap-2">
+                        <h3 class="text-slate-900 dark:text-white text-lg font-bold leading-tight">@vipPlan.Title</h3>
+                        <p class="flex items-baseline gap-1 text-slate-900 dark:text-white">
+                            <span class="text-slate-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em]" id="vip-price">@vipPrice.ToString("N0")đ</span>
+                            <span class="text-slate-600 dark:text-slate-400 text-base font-medium">/ <span id="vip-period">@(vipPlan.DurationDays ?? 180) ngày</span></span>
+                        </p>
+                    </div>
+                    @if (vipPlan.Id == currentPlanId && isPremium)
+                    {
+                        <button class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-bold leading-normal tracking-[0.015em]" disabled>
+                            <span class="truncate">✓ Gói Hiện Tại</span>
+                        </button>
+                    }
+                    else if (!isPremium)
+                    {
+                        <button onclick="selectPlan(@vipPlan.Id, 'vip', @vipPrice)" class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Chọn Gói</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button onclick="selectPlan(@vipPlan.Id, 'vip', @vipPrice)" class="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+                            <span class="truncate">Nâng Cấp</span>
+                        </button>
+                    }
+                    <div class="flex flex-col gap-3">
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Truy cập @(vipPlan.DurationDays ?? 180) ngày
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Tất cả tính năng Premium
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Hỗ trợ ưu tiên 24/7
+                        </div>
+                        <div class="text-sm font-normal leading-normal flex gap-3 text-slate-600 dark:text-slate-300 items-center">
+                            <span class="material-symbols-outlined text-green-500">check_circle</span> Tài liệu độc quyền
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <!-- Payment Section (hidden by default, shown when plan is selected) -->
+        <div id="payment-section" class="hidden flex flex-col lg:flex-row gap-8 mt-8">
+            <div class="w-full lg:w-2/3 flex flex-col gap-5">
+                <h2 class="text-slate-900 dark:text-white text-2xl font-bold leading-tight tracking-[-0.015em] px-4">Thanh Toán Bằng VNPay</h2>
+                <div class="flex flex-col gap-4 p-4">
+                    <div class="flex items-center justify-center p-8 rounded-xl border-2 border-primary bg-white dark:bg-slate-900">
+                        <div class="flex flex-col items-center gap-4">
+                            <svg class="h-20 w-auto" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="200" height="60" rx="4" fill="#E8F4FD"/>
+                                <text x="100" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#0052A5" text-anchor="middle">VNPay</text>
+                            </svg>
+                            <p class="text-slate-600 dark:text-slate-400 text-center">Thanh toán an toàn và bảo mật qua VNPay</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-full lg:w-1/3 flex flex-col gap-5 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 self-start">
+                <h3 class="text-slate-900 dark:text-white text-xl font-bold leading-tight">Tóm Tắt Đơn Hàng</h3>
+                <div class="flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                        <span id="order-plan-name">Chọn gói hội viên</span>
+                        <span id="order-price">0đ</span>
+                    </div>
+                    <div class="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                        <span>Giảm giá</span>
+                        <span id="order-discount">-0đ</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center font-bold text-slate-900 dark:text-white">
+                    <span>Tổng Cộng</span>
+                    <span id="order-total">0đ</span>
+                </div>
+                <form method="post" action="/subscription/process-payment" id="payment-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="selected-plan-id" name="planId" value="" />
+                    <input type="hidden" id="selected-plan-type" name="planType" value="" />
+                    <input type="hidden" id="selected-payment-method" name="paymentMethod" value="vnpay" />
+                    <input type="hidden" id="billing-cycle" name="billingCycle" value="monthly" />
+                    <button type="submit" id="submit-payment-btn" class="flex w-full items-center justify-center gap-2 overflow-hidden rounded-lg h-12 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <span class="material-symbols-outlined">lock</span>
+                        <span class="truncate">Thanh Toán & Kích Hoạt</span>
+                    </button>
+                </form>
+                <p class="text-xs text-slate-500 dark:text-slate-400 text-center">Bằng cách nhấp vào nút này, bạn đồng ý với Điều khoản dịch vụ và Chính sách quyền riêng tư của chúng tôi. Thanh toán an toàn và bảo mật.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        // Make selectPlan globally accessible
+        window.selectedPlanId = null;
+        window.selectedPlanType = null;
+        window.selectedPrice = 0;
+        window.selectedPlanName = '';
+        window.selectedDurationDays = 0;
+        
+        // Plan data from server
+        window.plans = {};
+        @if (plusPlan != null)
+        {
+            <text>
+        window.plans.plus = { 
+            id: @plusPlan.Id, 
+            price: @(plusPlan.Price ?? 99000), 
+            durationDays: @(plusPlan.DurationDays ?? 30), 
+            name: '@Html.Raw(plusPlan.Title?.Replace("'", "\\'") ?? "Plus")' 
+        };
+            </text>
+        }
+        @if (premiumPlan != null)
+        {
+            <text>
+        window.plans.premium = { 
+            id: @premiumPlan.Id, 
+            price: @(premiumPlan.Price ?? 149000), 
+            durationDays: @(premiumPlan.DurationDays ?? 90), 
+            name: '@Html.Raw(premiumPlan.Title?.Replace("'", "\\'") ?? "Premium")' 
+        };
+            </text>
+        }
+        @if (vipPlan != null)
+        {
+            <text>
+        window.plans.vip = { 
+            id: @vipPlan.Id, 
+            price: @(vipPlan.Price ?? 249000), 
+            durationDays: @(vipPlan.DurationDays ?? 180), 
+            name: '@Html.Raw(vipPlan.Title?.Replace("'", "\\'") ?? "VIP")' 
+        };
+            </text>
+        }
+        
+        console.log('Plans loaded:', window.plans);
+        
+        // Make selectPlan globally accessible
+        window.selectPlan = function(planId, planType, price) {
+            @if (userId == null)
+            {
+                <text>
+            window.location.href = '@Url.Action("Login", "Account")';
+            return;
+                </text>
+            }
+            
+            console.log('selectPlan called:', planId, planType, price);
+            
+            const planTypeLower = planType.toLowerCase();
+            const plan = window.plans[planTypeLower];
+            
+            if (!plan) {
+                console.error('Plan not found:', planTypeLower, window.plans);
+                alert('Gói hội viên không hợp lệ: ' + planType);
+                return;
+            }
+            
+            window.selectedPlanId = planId;
+            window.selectedPlanType = planTypeLower;
+            window.selectedPrice = price;
+            window.selectedPlanName = plan.name;
+            window.selectedDurationDays = plan.durationDays;
+            
+            console.log('Selected plan:', window.selectedPlanId, window.selectedPlanType, window.selectedPrice, window.selectedPlanName);
+            
+            const paymentSection = document.getElementById('payment-section');
+            if (paymentSection) {
+                paymentSection.classList.remove('hidden');
+                setTimeout(() => {
+                    paymentSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            } else {
+                console.error('Payment section not found');
+            }
+            
+            const planIdInput = document.getElementById('selected-plan-id');
+            const planTypeInput = document.getElementById('selected-plan-type');
+            if (planIdInput) {
+                planIdInput.value = planId;
+                console.log('Set planId:', planId);
+            } else {
+                console.error('Plan ID input not found');
+            }
+            if (planTypeInput) {
+                planTypeInput.value = window.selectedPlanType;
+                console.log('Set planType:', window.selectedPlanType);
+            } else {
+                console.error('Plan type input not found');
+            }
+            
+            const paymentMethodInput = document.getElementById('selected-payment-method');
+            if (paymentMethodInput) {
+                paymentMethodInput.value = 'vnpay';
+            }
+            
+            const submitBtn = document.getElementById('submit-payment-btn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                console.log('Submit button enabled');
+            } else {
+                console.error('Submit button not found');
+            }
+            
+            updateOrderSummary();
+        };
+        
+        function updateOrderSummary() {
+            const billingCycle = document.querySelector('input[name="billing-cycle"]:checked')?.value || 'monthly';
+            const billingCycleInput = document.getElementById('billing-cycle');
+            if (billingCycleInput) {
+                billingCycleInput.value = billingCycle;
+            }
+            
+            let finalPrice = window.selectedPrice;
+            let periodText = `${window.selectedDurationDays} ngày`;
+            let discount = 0;
+            
+            if (billingCycle === 'yearly') {
+                // For yearly, multiply by number of periods in a year
+                const periodsPerYear = Math.floor(365 / window.selectedDurationDays);
+                finalPrice = window.selectedPrice * periodsPerYear * 0.8; // 20% discount
+                discount = window.selectedPrice * periodsPerYear - finalPrice;
+                periodText = `1 năm (${periodsPerYear} kỳ)`;
+            }
+            
+            const planNameDisplay = `${window.selectedPlanName} (${periodText})`;
+            const orderPlanName = document.getElementById('order-plan-name');
+            const orderPrice = document.getElementById('order-price');
+            const orderDiscount = document.getElementById('order-discount');
+            const orderTotal = document.getElementById('order-total');
+            
+            if (orderPlanName) orderPlanName.textContent = planNameDisplay;
+            if (orderPrice) orderPrice.textContent = finalPrice.toLocaleString('vi-VN') + 'đ';
+            if (orderDiscount) orderDiscount.textContent = discount > 0 ? '-' + discount.toLocaleString('vi-VN') + 'đ' : '-0đ';
+            if (orderTotal) orderTotal.textContent = finalPrice.toLocaleString('vi-VN') + 'đ';
+        }
+        
+        // Form submit handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const paymentForm = document.getElementById('payment-form');
+            if (paymentForm) {
+                paymentForm.addEventListener('submit', function(e) {
+                    const planIdInput = document.getElementById('selected-plan-id');
+                    const planId = planIdInput ? parseInt(planIdInput.value) : 0;
+                    const planType = document.getElementById('selected-plan-type')?.value;
+                    
+                    if (!planId || planId <= 0 || !planType) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        alert('Vui lòng chọn gói hội viên trước khi thanh toán');
+                        
+                        const planSection = document.querySelector('.grid.grid-cols-1');
+                        if (planSection) {
+                            planSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        return false;
+                    }
+                    
+                    const submitBtn = document.getElementById('submit-payment-btn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.style.opacity = '0.7';
+                        submitBtn.style.cursor = 'wait';
+                        const originalContent = submitBtn.innerHTML;
+                        submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span><span class="truncate">Đang xử lý...</span>';
+                    }
+                });
+            }
+        });
+    </script>
+}

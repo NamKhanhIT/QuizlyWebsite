@@ -87,7 +87,7 @@
                     <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "text-primary font-semibold" : "")" href="/">Trang chủ</a>
                     <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(ViewContext.RouteData.Values["controller"]?.ToString() == "Quiz" ? "text-primary font-semibold" : "")" href="/quiz/list">Đề thi</a>
                     <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(ViewContext.RouteData.Values["controller"]?.ToString() == "Course" ? "text-primary font-semibold" : "")" href="/courses">Khóa học</a>
-                    <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(ViewContext.RouteData.Values["controller"]?.ToString() == "Subscription" ? "text-primary font-semibold" : "")" href="/subscription">Gói trả phí</a>
+                    <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(ViewContext.RouteData.Values["controller"]?.ToString() == "Subscription" ? "text-primary font-semibold" : "")" href="/subscription/pricing">Gói trả phí</a>
                     <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(ViewContext.RouteData.Values["controller"]?.ToString() == "Blog" ? "text-primary font-semibold" : "")" href="/blog">Blogs/News</a>
                     <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors" href="/leaderboard">Bảng xếp hạng</a>
                     <a class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors" href="/contact">Liên hệ</a>
@@ -102,10 +102,10 @@
                                 <span class="material-symbols-outlined text-sm">account_circle</span>
                                 <span class="text-sm font-medium hidden md:inline">@User.Identity.Name</span>
                             </button>
-                            <div class="hidden group-hover:block absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
+                            <div class="hidden group-hover:block absolute right-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
                                 <a href="/user/profile" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Hồ sơ</a>
-                                <a href="/user/membership" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Gói hội viên</a>
-                                <a href="/user/purchase-history" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Lịch sử mua</a>
+                                <a href="/user/profile?tab=membership" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Gói hội viên</a>
+                                <a href="/user/profile?tab=payment" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700">Thanh toán</a>
                                 <hr class="my-1 border-gray-200 dark:border-gray-700" />
                                 <a href="/logout" class="block px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-danger">Đăng xuất</a>
                             </div>

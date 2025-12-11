@@ -145,8 +145,13 @@ namespace QuizlyWebsite.Controllers
 
             ViewBag.Payments = payments;
 
+            // Load membership plans for payment tab
+            var plans = await _context.TbMembershipPlans.ToListAsync();
+            ViewBag.Plans = plans;
+
             // Load courses with progress for learning history
             var enrolledCourses = await _context.TbCourses
+                .AsSplitQuery()
                 .Where(c => c.TbLessons.Any(l => l.TbLessonProgresses.Any(p => p.UserId == userId)))
                 .Include(c => c.TbLessons)
                     .ThenInclude(l => l.TbLessonProgresses)
@@ -176,13 +181,18 @@ namespace QuizlyWebsite.Controllers
 
             ViewBag.CoursesWithProgress = coursesWithProgress;
 
-            // Load subjects for create exam form
+            // Load subjects and categories for create exam form
             var subjects = await _context.TbSubjects
                 .Include(s => s.Category)
                 .OrderBy(s => s.Title)
                 .ToListAsync();
 
+            var categories = await _context.TbCategories
+                .OrderBy(c => c.Title)
+                .ToListAsync();
+
             ViewBag.Subjects = subjects;
+            ViewBag.Categories = categories;
 
             return View("~/Views/User/Profile.cshtml");
         }

@@ -9,6 +9,8 @@ public partial class TbUserSubscription
 
     public int UserId { get; set; }
 
+    public int? PlanId { get; set; }
+
     public string? PlanType { get; set; }
 
     public DateTime StartDate { get; set; }
@@ -18,5 +20,7 @@ public partial class TbUserSubscription
     public bool? IsActive { get; set; }
 
     public virtual TbUser User { get; set; } = null!;
+
+    public virtual TbMembershipPlan? Plan { get; set; }
 
 }
