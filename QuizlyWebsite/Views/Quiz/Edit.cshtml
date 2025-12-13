@@ -10,17 +10,18 @@
 }
 
 
-<div class="create-exam-container">
-    <!-- Hero Section -->
-    <div class="exam-hero">
-        <h1>✏️ Sửa đề thi</h1>
-        <p>Cập nhật thông tin và câu hỏi cho đề thi của bạn</p>
-    </div>
+<div class="min-h-screen bg-background-light dark:bg-background-dark py-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Sửa đề thi</h1>
+            <p class="text-gray-600 dark:text-gray-400">Cập nhật thông tin và câu hỏi cho đề thi của bạn</p>
+        </div>
 
         <!-- Information Alert -->
         <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
             <p class="text-sm text-blue-800 dark:text-blue-200">
-                <span class="font-semibold">ℹ️ Lưu ý quan trọng:</span>
+                <span class="font-semibold">Lưu ý:</span>
                 Sau khi cập nhật, đề thi sẽ cần được quản trị viên duyệt lại nếu đã được duyệt trước đó.
             </p>
         </div>
@@ -30,7 +31,7 @@
             @if (!ViewData.ModelState.IsValid)
             {
                 <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
-                    <p class="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">⚠️ Lỗi xác thực:</p>
+                    <p class="text-sm font-semibold text-red-800 dark:text-red-200 mb-2">Lỗi xác thực:</p>
                     <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-300">
                         @foreach (var modelState in ViewData.ModelState.Values)
                         {
@@ -49,7 +50,7 @@
             
             <!-- Basic Information -->
             <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">📋 Thông tin cơ bản</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Thông tin cơ bản</h3>
 
                 <div class="mb-6">
                     <label for="Title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tên đề thi *</label>
@@ -105,7 +106,7 @@
 
             <!-- Configuration -->
             <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">⚙️ Cấu hình đề thi</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Cấu hình đề thi</h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -128,7 +129,7 @@
 
             <!-- Questions Section -->
             <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">❓ Câu hỏi</h3>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">Câu hỏi</h3>
                 
                 <div id="questionsContainer" class="space-y-4">
                     <!-- Existing questions -->
@@ -142,7 +143,7 @@
                                     <span class="px-2 py-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 rounded-full ml-2">Đã lưu</span>
                                 </span>
                                 <button type="button" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600" onclick="removeQuestion(@i, @q.Id)">
-                                    🗑️ Xóa
+                                    Xóa
                                 </button>
                             </div>
                             
@@ -206,7 +207,7 @@
             <!-- Info Box -->
             <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
                 <p class="text-sm text-blue-800 dark:text-blue-200">
-                    <span class="font-semibold">📌 Lưu ý:</span>
+                    <span class="font-semibold">Lưu ý:</span>
                     Sau khi cập nhật, đề thi sẽ ở trạng thái "Chờ duyệt" nếu đã được duyệt trước đó. Các thay đổi sẽ được lưu.
                 </p>
             </div>
@@ -214,7 +215,7 @@
             <!-- Form Actions -->
             <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button type="submit" class="flex-1 px-6 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition">
-                    ✓ Lưu thay đổi
+                    Lưu thay đổi
                 </button>
                 <a href="@Url.Action("Index", "Profile", new { tab = "my-exams" })" class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                     Hủy
@@ -297,7 +298,7 @@
                             <span class="px-2 py-1 text-xs bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 rounded-full ml-2">Mới</span>
                         </span>
                         <button type="button" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600" onclick="removeQuestion(${index}, 0)">
-                            🗑️ Xóa
+                            Xóa
                         </button>
                     </div>
                     

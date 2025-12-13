@@ -233,6 +233,16 @@ namespace QuizlyWebsite.Controllers
             ViewBag.Subjects = subjects;
             ViewBag.Categories = categories;
 
+            // Load contact history if on contact-history tab
+            if (tab == "contact-history")
+            {
+                var contacts = await _context.TbContacts
+                    .Where(c => c.Email == user.Email)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToListAsync();
+                ViewBag.Contacts = contacts;
+            }
+
             return View("~/Views/User/Profile.cshtml");
         }
 

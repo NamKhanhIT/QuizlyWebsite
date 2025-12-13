@@ -136,6 +136,10 @@
                         <span class="material-symbols-outlined text-xl">school</span>
                         <span class="font-medium">Lịch sử học tập</span>
                     </a>
+                    <a href="@Url.Action("Index", "Profile", new { tab = "contact-history" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "contact-history" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
+                        <span class="material-symbols-outlined text-xl">mail</span>
+                        <span class="font-medium">Lịch sử liên hệ</span>
+                    </a>
                     <a href="@Url.Action("Index", "Profile", new { tab = "my-exams" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "my-exams" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
                         <span class="material-symbols-outlined text-xl">edit_note</span>
                         <span class="font-medium">Đề thi đã tạo</span>
@@ -515,7 +519,7 @@
                                     
                                     <div class="mb-4">
                                         <div class="flex justify-between mb-2 text-xs text-gray-600 dark:text-gray-400">
-                                            <span>Tiến độ</span>
+                                            <span>Tiến độ: @completedLessons / @courseTotalLessons bài học</span>
                                             <span class="font-semibold">@progressPercent%</span>
                                         </div>
                                         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
@@ -1094,6 +1098,96 @@ D. Một database"
                             </div>
                         </div>
                     </div>
+                </div>
+            }
+
+            <!-- Contact History Tab -->
+            @if (currentTab == "contact-history")
+            {
+                var contacts = ViewBag.Contacts as List<QuizlyWebsite.Models.TbContact> ?? new List<QuizlyWebsite.Models.TbContact>();
+                
+                <div class="space-y-6 animate-fade-in">
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Lịch sử liên hệ</h1>
+                        <p class="text-gray-600 dark:text-gray-400">Xem lại các tin nhắn bạn đã gửi cho chúng tôi</p>
+                    </div>
+
+                    @if (contacts.Any())
+                    {
+                        <div class="space-y-4">
+                            @foreach (var contact in contacts)
+                            {
+                                string subjectDisplay = contact.Subject;
+                                if (contact.Subject == "course")
+                                    subjectDisplay = "Tư vấn khóa học";
+                                else if (contact.Subject == "exam")
+                                    subjectDisplay = "Vấn đề về đề thi";
+                                else if (contact.Subject == "technical")
+                                    subjectDisplay = "Lỗi kỹ thuật";
+                                else if (contact.Subject == "partnership")
+                                    subjectDisplay = "Hợp tác doanh nghiệp";
+                                else if (contact.Subject == "other")
+                                    subjectDisplay = "Khác";
+
+                                <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                                    <div class="flex items-start justify-between mb-4">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                    @subjectDisplay
+                                                </h3>
+                                                @if (!string.IsNullOrEmpty(contact.Response))
+                                                {
+                                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
+                                                        Đã phản hồi
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400">
+                                                        Chờ phản hồi
+                                                    </span>
+                                                }
+                                            </div>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                                Gửi lúc: @(contact.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Nội dung tin nhắn:</label>
+                                        <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                            <p class="text-gray-900 dark:text-white whitespace-pre-wrap">@contact.Message</p>
+                                        </div>
+                                    </div>
+
+                                    @if (!string.IsNullOrEmpty(contact.Response))
+                                    {
+                                        <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                            <label class="text-sm font-semibold text-green-600 dark:text-green-400 mb-2 block">Phản hồi từ admin:</label>
+                                            <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                                <p class="text-gray-900 dark:text-white whitespace-pre-wrap">@contact.Response</p>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                                    Phản hồi lúc: @(contact.RespondedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                                </p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+                            <p class="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">Chưa có lịch sử liên hệ</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-500 mb-6">Bạn chưa gửi tin nhắn nào cho chúng tôi</p>
+                            <a href="/contact" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                                Gửi Tin Nhắn Mới
+                            </a>
+                        </div>
+                    }
                 </div>
             }
         </div>
