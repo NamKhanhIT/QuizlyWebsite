@@ -1,3 +1,4 @@
+@using QuizlyWebsite.Models
 @{
     ViewData["Title"] = "Báo Cáo & Thống Kê";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
@@ -5,8 +6,25 @@
     var totalRevenue = (decimal?)ViewData["TotalRevenue"] ?? 0;
     var totalPayments = (int?)ViewData["TotalPayments"] ?? 0;
     var successfulPayments = (int?)ViewData["SuccessfulPayments"] ?? 0;
-    dynamic monthlyRevenue = ViewData["MonthlyRevenue"] ?? new List<dynamic>();
-    dynamic topExams = ViewData["TopExams"] ?? new List<dynamic>();
+    var monthlyRevenue = ViewData["MonthlyRevenue"] as List<MonthlyRevenueViewModel> ?? new List<MonthlyRevenueViewModel>();
+    var topExams = ViewData["TopExams"] as List<TopExamViewModel> ?? new List<TopExamViewModel>();
+    var userGrowth = ViewData["UserGrowth"] as List<UserGrowthViewModel> ?? new List<UserGrowthViewModel>();
+    var examParticipation = ViewData["ExamParticipation"] as List<ExamParticipationViewModel> ?? new List<ExamParticipationViewModel>();
+    var userRoleDistribution = ViewData["UserRoleDistribution"] as List<UserRoleDistributionViewModel> ?? new List<UserRoleDistributionViewModel>();
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
 }
 
 <!-- Header -->
@@ -23,7 +41,7 @@
         <div class="flex justify-between items-start">
             <div>
                 <p class="text-blue-100 text-sm">Tổng Doanh Thu</p>
-                <h3 class="text-3xl font-bold mt-2">@(totalRevenue.ToString("N0"))đ</h3>
+                <h3 class="text-3xl font-bold mt-2">@(totalRevenue.ToString("N0"))₫</h3>
             </div>
             <span class="material-symbols-outlined text-4xl opacity-50">attach_money</span>
         </div>
@@ -35,9 +53,8 @@
             <div>
                 <p class="text-green-100 text-sm">Tổng Giao Dịch</p>
                 <h3 class="text-3xl font-bold mt-2">@totalPayments</h3>
-                <p class="text-green-100 text-sm">Người Dùng Mới</p>
-                <h3 class="text-3xl font-bold mt-2">342</h3>
-                <p class="text-green-100 text-xs mt-1">↑ 8% so với tuần trước</p>
+                <p class="text-green-100 text-sm mt-4">Giao Dịch Thành Công</p>
+                <h3 class="text-3xl font-bold mt-2">@successfulPayments</h3>
             </div>
             <span class="material-symbols-outlined text-4xl opacity-50">person_add</span>
         </div>
@@ -48,8 +65,7 @@
         <div class="flex justify-between items-start">
             <div>
                 <p class="text-orange-100 text-sm">Đề Thi Đang Hoạt Động</p>
-                <h3 class="text-3xl font-bold mt-2">1,245</h3>
-                <p class="text-orange-100 text-xs mt-1">↑ 23% so với tháng trước</p>
+                <h3 class="text-3xl font-bold mt-2">@((ViewData["TotalExams"] as int?) ?? 0)</h3>
             </div>
             <span class="material-symbols-outlined text-4xl opacity-50">assignment</span>
         </div>
@@ -59,9 +75,8 @@
     <div class="bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-xl p-6 shadow-lg">
         <div class="flex justify-between items-start">
             <div>
-                <p class="text-purple-100 text-sm">Tổng Người Tham Gia</p>
-                <h3 class="text-3xl font-bold mt-2">12.3K</h3>
-                <p class="text-purple-100 text-xs mt-1">↑ 15% so với tuần trước</p>
+                <p class="text-purple-100 text-sm">Tổng Người Dùng</p>
+                <h3 class="text-3xl font-bold mt-2">@((ViewData["TotalUsers"] as int?) ?? 0)</h3>
             </div>
             <span class="material-symbols-outlined text-4xl opacity-50">group</span>
         </div>
@@ -79,28 +94,27 @@
             Doanh Thu Theo Tháng
         </h3>
         
-        <div class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-            <div class="text-center text-gray-500 dark:text-gray-400">
-                <span class="material-symbols-outlined text-5xl mb-2">bar_chart</span>
-                <p class="text-sm">Biểu đồ cột sẽ hiển thị ở đây</p>
-                <small>Doanh thu: Tháng 1-12 năm 2024</small>
-            </div>
+        <div class="h-48 w-full">
+            <canvas id="revenueChart"></canvas>
         </div>
 
-        <!-- Sample Data -->
-        <div class="mt-4 grid grid-cols-3 gap-2 text-center text-xs text-gray-600 dark:text-gray-400">
-            <div>
-                <div class="font-bold">Tháng 1</div>
-                <div>18.2M</div>
-            </div>
-            <div>
-                <div class="font-bold">Tháng 2</div>
-                <div>22.5M</div>
-            </div>
-            <div>
-                <div class="font-bold">Tháng 3</div>
-                <div>24.5M</div>
-            </div>
+        <!-- Monthly Revenue Data -->
+        <div class="mt-4 space-y-2">
+            @if (monthlyRevenue != null && monthlyRevenue.Any())
+            {
+                @foreach (var month in monthlyRevenue)
+                {
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-700 dark:text-gray-300">@month.Month</span>
+                        <span class="font-semibold text-primary">@month.Revenue.ToString("N0")₫</span>
+                        <span class="text-gray-500 dark:text-gray-400">(@month.Count giao dịch)</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm">Chưa có dữ liệu doanh thu theo tháng</p>
+            }
         </div>
     </div>
 
@@ -111,32 +125,26 @@
             Tăng Trưởng Người Dùng
         </h3>
         
-        <div class="h-64 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-            <div class="text-center text-gray-500 dark:text-gray-400">
-                <span class="material-symbols-outlined text-5xl mb-2">line_axis</span>
-                <p class="text-sm">Biểu đồ đường sẽ hiển thị ở đây</p>
-                <small>Số lượng người dùng mới mỗi tuần</small>
-            </div>
+        <div class="h-48 w-full">
+            <canvas id="userGrowthChart"></canvas>
         </div>
 
-        <!-- Sample Data -->
-        <div class="mt-4 grid grid-cols-4 gap-2 text-center text-xs text-gray-600 dark:text-gray-400">
-            <div>
-                <div class="font-bold">Tuần 1</div>
-                <div>285</div>
-            </div>
-            <div>
-                <div class="font-bold">Tuần 2</div>
-                <div>312</div>
-            </div>
-            <div>
-                <div class="font-bold">Tuần 3</div>
-                <div>328</div>
-            </div>
-            <div>
-                <div class="font-bold">Tuần 4</div>
-                <div>342</div>
-            </div>
+        <!-- User Growth Data -->
+        <div class="mt-4 space-y-2">
+            @if (userGrowth != null && userGrowth.Any())
+            {
+                @foreach (var month in userGrowth.Take(12))
+                {
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-700 dark:text-gray-300">@month.Month</span>
+                        <span class="font-semibold text-primary">+@month.Count người dùng</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm">Chưa có dữ liệu tăng trưởng người dùng</p>
+            }
         </div>
     </div>
 
@@ -153,45 +161,28 @@
         </h3>
         
         <div class="space-y-3">
-            <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-700 dark:text-gray-300">Toán 12 - Ôn tập</span>
-                    <span class="font-semibold text-primary">92%</span>
-                </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div class="bg-primary h-2 rounded-full" style="width: 92%"></div>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-700 dark:text-gray-300">Hóa 12 - Các phản ứng</span>
-                    <span class="font-semibold text-success">85%</span>
-                </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div class="bg-success h-2 rounded-full" style="width: 85%"></div>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-700 dark:text-gray-300">Anh 12 - Reading</span>
-                    <span class="font-semibold text-warning">72%</span>
-                </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div class="bg-warning h-2 rounded-full" style="width: 72%"></div>
-                </div>
-            </div>
-
-            <div>
-                <div class="flex justify-between text-sm mb-1">
-                    <span class="text-gray-700 dark:text-gray-300">Lý 12 - Năng lượng</span>
-                    <span class="font-semibold text-info">68%</span>
-                </div>
-                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <div class="bg-info h-2 rounded-full" style="width: 68%"></div>
-                </div>
-            </div>
+            @if (examParticipation != null && examParticipation.Any())
+            {
+                @foreach (var exam in examParticipation)
+                {
+                    var rate = exam.ParticipationRate;
+                    var colorClass = rate >= 80 ? "primary" : rate >= 50 ? "success" : rate >= 30 ? "warning" : "info";
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-gray-700 dark:text-gray-300">@exam.ExamTitle</span>
+                            <span class="font-semibold text-@colorClass">@rate.ToString("F1")%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div class="bg-@colorClass h-2 rounded-full" style="width: @(Math.Min(rate, 100))%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">@exam.TotalAttempts lượt làm</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm">Chưa có dữ liệu tham gia đề thi</p>
+            }
         </div>
     </div>
 
@@ -203,34 +194,32 @@
         </h3>
         
         <div class="space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="w-3 h-3 bg-primary rounded-full mr-2"></div>
-                    <span class="text-gray-700 dark:text-gray-300">Người Dùng Thường</span>
-                </div>
-                <span class="font-semibold text-[#0d141b] dark:text-slate-50">8,543 (65%)</span>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="w-3 h-3 bg-warning rounded-full mr-2"></div>
-                    <span class="text-gray-700 dark:text-gray-300">Người Điều Hành</span>
-                </div>
-                <span class="font-semibold text-[#0d141b] dark:text-slate-50">3,221 (25%)</span>
-            </div>
-
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <div class="w-3 h-3 bg-danger rounded-full mr-2"></div>
-                    <span class="text-gray-700 dark:text-gray-300">Quản Trị Viên</span>
-                </div>
-                <span class="font-semibold text-[#0d141b] dark:text-slate-50">1,236 (10%)</span>
-            </div>
+            @if (userRoleDistribution != null && userRoleDistribution.Any())
+            {
+                var totalUsers = (int)(ViewData["TotalUsers"] ?? 0);
+                @foreach (var role in userRoleDistribution)
+                {
+                    var count = role.Count;
+                    var percentage = totalUsers > 0 ? (count * 100.0 / totalUsers) : 0;
+                    var colorClass = role.Role == "Admin" ? "danger" : role.Role == "Moderator" ? "warning" : "primary";
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-@colorClass rounded-full mr-2"></div>
+                            <span class="text-gray-700 dark:text-gray-300">@(role.Role == "Admin" ? "Quản Trị Viên" : role.Role == "Moderator" ? "Người Điều Hành" : "Người Dùng Thường")</span>
+                        </div>
+                        <span class="font-semibold text-[#0d141b] dark:text-slate-50">@count (@percentage.ToString("F1")%)</span>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center text-gray-500 dark:text-gray-400 text-sm">Chưa có dữ liệu phân bố vai trò</p>
+            }
         </div>
 
         <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
             <p class="text-sm text-gray-600 dark:text-gray-400 text-center">
-                Tổng cộng: <span class="font-bold text-[#0d141b] dark:text-slate-50">13,000 người dùng</span>
+                Tổng cộng: <span class="font-bold text-[#0d141b] dark:text-slate-50">@((ViewData["TotalUsers"] as int?) ?? 0) người dùng</span>
             </p>
         </div>
     </div>
@@ -241,66 +230,275 @@
 <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-lg">
     <h3 class="text-xl font-bold text-[#0d141b] dark:text-slate-50 mb-4">
         <span class="material-symbols-outlined align-middle mr-2 text-primary">table_chart</span>
-        Thống Kê Chi Tiết Hàng Ngày
+        Thống Kê Chi Tiết Theo Tháng
     </h3>
 
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead class="bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
-                    <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Ngày</th>
+                    <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Tháng</th>
                     <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Người Dùng Mới</th>
-                    <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Lần Tham Gia Đề</th>
+                    <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Giao Dịch</th>
                     <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Doanh Thu</th>
-                    <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Gói Được Mua</th>
+                    <th class="px-4 py-3 text-left font-semibold text-[#0d141b] dark:text-slate-50">Số Lượng</th>
                 </tr>
             </thead>
             <tbody>
-                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <td class="px-4 py-3">29/03/2024</td>
-                    <td class="px-4 py-3"><span class="bg-success/10 text-success px-2 py-1 rounded text-xs">+28</span></td>
-                    <td class="px-4 py-3"><span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs">342</span></td>
-                    <td class="px-4 py-3"><span class="font-semibold text-success">2.5M</span></td>
-                    <td class="px-4 py-3">12</td>
-                </tr>
-                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <td class="px-4 py-3">28/03/2024</td>
-                    <td class="px-4 py-3"><span class="bg-success/10 text-success px-2 py-1 rounded text-xs">+31</span></td>
-                    <td class="px-4 py-3"><span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs">328</span></td>
-                    <td class="px-4 py-3"><span class="font-semibold text-success">2.8M</span></td>
-                    <td class="px-4 py-3">15</td>
-                </tr>
-                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <td class="px-4 py-3">27/03/2024</td>
-                    <td class="px-4 py-3"><span class="bg-success/10 text-success px-2 py-1 rounded text-xs">+25</span></td>
-                    <td class="px-4 py-3"><span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs">315</span></td>
-                    <td class="px-4 py-3"><span class="font-semibold text-success">2.2M</span></td>
-                    <td class="px-4 py-3">8</td>
-                </tr>
-                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <td class="px-4 py-3">26/03/2024</td>
-                    <td class="px-4 py-3"><span class="bg-success/10 text-success px-2 py-1 rounded text-xs">+35</span></td>
-                    <td class="px-4 py-3"><span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs">356</span></td>
-                    <td class="px-4 py-3"><span class="font-semibold text-success">3.1M</span></td>
-                    <td class="px-4 py-3">18</td>
-                </tr>
+                @if (monthlyRevenue != null && monthlyRevenue.Any())
+                {
+                    @foreach (var month in monthlyRevenue.Take(10))
+                    {
+                        var userCount = userGrowth?.FirstOrDefault(u => u.Month == month.Month)?.Count ?? 0;
+                        <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                            <td class="px-4 py-3">@month.Month</td>
+                            <td class="px-4 py-3">
+                                @if (userCount > 0)
+                                {
+                                    <span class="bg-success/10 text-success px-2 py-1 rounded text-xs">+@userCount</span>
+                                }
+                                else
+                                {
+                                    <span class="text-gray-400">0</span>
+                                }
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs">@month.Count</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="font-semibold text-success">@month.Revenue.ToString("N0")₫</span>
+                            </td>
+                            <td class="px-4 py-3">@month.Count</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                            Chưa có dữ liệu thống kê chi tiết
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Export Buttons -->
-<div class="mt-8 flex gap-3">
-    <button class="px-6 py-3 bg-info text-white rounded-lg hover:bg-info-dark transition font-semibold">
-        <span class="material-symbols-outlined align-middle mr-2">download</span>
-        Tải PDF
-    </button>
-    <button class="px-6 py-3 bg-success text-white rounded-lg hover:bg-success-dark transition font-semibold">
-        <span class="material-symbols-outlined align-middle mr-2">table_chart</span>
-        Tải Excel
-    </button>
-    <button class="px-6 py-3 bg-warning text-white rounded-lg hover:bg-warning-dark transition font-semibold">
-        <span class="material-symbols-outlined align-middle mr-2">mail</span>
-        Gửi Báo Cáo Email
-    </button>
+<!-- Export and Email Section -->
+<div class="mt-8 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+    <h3 class="text-xl font-bold text-[#0d141b] dark:text-slate-50 mb-4">Xuất Báo Cáo & Gửi Email</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Export Excel -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <h4 class="font-semibold text-[#0d141b] dark:text-slate-50 mb-2">Xuất Báo Cáo Excel</h4>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400 mb-4">Tải báo cáo thống kê dưới dạng file Excel (.xlsx)</p>
+            <a href="/admin/reports/export-excel" class="inline-flex items-center gap-2 px-6 py-3 bg-success text-white rounded-lg hover:bg-green-700 transition font-semibold">
+                <span class="material-symbols-outlined">download</span>
+                Tải Excel
+            </a>
+        </div>
+
+        <!-- Send Email -->
+        <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+            <h4 class="font-semibold text-[#0d141b] dark:text-slate-50 mb-2">Gửi Báo Cáo Qua Email</h4>
+            <p class="text-sm text-[#4c739a] dark:text-slate-400 mb-4">Gửi báo cáo thống kê đến email</p>
+            
+            <form id="emailReportForm" class="space-y-3">
+                <div>
+                    <label class="flex items-center gap-2 mb-2">
+                        <input type="checkbox" id="useCurrentEmail" name="useCurrentEmail" class="rounded">
+                        <span class="text-sm text-[#0d141b] dark:text-slate-50">Sử dụng email hiện tại</span>
+                    </label>
+                </div>
+                <div id="emailInputContainer">
+                    <input type="email" id="reportEmail" name="email" placeholder="Nhập email nhận báo cáo" 
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50">
+                </div>
+                <button type="submit" class="w-full px-6 py-3 bg-primary text-white rounded-lg hover:bg-blue-700 transition font-semibold">
+                    <span class="material-symbols-outlined align-middle mr-2">email</span>
+                    Gửi Email
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Revenue Chart Data
+        @{
+            var revenueLabels = monthlyRevenue != null && monthlyRevenue.Any() 
+                ? string.Join(",", monthlyRevenue.Select(m => $"\"{m.Month}\""))
+                : "[]";
+            var revenueData = monthlyRevenue != null && monthlyRevenue.Any()
+                ? string.Join(",", monthlyRevenue.Select(m => ((decimal)m.Revenue).ToString("F0")))
+                : "[]";
+        }
+
+        // User Growth Chart Data
+        @{
+            var growthLabels = userGrowth != null && userGrowth.Any()
+                ? string.Join(",", userGrowth.Take(12).Select(m => $"\"{m.Month}\""))
+                : "[]";
+            var growthData = userGrowth != null && userGrowth.Any()
+                ? string.Join(",", userGrowth.Take(12).Select(m => m.Count.ToString()))
+                : "[]";
+        }
+
+        // Revenue Chart (Bar Chart)
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            const revenueLabelsArray = [@Html.Raw(revenueLabels)];
+            const revenueDataArray = [@Html.Raw(revenueData)];
+            
+            if (revenueLabelsArray.length > 0 && revenueDataArray.length > 0) {
+                new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: revenueLabelsArray,
+                        datasets: [{
+                            label: 'Doanh Thu',
+                            data: revenueDataArray,
+                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: true
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // User Growth Chart (Line Chart)
+        const userGrowthCtx = document.getElementById('userGrowthChart');
+        if (userGrowthCtx) {
+            const growthLabelsArray = [@Html.Raw(growthLabels)];
+            const growthDataArray = [@Html.Raw(growthData)];
+            
+            if (growthLabelsArray.length > 0 && growthDataArray.length > 0) {
+                new Chart(userGrowthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: growthLabelsArray,
+                        datasets: [{
+                            label: 'Người Dùng Mới',
+                            data: growthDataArray,
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                enabled: true
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    stepSize: 1
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Handle email form
+        document.getElementById('useCurrentEmail')?.addEventListener('change', function() {
+            const emailInput = document.getElementById('reportEmail');
+            if (this.checked) {
+                emailInput.disabled = true;
+                emailInput.value = '';
+            } else {
+                emailInput.disabled = false;
+                emailInput.focus();
+            }
+        });
+
+        document.getElementById('emailReportForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const useCurrentEmail = document.getElementById('useCurrentEmail').checked;
+            const email = document.getElementById('reportEmail').value;
+            
+            if (!useCurrentEmail && !email) {
+                alert('Vui lòng nhập email hoặc chọn sử dụng email hiện tại');
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('email', email);
+                formData.append('useCurrentEmail', useCurrentEmail);
+
+                const response = await fetch('/admin/reports/send-email', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert(data.message);
+                    document.getElementById('emailReportForm').reset();
+                    document.getElementById('useCurrentEmail').checked = false;
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi khi gửi email: ' + error.message);
+            }
+        });
+    </script>
+}

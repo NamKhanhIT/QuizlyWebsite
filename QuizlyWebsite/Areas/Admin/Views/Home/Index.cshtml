@@ -6,7 +6,7 @@
 <div class="flex flex-wrap justify-between gap-3 mb-8">
     <div class="flex min-w-72 flex-col gap-2">
         <p class="text-[#0d141b] dark:text-white text-4xl font-black leading-tight">
-            Chào mừng quay lại, Admin!
+            Chào mừng quay lại, @User.Identity.Name!
         </p>
         <p class="text-[#4c739a] dark:text-slate-400">
             Đây là tóm tắt hoạt động của nền tảng.
@@ -76,7 +76,7 @@
             <span class="material-symbols-outlined text-yellow-500 text-2xl">pending_actions</span>
         </div>
         <p class="text-3xl font-black text-[#0d141b] dark:text-slate-50">@(ViewData["PendingExams"] ?? 0)</p>
-        <a href="/admin/examreview" class="text-sm text-yellow-600 mt-2 inline-block font-medium hover:underline">
+        <a href="/admin/exams?filter=pending" class="text-sm text-yellow-600 mt-2 inline-block font-medium hover:underline">
             ⚠️ Review Now
         </a>
     </div>

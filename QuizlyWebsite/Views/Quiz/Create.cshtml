@@ -21,17 +21,17 @@
         text-align: center;
     }
 
-    .exam-hero h1 {
-        font-size: 2rem;
-        margin: 0 0 10px 0;
-        font-weight: 700;
-    }
+        .exam-hero h1 {
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            font-weight: 700;
+        }
 
-    .exam-hero p {
-        margin: 0;
-        opacity: 0.95;
-        font-size: 1.05rem;
-    }
+        .exam-hero p {
+            margin: 0;
+            opacity: 0.95;
+            font-size: 1.05rem;
+        }
 
     .form-card {
         background: white;
@@ -44,9 +44,9 @@
         margin-bottom: 30px;
     }
 
-    .form-section:last-child {
-        margin-bottom: 0;
-    }
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
 
     .section-title {
         font-size: 1.1rem;
@@ -61,9 +61,9 @@
         margin-bottom: 20px;
     }
 
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
 
     label {
         display: block;
@@ -86,14 +86,14 @@
         transition: all 0.3s;
     }
 
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    textarea:focus,
-    select:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
 
     textarea {
         resize: vertical;
@@ -139,19 +139,19 @@
         flex: 1;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
 
     .btn-secondary {
         background: #f0f0f0;
         color: #333;
     }
 
-    .btn-secondary:hover {
-        background: #e0e0e0;
-    }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
 
     .btn-danger {
         background: #f44336;
@@ -160,9 +160,9 @@
         font-size: 0.9rem;
     }
 
-    .btn-danger:hover {
-        background: #d32f2f;
-    }
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
 
     .btn-success {
         background: #4caf50;
@@ -171,9 +171,9 @@
         font-size: 0.9rem;
     }
 
-    .btn-success:hover {
-        background: #388e3c;
-    }
+        .btn-success:hover {
+            background: #388e3c;
+        }
 
     .alert {
         padding: 15px;
@@ -207,17 +207,17 @@
         margin-bottom: 20px;
     }
 
-    .info-box strong {
-        display: block;
-        margin-bottom: 5px;
-        color: #333;
-    }
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
 
-    .info-box p {
-        margin: 0;
-        color: #666;
-        font-size: 0.95rem;
-    }
+        .info-box p {
+            margin: 0;
+            color: #666;
+            font-size: 0.95rem;
+        }
 
     .question-item {
         background: #f8f9fa;
@@ -245,11 +245,11 @@
         margin-bottom: 15px;
     }
 
-    .option-group label {
-        font-weight: 600;
-        color: #555;
-        margin-bottom: 5px;
-    }
+        .option-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
 
     .option-input {
         display: flex;
@@ -257,10 +257,10 @@
         gap: 10px;
     }
 
-    .option-input input[type="radio"] {
-        width: auto;
-        margin: 0;
-    }
+        .option-input input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
 
     .toggle-switch {
         display: flex;
@@ -269,29 +269,29 @@
         margin-bottom: 10px;
     }
 
-    .toggle-switch input[type="checkbox"] {
-        width: auto;
-    }
+        .toggle-switch input[type="checkbox"] {
+            width: auto;
+        }
 
     .custom-input {
         margin-top: 10px;
     }
 
-    .custom-input.hidden {
-        display: none;
-    }
+        .custom-input.hidden {
+            display: none;
+        }
 </style>
 
 <div class="create-exam-container">
     <!-- Hero Section -->
     <div class="exam-hero">
-        <h1>📝 Tạo đề thi mới</h1>
+        <h1>Tạo đề thi mới</h1>
         <p>Điền đầy đủ thông tin và câu hỏi để gửi đề thi lên duyệt</p>
     </div>
 
     <!-- Information Alert -->
     <div class="alert alert-info">
-        <strong>ℹ️ Lưu ý quan trọng:</strong>
+        <strong>Lưu ý quan trọng:</strong>
         Đề thi của bạn sẽ được xem xét bởi quản trị viên trước khi được xuất bản. Bạn sẽ nhận được thông báo khi đề thi được duyệt hoặc từ chối.
     </div>
 
@@ -300,7 +300,7 @@
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger">
-                <strong>⚠️ Lỗi xác thực:</strong>
+                <strong>Lỗi xác thực:</strong>
                 <ul>
                     @foreach (var modelState in ViewData.ModelState.Values)
                     {
@@ -315,10 +315,10 @@
 
         <form method="post" action="@Url.Action("Create", "Quiz")" id="examForm">
             @Html.AntiForgeryToken()
-            
+
             <!-- Basic Information -->
             <div class="form-section">
-                <h3 class="section-title">📋 Thông tin cơ bản</h3>
+                <h3 class="section-title">Thông tin cơ bản</h3>
 
                 <div class="form-group">
                     <label for="Title">Tên đề thi *</label>
@@ -334,13 +334,15 @@
                         <input type="hidden" id="useNewCategoryValue" name="UseNewCategory" value="false">
                         <label for="useNewCategory" style="margin: 0; font-weight: normal;">Tạo danh mục mới</label>
                     </div>
-                    <select id="CategoryId" name="CategoryId" required>
-                        <option value="">-- Chọn danh mục --</option>
-                        @foreach (var category in categories)
-                        {
-                            <option value="@category.Id">@category.Title</option>
-                        }
-                    </select>
+                    <div id="categorySelectWrapper">
+                        <select id="CategoryId" name="CategoryId" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Id">@category.Title</option>
+                            }
+                        </select>
+                    </div>
                     <div class="custom-input hidden" id="newCategoryInput">
                         <input type="text" id="NewCategoryTitle" name="NewCategoryTitle" placeholder="Nhập tên danh mục mới" />
                     </div>
@@ -355,13 +357,15 @@
                         <input type="hidden" id="useNewSubjectValue" name="UseNewSubject" value="false">
                         <label for="useNewSubject" style="margin: 0; font-weight: normal;">Tạo môn học mới</label>
                     </div>
-                    <select id="SubjectId" name="SubjectId" required>
-                        <option value="">-- Chọn môn học --</option>
-                        @foreach (var subject in subjects)
-                        {
-                            <option value="@subject.Id">@subject.Title</option>
-                        }
-                    </select>
+                    <div id="subjectSelectWrapper">
+                        <select id="SubjectId" name="SubjectId" required>
+                            <option value="">-- Chọn môn học --</option>
+                            @foreach (var subject in subjects)
+                            {
+                                <option value="@subject.Id">@subject.Title</option>
+                            }
+                        </select>
+                    </div>
                     <div class="custom-input hidden" id="newSubjectInput">
                         <input type="text" id="NewSubjectTitle" name="NewSubjectTitle" placeholder="Nhập tên môn học mới" />
                         <textarea id="NewSubjectDescription" name="NewSubjectDescription" rows="2" placeholder="Mô tả môn học (tùy chọn)" style="margin-top: 10px;"></textarea>
@@ -373,7 +377,7 @@
 
             <!-- Configuration -->
             <div class="form-section">
-                <h3 class="section-title">⚙️ Cấu hình đề thi</h3>
+                <h3 class="section-title">Cấu hình đề thi</h3>
 
                 <div class="form-row">
                     <div class="form-group">
@@ -398,8 +402,59 @@
 
             <!-- Questions Section -->
             <div class="form-section">
-                <h3 class="section-title">❓ Câu hỏi</h3>
-                
+                <h3 class="section-title">Câu hỏi</h3>
+
+                <!-- Import Section -->
+                <div class="info-box" style="margin-bottom: 20px;">
+                    <strong>Import đề thi từ file Word hoặc văn bản</strong>
+                    <p style="margin-top: 10px;">Bạn có thể import nhiều câu hỏi cùng lúc từ file Word (.docx) hoặc dán văn bản theo định dạng chuẩn.</p>
+
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                            <button type="button" class="btn btn-secondary" onclick="showImportTab('word')" id="btnWordTab" style="flex: 1;">
+                                Tải file Word
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="showImportTab('text')" id="btnTextTab" style="flex: 1;">
+                                Dán văn bản
+                            </button>
+                        </div>
+
+                        <!-- Word Import -->
+                        <div id="wordImportTab" style="display: none;">
+                            <input type="file" id="wordFileInput" accept=".docx" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 10px;">
+                            <button type="button" class="btn btn-primary" onclick="importFromWord()" style="width: 100%;">
+                                Import từ file Word
+                            </button>
+                        </div>
+
+                        <!-- Text Import -->
+                        <div id="textImportTab" style="display: none;">
+                            <textarea id="textImportInput" rows="10" placeholder="Dán nội dung đề thi theo định dạng:
+
+                            Câu hỏi: React là gì?
+
+                            A. Một ngôn ngữ lập trình
+                            *B. Một thư viện JavaScript
+                            C. Một framework backend
+                            D. Một cơ sở dữ liệu
+
+                            Câu hỏi: JavaScript là gì?
+
+                            A. Một framework
+                            *B. Một ngôn ngữ lập trình
+                            C. Một thư viện CSS
+                            D. Một database"
+                                      style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-family: monospace; font-size: 0.9rem; margin-bottom: 10px; resize: vertical;"></textarea>
+                            <button type="button" class="btn btn-primary" onclick="importFromText()" style="width: 100%;">
+                                Import từ văn bản
+                            </button>
+                        </div>
+
+                        <!-- Import Status -->
+                        <div id="importStatus" style="display: none; margin-top: 15px; padding: 10px; border-radius: 6px;"></div>
+                    </div>
+                </div>
+
                 <div id="questionsContainer">
                     <!-- Questions will be added here dynamically -->
                 </div>
@@ -415,14 +470,14 @@
 
             <!-- Info Box -->
             <div class="info-box">
-                <strong>📌 Lưu ý:</strong>
+                <strong>Lưu ý:</strong>
                 <p>Sau khi tạo đề thi, bạn cần thêm câu hỏi. Đề thi sẽ ở trạng thái "Chờ duyệt" cho đến khi được quản trị viên phê duyệt.</p>
             </div>
 
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
-                    ✓ Gửi đề thi để duyệt
+                    Gửi đề thi để duyệt
                 </button>
                 <a href="@Url.Action("Index", "Profile")" class="btn btn-secondary">
                     Hủy
@@ -440,20 +495,29 @@
         function toggleCategoryInput() {
             const checkbox = document.getElementById('useNewCategory');
             const hiddenInput = document.getElementById('useNewCategoryValue');
+            const selectWrapper = document.getElementById('categorySelectWrapper');
             const select = document.getElementById('CategoryId');
             const input = document.getElementById('newCategoryInput');
             const newCategoryTitle = document.getElementById('NewCategoryTitle');
-            
+
             if (checkbox.checked) {
-                select.required = false;
+                // Ẩn dropdown chọn danh mục cũ
+                selectWrapper.style.display = 'none';
+                select.removeAttribute('required');
                 select.value = '';
+
+                // Hiện input tạo danh mục mới
                 input.classList.remove('hidden');
-                newCategoryTitle.required = true;
+                newCategoryTitle.setAttribute('required', 'required');
                 hiddenInput.value = 'true';
             } else {
-                select.required = true;
+                // Hiện lại dropdown chọn danh mục cũ
+                selectWrapper.style.display = 'block';
+                select.setAttribute('required', 'required');
+
+                // Ẩn input tạo danh mục mới
                 input.classList.add('hidden');
-                newCategoryTitle.required = false;
+                newCategoryTitle.removeAttribute('required');
                 newCategoryTitle.value = ''; // Clear value when unchecked
                 hiddenInput.value = 'false';
             }
@@ -462,93 +526,114 @@
         function toggleSubjectInput() {
             const checkbox = document.getElementById('useNewSubject');
             const hiddenInput = document.getElementById('useNewSubjectValue');
+            const selectWrapper = document.getElementById('subjectSelectWrapper');
             const select = document.getElementById('SubjectId');
             const input = document.getElementById('newSubjectInput');
             const newSubjectTitle = document.getElementById('NewSubjectTitle');
             const newSubjectDescription = document.getElementById('NewSubjectDescription');
-            
+
             if (checkbox.checked) {
-                select.required = false;
+                // Ẩn dropdown chọn môn học cũ
+                selectWrapper.style.display = 'none';
+                select.removeAttribute('required');
                 select.value = '';
+
+                // Hiện input tạo môn học mới
                 input.classList.remove('hidden');
-                newSubjectTitle.required = true;
+                newSubjectTitle.setAttribute('required', 'required');
+                // Description luôn là optional, không cần required
+                newSubjectDescription.removeAttribute('required');
                 hiddenInput.value = 'true';
             } else {
-                select.required = true;
+                // Hiện lại dropdown chọn môn học cũ
+                selectWrapper.style.display = 'block';
+                select.setAttribute('required', 'required');
+
+                // Ẩn input tạo môn học mới
                 input.classList.add('hidden');
-                newSubjectTitle.required = false;
+                newSubjectTitle.removeAttribute('required');
                 newSubjectTitle.value = ''; // Clear value when unchecked
                 newSubjectDescription.value = ''; // Clear value when unchecked
+                newSubjectDescription.removeAttribute('required');
                 hiddenInput.value = 'false';
             }
         }
 
         function addQuestion() {
-            questionCount++;
             const container = document.getElementById('questionsContainer');
-            
+            const index = questionCount; // Use 0-based index
+            questionCount++;
+
             const questionHtml = `
-                <div class="question-item" data-question-index="${questionCount}">
+                <div class="question-item" data-question-index="${index}">
                     <div class="question-header">
                         <span class="question-number">Câu hỏi ${questionCount}</span>
-                        <button type="button" class="btn btn-danger" onclick="removeQuestion(${questionCount})">
+                        <button type="button" class="btn btn-danger" onclick="removeQuestion(${index})">
                             Xóa
                         </button>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Nội dung câu hỏi *</label>
-                        <textarea name="Questions[${questionCount - 1}].Content" required placeholder="Nhập nội dung câu hỏi..."></textarea>
+                        <textarea name="Questions[${index}].Content" required placeholder="Nhập nội dung câu hỏi..."></textarea>
                     </div>
-                    
+
                     <div class="option-group">
                         <label>Đáp án A *</label>
                         <div class="option-input">
-                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="A" required>
-                            <input type="text" name="Questions[${questionCount - 1}].OptionA" required placeholder="Nhập đáp án A" style="flex: 1;">
+                            <input type="radio" name="Questions[${index}].CorrectOption" value="A" required>
+                            <input type="text" name="Questions[${index}].OptionA" required placeholder="Nhập đáp án A" style="flex: 1;">
                         </div>
                     </div>
-                    
+
                     <div class="option-group">
                         <label>Đáp án B *</label>
                         <div class="option-input">
-                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="B" required>
-                            <input type="text" name="Questions[${questionCount - 1}].OptionB" required placeholder="Nhập đáp án B" style="flex: 1;">
+                            <input type="radio" name="Questions[${index}].CorrectOption" value="B" required>
+                            <input type="text" name="Questions[${index}].OptionB" required placeholder="Nhập đáp án B" style="flex: 1;">
                         </div>
                     </div>
-                    
+
                     <div class="option-group">
                         <label>Đáp án C *</label>
                         <div class="option-input">
-                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="C" required>
-                            <input type="text" name="Questions[${questionCount - 1}].OptionC" required placeholder="Nhập đáp án C" style="flex: 1;">
+                            <input type="radio" name="Questions[${index}].CorrectOption" value="C" required>
+                            <input type="text" name="Questions[${index}].OptionC" required placeholder="Nhập đáp án C" style="flex: 1;">
                         </div>
                     </div>
-                    
+
                     <div class="option-group">
                         <label>Đáp án D *</label>
                         <div class="option-input">
-                            <input type="radio" name="Questions[${questionCount - 1}].CorrectOption" value="D" required>
-                            <input type="text" name="Questions[${questionCount - 1}].OptionD" required placeholder="Nhập đáp án D" style="flex: 1;">
+                            <input type="radio" name="Questions[${index}].CorrectOption" value="D" required>
+                            <input type="text" name="Questions[${index}].OptionD" required placeholder="Nhập đáp án D" style="flex: 1;">
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <label>Điểm số</label>
-                        <input type="number" name="Questions[${questionCount - 1}].Marks" min="0" step="0.5" value="1" placeholder="1.0">
+                        <input type="number" name="Questions[${index}].Marks" min="0" step="0.5" value="1" placeholder="1.0">
                         <div class="help-text">Điểm số cho câu hỏi này (mặc định: 1 điểm)</div>
                     </div>
                 </div>
             `;
-            
+
             container.insertAdjacentHTML('beforeend', questionHtml);
         }
 
         function removeQuestion(index) {
+            if (!confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')) {
+                return;
+            }
             const question = document.querySelector(`[data-question-index="${index}"]`);
             if (question) {
-                question.remove();
-                updateQuestionNumbers();
+                question.style.transition = 'opacity 0.3s, transform 0.3s';
+                question.style.opacity = '0';
+                question.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    question.remove();
+                    updateQuestionNumbers();
+                }, 300);
             }
         }
 
@@ -556,8 +641,14 @@
             const questions = document.querySelectorAll('.question-item');
             questions.forEach((q, index) => {
                 const number = index + 1;
-                q.querySelector('.question-number').textContent = `Câu hỏi ${number}`;
-                
+                const numberSpan = q.querySelector('.question-number');
+                if (numberSpan) {
+                    numberSpan.textContent = `Câu hỏi ${number}`;
+                }
+
+                // Update data attribute
+                q.setAttribute('data-question-index', index);
+
                 // Update all input names
                 const inputs = q.querySelectorAll('input, textarea');
                 inputs.forEach(input => {
@@ -565,36 +656,294 @@
                         input.name = input.name.replace(/Questions\[\d+\]/, `Questions[${index}]`);
                     }
                 });
+
+                // Update remove button onclick
+                const removeBtn = q.querySelector('.btn-danger');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeQuestion(${index})`);
+                }
             });
             questionCount = questions.length;
+        }
+
+        // Import functions
+        function showImportTab(tab) {
+            const wordTab = document.getElementById('wordImportTab');
+            const textTab = document.getElementById('textImportTab');
+            const btnWord = document.getElementById('btnWordTab');
+            const btnText = document.getElementById('btnTextTab');
+
+            if (tab === 'word') {
+                wordTab.style.display = 'block';
+                textTab.style.display = 'none';
+                btnWord.classList.add('btn-primary');
+                btnWord.classList.remove('btn-secondary');
+                btnText.classList.add('btn-secondary');
+                btnText.classList.remove('btn-primary');
+            } else {
+                wordTab.style.display = 'none';
+                textTab.style.display = 'block';
+                btnText.classList.add('btn-primary');
+                btnText.classList.remove('btn-secondary');
+                btnWord.classList.add('btn-secondary');
+                btnWord.classList.remove('btn-primary');
+            }
+        }
+
+        async function importFromWord() {
+            const fileInput = document.getElementById('wordFileInput');
+            const file = fileInput.files[0];
+            const statusDiv = document.getElementById('importStatus');
+
+            if (!file) {
+                statusDiv.innerHTML = '<div class="alert alert-danger">⚠️ Vui lòng chọn file Word (.docx)</div>';
+                statusDiv.style.display = 'block';
+                return;
+            }
+
+            statusDiv.innerHTML = '<div class="alert alert-info">⏳ Đang xử lý file...</div>';
+            statusDiv.style.display = 'block';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('/quiz/parse-word', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Lỗi khi xử lý file');
+                }
+
+                const result = await response.json();
+                handleImportResult(result);
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-danger">❌ Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        async function importFromText() {
+            const textInput = document.getElementById('textImportInput');
+            const text = textInput.value.trim();
+            const statusDiv = document.getElementById('importStatus');
+
+            if (!text) {
+                statusDiv.innerHTML = '<div class="alert alert-danger">⚠️ Vui lòng nhập hoặc dán nội dung đề thi</div>';
+                statusDiv.style.display = 'block';
+                return;
+            }
+
+            statusDiv.innerHTML = '<div class="alert alert-info">⏳ Đang xử lý văn bản...</div>';
+            statusDiv.style.display = 'block';
+
+            try {
+                const response = await fetch('/quiz/parse-text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Lỗi khi xử lý văn bản');
+                }
+
+                const result = await response.json();
+                handleImportResult(result);
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="alert alert-danger">❌ Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        function handleImportResult(result) {
+            const statusDiv = document.getElementById('importStatus');
+            const container = document.getElementById('questionsContainer');
+
+            // Hiển thị báo cáo
+            let statusHtml = `<div class="alert alert-info">
+                <strong>📊 Kết quả import:</strong><br>
+                - Tổng số câu hỏi: ${result.report.totalQuestions}<br>
+                - Câu hỏi hợp lệ: ${result.report.validCount}<br>
+                - Câu hỏi lỗi: ${result.report.errorCount}
+            </div>`;
+
+            if (result.report.errorCount > 0 && result.report.errors.length > 0) {
+                statusHtml += `<div class="alert alert-danger" style="margin-top: 10px;">
+                    <strong>⚠️ Lỗi:</strong><br>
+                    ${result.report.errors.map(e => `Câu ${e.questionNumber}: ${e.errorReason}`).join('<br>')}
+                </div>`;
+            }
+
+            if (result.validQuestions.length > 0) {
+                statusHtml += `<div class="alert" style="background: #e8f5e9; border-left: 4px solid #4caf50; color: #2e7d32; margin-top: 10px;">
+                    ✅ Đã thêm ${result.validQuestions.length} câu hỏi vào form!
+                </div>`;
+            }
+
+            statusDiv.innerHTML = statusHtml;
+
+            // Thêm câu hỏi hợp lệ vào form
+            result.validQuestions.forEach((q, idx) => {
+                const index = questionCount;
+                questionCount++;
+
+                const questionHtml = `
+                    <div class="question-item" data-question-index="${index}">
+                        <div class="question-header">
+                            <span class="question-number">Câu hỏi ${questionCount}</span>
+                            <button type="button" class="btn btn-danger" onclick="removeQuestion(${index})">
+                                Xóa
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nội dung câu hỏi *</label>
+                            <textarea name="Questions[${index}].Content" required>${escapeHtml(q.question)}</textarea>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Đáp án A *</label>
+                            <div class="option-input">
+                                <input type="radio" name="Questions[${index}].CorrectOption" value="A" ${q.correctOption === 'A' ? 'checked' : ''} required>
+                                <input type="text" name="Questions[${index}].OptionA" required value="${escapeHtml(q.optionA)}" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Đáp án B *</label>
+                            <div class="option-input">
+                                <input type="radio" name="Questions[${index}].CorrectOption" value="B" ${q.correctOption === 'B' ? 'checked' : ''} required>
+                                <input type="text" name="Questions[${index}].OptionB" required value="${escapeHtml(q.optionB)}" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Đáp án C *</label>
+                            <div class="option-input">
+                                <input type="radio" name="Questions[${index}].CorrectOption" value="C" ${q.correctOption === 'C' ? 'checked' : ''} required>
+                                <input type="text" name="Questions[${index}].OptionC" required value="${escapeHtml(q.optionC)}" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Đáp án D *</label>
+                            <div class="option-input">
+                                <input type="radio" name="Questions[${index}].CorrectOption" value="D" ${q.correctOption === 'D' ? 'checked' : ''} required>
+                                <input type="text" name="Questions[${index}].OptionD" required value="${escapeHtml(q.optionD)}" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Điểm số</label>
+                            <input type="number" name="Questions[${index}].Marks" min="0" step="0.5" value="1" placeholder="1.0">
+                            <div class="help-text">Điểm số cho câu hỏi này (mặc định: 1 điểm)</div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertAdjacentHTML('beforeend', questionHtml);
+            });
+
+            // Cuộn đến phần câu hỏi
+            document.getElementById('questionsContainer').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
         // Add first question by default
         document.addEventListener('DOMContentLoaded', function() {
             addQuestion();
+            // Default to text tab
+            showImportTab('text');
         });
 
         // Form validation
         document.getElementById('examForm').addEventListener('submit', function(e) {
+            // Validate category/subject fields
+            const useNewCategory = document.getElementById('useNewCategory').checked;
+            const useNewSubject = document.getElementById('useNewSubject').checked;
+
+            if (useNewCategory) {
+                const newCategoryTitle = document.getElementById('NewCategoryTitle').value.trim();
+                if (!newCategoryTitle) {
+                    e.preventDefault();
+                    alert('⚠️ Vui lòng nhập tên danh mục mới!');
+                    document.getElementById('NewCategoryTitle').focus();
+                    return false;
+                }
+            } else {
+                const categoryId = document.getElementById('CategoryId').value;
+                if (!categoryId) {
+                    e.preventDefault();
+                    alert('⚠️ Vui lòng chọn danh mục!');
+                    document.getElementById('CategoryId').focus();
+                    return false;
+                }
+            }
+
+            if (useNewSubject) {
+                const newSubjectTitle = document.getElementById('NewSubjectTitle').value.trim();
+                if (!newSubjectTitle) {
+                    e.preventDefault();
+                    alert('⚠️ Vui lòng nhập tên môn học mới!');
+                    document.getElementById('NewSubjectTitle').focus();
+                    return false;
+                }
+                // Description is optional, no validation needed
+            } else {
+                const subjectId = document.getElementById('SubjectId').value;
+                if (!subjectId) {
+                    e.preventDefault();
+                    alert('⚠️ Vui lòng chọn môn học!');
+                    document.getElementById('SubjectId').focus();
+                    return false;
+                }
+            }
+
+            // Validate questions
             const questions = document.querySelectorAll('.question-item');
             if (questions.length === 0) {
                 e.preventDefault();
-                alert('Vui lòng thêm ít nhất 1 câu hỏi!');
+                alert('⚠️ Vui lòng thêm ít nhất 1 câu hỏi!');
                 return false;
             }
 
             // Validate each question has a correct answer selected
             let allValid = true;
+            let invalidQuestions = [];
             questions.forEach((q, index) => {
                 const correctOption = q.querySelector('input[type="radio"]:checked');
-                if (!correctOption) {
+                const content = q.querySelector('textarea[name*="Content"]')?.value?.trim();
+                const optionA = q.querySelector('input[name*="OptionA"]')?.value?.trim();
+                const optionB = q.querySelector('input[name*="OptionB"]')?.value?.trim();
+                const optionC = q.querySelector('input[name*="OptionC"]')?.value?.trim();
+                const optionD = q.querySelector('input[name*="OptionD"]')?.value?.trim();
+
+                if (!correctOption || !content || !optionA || !optionB || !optionC || !optionD) {
                     allValid = false;
+                    invalidQuestions.push(index + 1);
                 }
             });
 
             if (!allValid) {
                 e.preventDefault();
-                alert('Vui lòng chọn đáp án đúng cho tất cả các câu hỏi!');
+                if (invalidQuestions.length > 0) {
+                    alert(`⚠️ Vui lòng điền đầy đủ thông tin và chọn đáp án đúng cho các câu hỏi: ${invalidQuestions.join(', ')}`);
+                } else {
+                    alert('⚠️ Vui lòng chọn đáp án đúng cho tất cả các câu hỏi!');
+                }
                 return false;
             }
         });

@@ -19,6 +19,8 @@ public partial class QuizlyDbContext : DbContext
 
     public virtual DbSet<TbCategory> TbCategories { get; set; }
 
+    public virtual DbSet<TbContact> TbContacts { get; set; }
+
     public virtual DbSet<TbCourse> TbCourses { get; set; }
 
     public virtual DbSet<TbExam> TbExams { get; set; }
@@ -83,6 +85,22 @@ public partial class QuizlyDbContext : DbContext
                 .HasForeignKey(d => d.AuthorId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__tb_Blogs__Author__02084FDA");
+        });
+
+        modelBuilder.Entity<TbContact>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__tb_Conta__3214EC07");
+
+            entity.ToTable("tb_Contacts");
+
+            entity.Property(e => e.Name).HasMaxLength(200);
+            entity.Property(e => e.Email).HasMaxLength(200);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Subject).HasMaxLength(200);
+            entity.Property(e => e.Message).HasMaxLength(2000);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getdate())");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+            entity.Property(e => e.Response).HasMaxLength(2000);
         });
 
         modelBuilder.Entity<TbCategory>(entity =>

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
 
 namespace QuizlyWebsite.Services
@@ -6,11 +7,16 @@ namespace QuizlyWebsite.Services
     {
         private readonly ISubscriptionService _subscriptionService;
         private readonly ILogger<AccessControlService> _logger;
+        private readonly QuizlyDbContext _context;
 
-        public AccessControlService(ISubscriptionService subscriptionService, ILogger<AccessControlService> logger)
+        public AccessControlService(
+            ISubscriptionService subscriptionService, 
+            ILogger<AccessControlService> logger,
+            QuizlyDbContext context)
         {
             _subscriptionService = subscriptionService;
             _logger = logger;
+            _context = context;
         }
 
         public async Task<bool> CanAccessCourseAsync(int userId, TbCourse course)
@@ -43,8 +49,18 @@ namespace QuizlyWebsite.Services
             if (exam.IsPaid != true)
                 return true;
 
-            // Paid exams require premium subscription
-            return await _subscriptionService.CanAccessPremiumContentAsync(userId);
+            // Check if user has active subscription
+            var hasSubscription = await _subscriptionService.CanAccessPremiumContentAsync(userId);
+            if (hasSubscription)
+                return true;
+
+            // Check if user has purchased this exam
+            var hasPurchase = await _context.TbUserPurchases
+                .AnyAsync(p => p.UserId == userId && 
+                              p.ExamId == exam.Id && 
+                              (p.ExpiredAt == null || p.ExpiredAt > DateTime.UtcNow));
+            
+            return hasPurchase;
         }
 
         public async Task<bool> IsLessonPreviewAsync(TbLesson lesson)

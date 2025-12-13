@@ -10,6 +10,44 @@
 
 <main class="min-h-screen bg-background-light dark:bg-background-dark py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Promotional Banner -->
+        <div class="mb-8 animate-slide-up">
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8 shadow-2xl">
+                <div class="relative z-10">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex-1 text-center md:text-left">
+                            <h2 class="text-3xl md:text-4xl font-bold text-white mb-3">
+                                📚 Học tập không giới hạn
+                            </h2>
+                            <p class="text-lg text-white/90 mb-4">
+                                Khám phá hàng trăm khóa học từ các chuyên gia, nâng cao kiến thức và kỹ năng của bạn
+                            </p>
+                            <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                                <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
+                                    ✓ Video chất lượng cao
+                                </span>
+                                <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
+                                    ✓ Bài tập thực hành
+                                </span>
+                                <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
+                                    ✓ Chứng chỉ hoàn thành
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="@Url.Action("Pricing", "Subscription")" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-bold rounded-xl hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                                <span class="material-symbols-outlined">school</span>
+                                <span>Bắt đầu học ngay</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+            </div>
+        </div>
+
         <!-- Header -->
         <div class="mb-8 animate-slide-up">
             <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Khóa học</h1>
@@ -69,12 +107,37 @@
                 {
                     var userHasAccess = await AccessControl.CanAccessCourseAsync(userId, course);
                     var lessonCount = course.TbLessons?.Count ?? 0;
-                    var completedLessons = course.TbLessons?.Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true) ?? 0;
-                    var progressPercentage = lessonCount > 0 ? (completedLessons * 100 / lessonCount) : 0;
+                    var nonPreviewLessons = course.TbLessons?.Where(l => l.IsPreview != true).ToList() ?? new List<QuizlyWebsite.Models.TbLesson>();
+                    var completedLessons = nonPreviewLessons.Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true);
+                    var totalNonPreviewLessons = nonPreviewLessons.Count;
+                    var progressPercentage = totalNonPreviewLessons > 0 ? (completedLessons * 100 / totalNonPreviewLessons) : 0;
+                    var hasStarted = nonPreviewLessons.Any(l => l.TbLessonProgresses?.Any(p => p.UserId == userId) == true);
+                    var isCompleted = totalNonPreviewLessons > 0 && completedLessons == totalNonPreviewLessons;
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden card-hover group">
                         <!-- Cover Image -->
-                        <div class="h-48 bg-gradient-to-br from-primary to-primary-dark relative">
+                        <div class="h-48 bg-gradient-to-br from-primary to-primary-dark relative overflow-hidden">
+                            @if (!string.IsNullOrEmpty(course.ImageUrl))
+                            {
+                                <img src="@course.ImageUrl" alt="@course.Title" class="w-full h-full object-cover">
+                            }
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute top-3 left-3 flex gap-2">
+                                @if (isCompleted)
+                                {
+                                    <span class="px-3 py-1 bg-green-500/90 backdrop-blur-sm rounded-full text-white text-xs font-semibold flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">check_circle</span>
+                                        Đã hoàn thành
+                                    </span>
+                                }
+                                else if (hasStarted)
+                                {
+                                    <span class="px-3 py-1 bg-blue-500/90 backdrop-blur-sm rounded-full text-white text-xs font-semibold flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-sm">play_circle</span>
+                                        Đang học
+                                    </span>
+                                }
+                            </div>
                             @if (course.IsPaid == true)
                             {
                                 <div class="absolute top-3 right-3 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs font-semibold flex items-center gap-1">

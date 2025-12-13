@@ -1,0 +1,227 @@
+@model QuizlyWebsite.Models.TbPayment
+
+@{
+    ViewData["Title"] = "Chi Tiết Thanh Toán";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
+<div class="mb-8">
+    <a href="/admin/payments" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Giao Dịch #@Model.Id</h2>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Payment Info -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-xl font-bold mb-4">Thông Tin Giao Dịch</h3>
+        <div class="space-y-3">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Mã Giao Dịch</p>
+                <p class="font-semibold">#@Model.Id</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Số Tiền</p>
+                <p class="font-semibold text-2xl text-primary">@(Model.Amount?.ToString("N0") ?? "0")đ</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Trạng Thái</p>
+                <span class="text-xs font-semibold px-3 py-1 rounded-full @(Model.Status == "Completed" || Model.Status == "Success" ? "bg-success/20 text-success" : Model.Status == "Pending" ? "bg-warning/20 text-warning" : Model.Status == "Refunded" ? "bg-blue-100 text-blue-800" : "bg-danger/20 text-danger")">
+                    @(Model.Status switch
+                    {
+                        "Completed" => "✓ Thành Công",
+                        "Success" => "✓ Thành Công",
+                        "Pending" => "⏳ Chờ Xử Lý",
+                        "Refunded" => "↩ Đã Hoàn",
+                        "Failed" => "✗ Thất Bại",
+                        _ => Model.Status
+                    })
+                </span>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Phương Thức</p>
+                <p class="font-semibold">@(Model.Provider ?? "VNPay")</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Ngày Tạo</p>
+                <p class="font-semibold">@Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm:ss")</p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.ProviderTransId))
+            {
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Mã Giao Dịch Provider</p>
+                    <p class="font-semibold">@Model.ProviderTransId</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- User Info -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-xl font-bold mb-4">Thông Tin Người Dùng</h3>
+        <div class="space-y-3">
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Họ Tên</p>
+                <p class="font-semibold">@(Model.User?.FullName ?? "N/A")</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                <p class="font-semibold">@(Model.User?.Email ?? "N/A")</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Username</p>
+                <p class="font-semibold">@(Model.User?.Username ?? "N/A")</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    @if (Model.ExamId.HasValue && Model.Exam != null)
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-xl font-bold mb-4">Thông Tin Sản Phẩm</h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Loại</p>
+                    <p class="font-semibold">Đề Thi</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Tên Đề Thi</p>
+                    <p class="font-semibold">@Model.Exam.Title</p>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-xl font-bold mb-4">Thông Tin Sản Phẩm</h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Loại</p>
+                    <p class="font-semibold">Gói Hội Viên</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Provider == "Refund" && Model.Status == "Pending")
+{
+    <div class="mt-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+        <h3 class="text-xl font-bold mb-4 text-yellow-800 dark:text-yellow-200">Yêu Cầu Hoàn Tiền Đang Chờ Xử Lý</h3>
+        <div class="flex gap-3">
+            <button onclick="approveRefund(@Model.Id)" class="px-6 py-3 bg-success text-white rounded-lg hover:bg-green-700 transition font-semibold flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span>
+                Xác Nhận Hoàn Tiền
+            </button>
+            <button onclick="rejectRefund(@Model.Id)" class="px-6 py-3 bg-danger text-white rounded-lg hover:bg-red-700 transition font-semibold flex items-center gap-2">
+                <span class="material-symbols-outlined">cancel</span>
+                Từ Chối
+            </button>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ProviderTransId) && Model.Provider == "Refund")
+{
+    <div class="mt-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h3 class="text-xl font-bold mb-4">Thông Tin Tài Khoản Nhận Hoàn Tiền</h3>
+        @try
+        {
+            var bankInfo = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.ProviderTransId);
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Tên Chủ Tài Khoản</p>
+                    <p class="font-semibold">@(bankInfo?.GetValueOrDefault("AccountHolderName") ?? "N/A")</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Số Tài Khoản</p>
+                    <p class="font-semibold">@(bankInfo?.GetValueOrDefault("AccountNumber") ?? "N/A")</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Ngân Hàng</p>
+                    <p class="font-semibold">@(bankInfo?.GetValueOrDefault("BankName") ?? "N/A")</p>
+                </div>
+                @if (bankInfo?.ContainsKey("BankBranch") == true && !string.IsNullOrEmpty(bankInfo["BankBranch"]))
+                {
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Chi Nhánh</p>
+                        <p class="font-semibold">@bankInfo["BankBranch"]</p>
+                    </div>
+                }
+                <div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Số Điện Thoại</p>
+                    <p class="font-semibold">@(bankInfo?.GetValueOrDefault("PhoneNumber") ?? "N/A")</p>
+                </div>
+                @if (bankInfo?.ContainsKey("Notes") == true && !string.IsNullOrEmpty(bankInfo["Notes"]))
+                {
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Ghi Chú</p>
+                        <p class="font-semibold">@bankInfo["Notes"]</p>
+                    </div>
+                }
+            </div>
+        }
+        catch
+        {
+            <p class="text-gray-500">Không thể đọc thông tin tài khoản</p>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function approveRefund(id) {
+            if (confirm('Xác nhận hoàn tiền cho yêu cầu này?')) {
+                fetch('/admin/approve-refund', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                }).then(r => r.json()).then(d => {
+                    if (d.success) {
+                        alert(d.message);
+                        location.reload();
+                    } else {
+                        alert(d.message || 'Lỗi xảy ra');
+                    }
+                });
+            }
+        }
+        
+        function rejectRefund(id) {
+            const reason = prompt('Nhập lý do từ chối (tùy chọn):');
+            if (confirm('Bạn có chắc chắn muốn từ chối yêu cầu hoàn tiền này?')) {
+                fetch('/admin/reject-refund', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, reason: reason || '' })
+                }).then(r => r.json()).then(d => {
+                    if (d.success) {
+                        alert(d.message);
+                        location.reload();
+                    } else {
+                        alert(d.message || 'Lỗi xảy ra');
+                    }
+                });
+            }
+        }
+    </script>
+}
+

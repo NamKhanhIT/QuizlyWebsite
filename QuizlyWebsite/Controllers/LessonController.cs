@@ -163,7 +163,6 @@ namespace QuizlyWebsite.Controllers
                 .Include(e => e.TbQuestions)
                 .FirstOrDefaultAsync(e => e.LessonId == lessonId);
 
-            // Check if user has passed the quiz
             bool hasPassedQuiz = false;
             decimal? bestQuizScore = null;
             if (lessonQuiz != null && userId > 0)
@@ -175,8 +174,9 @@ namespace QuizlyWebsite.Controllers
 
                 if (bestResult != null)
                 {
+                    // Score is already stored on scale of 10 (thang điểm 10)
                     bestQuizScore = bestResult.Score;
-                    hasPassedQuiz = bestResult.Score >= 70;
+                    hasPassedQuiz = bestResult.Score >= 8m;
                 }
             }
 
@@ -334,15 +334,22 @@ namespace QuizlyWebsite.Controllers
 
             if (lessonQuiz != null && lessonQuiz.TbQuestions.Any())
             {
-                // Check if user has passed the quiz (>= 70%)
+                // Check if user has passed the quiz (>= 8/10 points = 80%)
                 var bestResult = await _context.TbExamResults
                     .Where(r => r.UserId == userId.Value && r.ExamId == lessonQuiz.Id)
                     .OrderByDescending(r => r.Score)
                     .FirstOrDefaultAsync();
 
-                if (bestResult == null || bestResult.Score < 70)
+                if (bestResult == null)
                 {
-                    TempData["ErrorMessage"] = "Bạn cần làm bài kiểm tra và đạt ít nhất 70% để hoàn thành bài học này.";
+                    TempData["ErrorMessage"] = "Bạn cần làm bài kiểm tra và đạt ít nhất 8/10 điểm để hoàn thành bài học này.";
+                    return RedirectToAction("Learn", new { courseId = finalCourseId, lessonId = id });
+                }
+
+                // Score is already on scale of 10 (thang điểm 10)
+                if (bestResult.Score < 8m)
+                {
+                    TempData["ErrorMessage"] = $"Bạn cần đạt ít nhất 8/10 điểm để hoàn thành bài học này. Điểm hiện tại của bạn: {bestResult.Score:F1}/10.";
                     return RedirectToAction("Learn", new { courseId = finalCourseId, lessonId = id });
                 }
             }

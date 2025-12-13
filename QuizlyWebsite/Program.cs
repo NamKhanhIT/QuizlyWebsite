@@ -30,6 +30,7 @@ builder.Services.AddScoped<IApprovalService, ApprovalService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<ILessonPreviewService, LessonPreviewService>();
+builder.Services.AddScoped<IQuestionParserService, QuestionParserService>();
 builder.Services.AddScoped<IVNPayService>(provider =>
 {
     var config = builder.Configuration;

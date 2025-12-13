@@ -41,6 +41,8 @@ public partial class TbExam
 
     public int? LessonId { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public virtual TbUser? ApprovedByNavigation { get; set; }
 
     public virtual TbUser? CreatedByNavigation { get; set; }

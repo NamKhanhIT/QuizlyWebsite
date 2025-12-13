@@ -7,11 +7,44 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 <meta charset="utf-8" />
+
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
 <!-- Header with Add Button -->
 <div class="flex justify-between items-center mb-6">
-    <h2 class="text-3xl font-bold">Danh Sách Đề Thi</h2>
+    <div>
+        <h2 class="text-3xl font-bold">Danh Sách Đề Thi</h2>
+        @if (ViewData["PendingCount"] != null && (int)ViewData["PendingCount"] > 0)
+        {
+            <p class="text-warning mt-1">Có @ViewData["PendingCount"] đề thi đang chờ duyệt</p>
+        }
+    </div>
     <a href="/admin/exam-form" class="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
         <span class="material-symbols-outlined">add</span> Thêm Đề Thi
+    </a>
+</div>
+
+<!-- Filter Tabs -->
+<div class="flex gap-2 mb-6">
+    <a href="?filter=all" class="px-4 py-2 rounded-lg @(ViewData["Filter"]?.ToString() == "all" || ViewData["Filter"] == null ? "bg-primary text-white" : "bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50")">
+        Tất Cả
+    </a>
+    <a href="?filter=pending" class="px-4 py-2 rounded-lg @(ViewData["Filter"]?.ToString() == "pending" ? "bg-warning text-white" : "bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50")">
+        Chờ Duyệt (@ViewData["PendingCount"])
+    </a>
+    <a href="?filter=approved" class="px-4 py-2 rounded-lg @(ViewData["Filter"]?.ToString() == "approved" ? "bg-success text-white" : "bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50")">
+        Đã Duyệt
     </a>
 </div>
 
@@ -22,9 +55,11 @@
             <tr>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Tên Đề Thi</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Môn Học</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Ảnh</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Số Câu</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Độ Khó</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Giá</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Trạng Thái</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Ngày Tạo</th>
                 <th class="px-6 py-3 text-left text-sm font-semibold">Hành Động</th>
             </tr>
@@ -33,8 +68,21 @@
             @foreach (var exam in Model)
             {
                 <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                    
                     <td class="px-6 py-4 font-semibold">@exam.Title</td>
                     <td class="px-6 py-4">@exam.Subject.Title</td>
+                    <td class="px-6 py-4">
+                        @if (!string.IsNullOrEmpty(exam.ImageUrl))
+                        {
+                            <img src="@exam.ImageUrl" alt="@exam.Title" class="w-16 h-12 object-cover rounded-lg border border-gray-300 dark:border-gray-600">
+                        }
+                        else
+                        {
+                            <div class="w-16 h-12 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-xl">quiz</span>
+                            </div>
+                        }
+                    </td>
                     <td class="px-6 py-4">@exam.QuestionCount</td>
                     <td class="px-6 py-4">
                         <span class="text-xs font-semibold px-3 py-1 rounded-full @(exam.Difficulty == "Dễ" ? "bg-green-100 text-green-800" : exam.Difficulty == "Trung bình" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
@@ -42,9 +90,19 @@
                         </span>
                     </td>
                     <td class="px-6 py-4">@(exam.IsPremium == true ? exam.Price?.ToString("C0", CultureInfo.GetCultureInfo("vi-VN")) ?? "0" : "Miễn Phí")</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full @(exam.IsApproved == true ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400")">
+                            @(exam.IsApproved == true ? "Đã Duyệt" : "Chờ Duyệt")
+                        </span>
+                    </td>
                     <td class="px-6 py-4 text-sm">@exam.CreatedAt?.ToString("dd/MM/yyyy")</td>
                     <td class="px-6 py-4 text-sm">
-                        <div class="flex gap-2">
+                        <div class="flex gap-2 flex-wrap">
+                            <a href="/admin/exam-detail/@exam.Id" class="text-info hover:underline" title="Xem chi tiết">Chi Tiết</a>
+                            @if (exam.IsApproved == false)
+                            {
+                                <button onclick="approveExam(@exam.Id)" class="text-success hover:underline" title="Duyệt đề thi">Duyệt</button>
+                            }
                             <a href="/admin/exam-form/@exam.Id" class="text-primary hover:underline">Sửa</a>
                             <a href="/admin/questions?examId=@exam.Id" class="text-primary hover:underline">Câu Hỏi</a>
                             <button onclick="deleteExam(@exam.Id)" class="text-danger hover:underline">Xóa</button>
@@ -91,6 +149,31 @@
                 const data = await response.json();
                 if (data.success) {
                     alert('Đề thi đã được xóa thành công');
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        async function approveExam(id) {
+            if (!confirm('Bạn có chắc chắn muốn duyệt đề thi này?')) return;
+
+            try {
+                const response = await fetch('/admin/approve-exam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Đề thi đã được duyệt thành công');
                     window.location.reload();
                 } else {
                     alert('Lỗi: ' + data.message);

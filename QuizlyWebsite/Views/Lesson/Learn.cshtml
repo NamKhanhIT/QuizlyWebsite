@@ -231,8 +231,28 @@
                 <!-- Lesson Quiz Section -->
                 @if (lessonQuiz != null && lessonQuiz.TbQuestions != null && lessonQuiz.TbQuestions.Any())
                 {
+                    var isPreviewMode = Model.IsPreview == true && !canAccess;
+                    
                     <div class="p-4">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 shadow-sm border border-blue-200 dark:border-blue-800">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 shadow-sm border border-blue-200 dark:border-blue-800 relative @(isPreviewMode ? "blur-sm" : "")">
+                            @if (isPreviewMode)
+                            {
+                                <div class="absolute inset-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-10">
+                                    <div class="text-center p-6">
+                                        <span class="material-symbols-outlined text-6xl text-slate-400 mb-4">lock</span>
+                                        <p class="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                            Bài kiểm tra bị khóa
+                                        </p>
+                                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                                            Đăng ký gói hội viên để làm bài kiểm tra và hoàn thành khóa học
+                                        </p>
+                                        <a href="@Url.Action("Pricing", "Subscription")" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all">
+                                            <span class="material-symbols-outlined">workspace_premium</span>
+                                            <span>Đăng ký gói hội viên</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            }
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                 <div class="flex-1">
                                     <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
@@ -241,16 +261,19 @@
                                     </h3>
                                     <p class="text-slate-600 dark:text-slate-400 text-sm mb-2">
                                         Bài học này có @lessonQuiz.TbQuestions.Count() câu hỏi trắc nghiệm. 
-                                        Bạn cần đạt ít nhất 70% để hoàn thành bài học.
+                                        Bạn cần đạt ít nhất 8/10 điểm để hoàn thành bài học.
                                     </p>
-                                    @if (bestQuizScore.HasValue)
+                                    @if (bestQuizScore.HasValue && !isPreviewMode)
                                     {
+                                        // Score is already stored on scale of 10 (thang điểm 10)
+                                        var scoreOutOf10 = bestQuizScore.Value;
+                                        var hasPassed = scoreOutOf10 >= 8m;
                                         <div class="flex items-center gap-2 mt-2">
                                             <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Điểm cao nhất:</span>
-                                            <span class="text-lg font-bold @(hasPassedQuiz ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
-                                                @bestQuizScore.Value.ToString("F1")%
+                                            <span class="text-lg font-bold @(hasPassed ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400")">
+                                                @scoreOutOf10.ToString("F1")/10
                                             </span>
-                                            @if (hasPassedQuiz)
+                                            @if (hasPassed)
                                             {
                                                 <span class="px-2 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded text-xs font-semibold flex items-center gap-1">
                                                     <span class="material-symbols-outlined text-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
@@ -267,13 +290,20 @@
                                     }
                                 </div>
                                 <div class="flex-shrink-0">
-                                    @if (canAccess)
+                                    @if (canAccess && !isPreviewMode)
                                     {
                                         <a href="@Url.Action("Start", "Quiz", new { id = lessonQuiz.Id, lessonId = Model.Id, courseId = course?.Id })" 
                                            class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-500/30">
                                             <span class="material-symbols-outlined">play_circle</span>
                                             <span>@(bestQuizScore.HasValue ? "Làm lại" : "Làm bài kiểm tra")</span>
                                         </a>
+                                    }
+                                    else if (isPreviewMode)
+                                    {
+                                        <button disabled class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-400 text-white font-semibold rounded-lg cursor-not-allowed">
+                                            <span class="material-symbols-outlined">lock</span>
+                                            <span>Khóa</span>
+                                        </button>
                                     }
                                     else
                                     {

@@ -4,6 +4,21 @@
     ViewData["Title"] = "Quản Lý Thanh Toán";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
+<meta charset="utf-8" />
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
 
 <!-- Header -->
 <div class="mb-8">
@@ -19,7 +34,7 @@
             <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Tổng Doanh Thu</p>
             <span class="material-symbols-outlined text-primary text-2xl">attach_money</span>
         </div>
-        <p class="text-4xl font-black text-primary">@(((decimal?)ViewData["TotalRevenue"] ?? 0).ToString("N0"))đ</p>
+        <p class="text-4xl font-black text-primary">@(((decimal?)ViewData["TotalRevenue"] ?? 0).ToString("N0"))₫</p>
     </div>
 
     <!-- Completed Payments -->
@@ -28,7 +43,7 @@
             <p class="text-[#4c739a] dark:text-slate-400 text-sm font-medium">Giao Dịch Thành Công</p>
             <span class="material-symbols-outlined text-success text-2xl">check_circle</span>
         </div>
-        <p class="text-4xl font-black text-success">@Model.Count(p => p.Status == "Completed")</p>
+        <p class="text-4xl font-black text-success">@(ViewData["SuccessfulPayments"] ?? 0)</p>
     </div>
 
     <!-- Pending Payments -->
@@ -62,10 +77,10 @@
                 {
                     <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                         <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">#@payment.Id</td>
-                        <td class="px-6 py-4 text-[#0d141b] dark:text-slate-50 font-medium">@payment.User?.FullName ?? "N/A"</td>
-                        <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@payment.User?.Email ?? "N/A"</td>
+                        <td class="px-6 py-4 text-[#0d141b] dark:text-slate-50 font-medium">@(payment.User?.FullName ?? "N/A")</td>
+                        <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@(payment.User?.Email ?? "N/A")</td>
                         <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@(payment.Exam?.Title ?? "Gói hội viên")</td>
-                        <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">@(payment.Amount?.ToString("N0") ?? "0")đ</td>
+                        <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">@(payment.Amount?.ToString("N0") ?? "0")₫</td>
                         <td class="px-6 py-4">
                             <span class="text-xs font-semibold px-3 py-1 rounded-full @(payment.Status == "Completed" ? "bg-success/20 text-success" : payment.Status == "Pending" ? "bg-warning/20 text-warning" : "bg-danger/20 text-danger")">
                                 @(payment.Status switch
@@ -77,21 +92,12 @@
                                 })
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-[#4c739a] dark:text-slate-400">@payment.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A"</td>
+                        <td class="px-6 py-4 text-sm text-[#4c739a] dark:text-slate-400">@(payment.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
                         <td class="px-6 py-4 text-sm">
                             <div class="flex gap-2">
-                                <button class="text-primary hover:text-primary-dark" title="Xem chi tiết" onclick="viewPaymentDetails(@payment.Id)">
+                                <a href="/admin/payments/@payment.Id" class="text-primary hover:text-primary-dark" title="Xem chi tiết">
                                     <span class="material-symbols-outlined text-sm">visibility</span>
-                                </button>
-                                @if (payment.Status == "Pending")
-                                {
-                                    <button class="text-success hover:text-green-700" title="Xác nhận" onclick="confirmPayment(@payment.Id)">
-                                        <span class="material-symbols-outlined text-sm">check_circle</span>
-                                    </button>
-                                    <button class="text-danger hover:text-red-700" title="Từ chối" onclick="rejectPayment(@payment.Id)">
-                                        <span class="material-symbols-outlined text-sm">cancel</span>
-                                    </button>
-                                }
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -110,44 +116,3 @@
     </div>
 }
 
-@section Scripts {
-    <script>
-        function viewPaymentDetails(paymentId) {
-            alert('Chi tiết giao dịch #' + paymentId);
-        }
-        
-        function confirmPayment(paymentId) {
-            if (confirm('Xác nhận giao dịch này?')) {
-                fetch('/admin/update-payment-status', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: paymentId, status: 'Completed' })
-                }).then(r => r.json()).then(d => {
-                    if (d.success) {
-                        alert(d.message);
-                        location.reload();
-                    } else {
-                        alert(d.message || 'Lỗi xảy ra');
-                    }
-                });
-            }
-        }
-        
-        function rejectPayment(paymentId) {
-            if (confirm('Bạn có chắc chắn muốn từ chối giao dịch này?')) {
-                fetch('/admin/update-payment-status', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: paymentId, status: 'Failed' })
-                }).then(r => r.json()).then(d => {
-                    if (d.success) {
-                        alert(d.message);
-                        location.reload();
-                    } else {
-                        alert(d.message || 'Lỗi xảy ra');
-                    }
-                });
-            }
-        }
-    </script>
-}

@@ -21,6 +21,8 @@ public partial class TbCourse
 
     public int? FreeLessonCount { get; set; }
 
+    public string? ImageUrl { get; set; }
+
     public virtual TbUser? CreatedByNavigation { get; set; }
 
     public virtual ICollection<TbLesson> TbLessons { get; set; } = new List<TbLesson>();

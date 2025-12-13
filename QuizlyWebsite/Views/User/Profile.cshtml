@@ -14,6 +14,13 @@
     var subjects = ViewBag.Subjects as List<QuizlyWebsite.Models.TbSubject> ?? new List<QuizlyWebsite.Models.TbSubject>();
     var categories = ViewBag.Categories as List<QuizlyWebsite.Models.TbCategory> ?? new List<QuizlyWebsite.Models.TbCategory>();
     
+    // Load subscription info for use in modal
+    var activeSubscription = ViewBag.ActiveSubscription as QuizlyWebsite.Models.TbUserSubscription;
+    var hasActiveSubscription = activeSubscription != null 
+        && activeSubscription.IsActive.HasValue 
+        && activeSubscription.IsActive.Value 
+        && activeSubscription.EndDate > DateTime.UtcNow;
+    
     int userXP = 0;
     try {
         if (ViewBag.Statistics != null) {
@@ -83,7 +90,6 @@
 }
 
 <main class="min-h-screen bg-background-light dark:bg-background-dark">
-    <!-- Mobile Menu Button -->
     <button onclick="toggleMobileSidebar()" class="lg:hidden fixed top-20 left-4 z-50 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <span class="material-symbols-outlined">menu</span>
     </button>
@@ -145,6 +151,10 @@
                     <a href="@Url.Action("Index", "Profile", new { tab = "settings" })" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors @(currentTab == "settings" ? "bg-primary text-white" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800")">
                         <span class="material-symbols-outlined text-xl">settings</span>
                         <span class="font-medium">Cài đặt</span>
+                    </a>
+                    <a href="/contact/history" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
+                        <span class="material-symbols-outlined text-xl">mail</span>
+                        <span class="font-medium">Lịch sử liên hệ</span>
                     </a>
                 </nav>
             </div>
@@ -404,8 +414,8 @@
                                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">@result.Exam?.Title</td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-3 py-1 text-sm font-semibold rounded-full @(result.Score >= 50 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400")">
-                                                        @(result.Score.HasValue ? result.Score.Value.ToString("F1") : "0.0")%
+                                                    <span class="px-3 py-1 text-sm font-semibold rounded-full @(result.Score >= 5 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400")">
+                                                        @(result.Score.HasValue ? result.Score.Value.ToString("F1") : "0.0")/10
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
@@ -489,7 +499,6 @@
                                 }
                                 catch
                                 {
-                                    // Skip this item if there's an error
                                     continue;
                                 }
                                 
@@ -598,16 +607,18 @@
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Danh mục *</label>
                                                 <div class="flex items-center gap-2 mb-2">
-                                                    <input type="checkbox" id="useNewCategoryModal" onchange="toggleCategoryInputModal()">
+                                                    <input type="checkbox" id="useNewCategoryModal" name="UseNewCategory" onchange="toggleCategoryInputModal()">
                                                     <label for="useNewCategoryModal" class="text-sm text-gray-600 dark:text-gray-400">Tạo danh mục mới</label>
                                                 </div>
-                                                <select id="CategoryIdModal" name="CategoryId" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
-                                                    <option value="">-- Chọn danh mục --</option>
-                                                    @foreach (var category in categories)
-                                                    {
-                                                        <option value="@category.Id">@category.Title</option>
-                                                    }
-                                                </select>
+                                                <div id="categorySelectModal">
+                                                    <select id="CategoryIdModal" name="CategoryId" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                        <option value="">-- Chọn danh mục --</option>
+                                                        @foreach (var category in categories)
+                                                        {
+                                                            <option value="@category.Id">@category.Title</option>
+                                                        }
+                                                    </select>
+                                                </div>
                                                 <div class="hidden mt-2" id="newCategoryInputModal">
                                                     <input type="text" id="NewCategoryTitleModal" name="NewCategoryTitle" placeholder="Nhập tên danh mục mới" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                                 </div>
@@ -616,16 +627,18 @@
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Môn học *</label>
                                                 <div class="flex items-center gap-2 mb-2">
-                                                    <input type="checkbox" id="useNewSubjectModal" onchange="toggleSubjectInputModal()">
+                                                    <input type="checkbox" id="useNewSubjectModal" name="UseNewSubject" onchange="toggleSubjectInputModal()">
                                                     <label for="useNewSubjectModal" class="text-sm text-gray-600 dark:text-gray-400">Tạo môn học mới</label>
                                                 </div>
-                                                <select id="SubjectIdModal" name="SubjectId" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
-                                                    <option value="">-- Chọn môn học --</option>
-                                                    @foreach (var subject in subjects)
-                                                    {
-                                                        <option value="@subject.Id">@subject.Title</option>
-                                                    }
-                                                </select>
+                                                <div id="subjectSelectModal">
+                                                    <select id="SubjectIdModal" name="SubjectId" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                                                        <option value="">-- Chọn môn học --</option>
+                                                        @foreach (var subject in subjects)
+                                                        {
+                                                            <option value="@subject.Id">@subject.Title</option>
+                                                        }
+                                                    </select>
+                                                </div>
                                                 <div class="hidden mt-2 space-y-2" id="newSubjectInputModal">
                                                     <input type="text" id="NewSubjectTitleModal" name="NewSubjectTitle" placeholder="Nhập tên môn học mới" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                                                     <textarea id="NewSubjectDescriptionModal" name="NewSubjectDescription" rows="2" placeholder="Mô tả môn học (tùy chọn)" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
@@ -651,7 +664,13 @@
                                     
                                     <!-- Questions Section -->
                                     <div class="mt-6">
-                                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">❓ Câu hỏi</h3>
+                                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
+                                            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Câu hỏi</h3>
+                                            <button type="button" onclick="showImportModalUser()" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition flex items-center gap-2 text-sm">
+                                                <span class="material-symbols-outlined text-sm">upload_file</span>
+                                                Import từ file
+                                            </button>
+                                        </div>
                                         
                                         <div id="questionsContainerModal" class="space-y-4">
                                             <!-- Questions will be added here dynamically -->
@@ -660,6 +679,72 @@
                                         <button type="button" onclick="addQuestionModal()" class="mt-4 px-4 py-2 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition">
                                             + Thêm câu hỏi
                                         </button>
+                                    </div>
+                                    
+                                    <!-- Import Modal for User -->
+                                    <div id="importModalUser" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                                            <div class="p-6">
+                                                <div class="flex justify-between items-center mb-6">
+                                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">Import Câu Hỏi</h3>
+                                                    <button onclick="hideImportModalUser()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                                        <span class="material-symbols-outlined text-2xl">close</span>
+                                                    </button>
+                                                </div>
+
+                                                <div class="mb-4">
+                                                    <div class="flex gap-3 border-b border-gray-200 dark:border-gray-700">
+                                                        <button type="button" onclick="showImportTabUser('word')" id="btnWordTabUser" class="px-4 py-2 font-semibold border-b-2 border-primary text-primary">
+                                                            📄 File Word
+                                                        </button>
+                                                        <button type="button" onclick="showImportTabUser('text')" id="btnTextTabUser" class="px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500 hover:text-primary">
+                                                            📝 Văn Bản
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Word Import -->
+                                                <div id="wordImportTabUser" style="display: none;">
+                                                    <div class="mb-4">
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Chọn file Word (.docx)</label>
+                                                        <input type="file" id="wordFileInputUser" accept=".docx" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg">
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chỉ chấp nhận file Word (.docx)</p>
+                                                    </div>
+                                                    <button type="button" onclick="importFromWordUser()" class="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                                                        ⬆️ Import từ file Word
+                                                    </button>
+                                                </div>
+
+                                                <!-- Text Import -->
+                                                <div id="textImportTabUser">
+                                                    <div class="mb-4">
+                                                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dán nội dung đề thi</label>
+                                                        <textarea id="textImportInputUser" rows="15" placeholder="Dán nội dung đề thi theo định dạng:
+
+Câu hỏi: React là gì?
+
+A. Một ngôn ngữ lập trình
+*B. Một thư viện JavaScript
+C. Một framework backend
+D. Một cơ sở dữ liệu
+
+Câu hỏi: JavaScript là gì?
+
+A. Một framework
+*B. Một ngôn ngữ lập trình
+C. Một thư viện CSS
+D. Một database" 
+                                                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg font-mono text-sm text-gray-900 dark:text-white"></textarea>
+                                                    </div>
+                                                    <button type="button" onclick="importFromTextUser()" class="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                                                        Import từ văn bản
+                                                    </button>
+                                                </div>
+
+                                                <!-- Import Status -->
+                                                <div id="importStatusUser" class="mt-4" style="display: none;"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                     
                                     <div class="flex gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -742,17 +827,18 @@
             @if (currentTab == "membership")
             {
                 var membershipPlans = ViewBag.Plans as List<QuizlyWebsite.Models.TbMembershipPlan> ?? new List<QuizlyWebsite.Models.TbMembershipPlan>();
+                
                 <div class="space-y-6 animate-fade-in">
                     <div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Gói hội viên</h1>
                         <p class="text-gray-600 dark:text-gray-400">Quản lý gói đăng ký của bạn</p>
                     </div>
 
-                    @if (ViewBag.ActiveSubscription != null && isPremium)
+                    @if (hasActiveSubscription && activeSubscription != null)
                     {
-                        var endDate = subscriptionEndDate;
-                        var currentPlan = ViewBag.ActiveSubscription.Plan as QuizlyWebsite.Models.TbMembershipPlan;
-                        var planName = currentPlan?.Title ?? (ViewBag.ActiveSubscription?.PlanType ?? "Gói hội viên");
+                        var endDate = activeSubscription.EndDate;
+                        var currentPlan = activeSubscription.Plan as QuizlyWebsite.Models.TbMembershipPlan;
+                        var planName = currentPlan?.Title ?? (activeSubscription.PlanType ?? "Gói hội viên");
                         var planPrice = currentPlan?.Price ?? 0;
                         var durationDays = currentPlan?.DurationDays ?? 30;
                         
@@ -767,27 +853,24 @@
                             <div class="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-white/20">
                                 <div>
                                     <p class="text-primary-100 text-sm">Kết thúc vào:</p>
-                                    <p class="text-lg font-semibold">@(endDate.HasValue ? endDate.Value.ToString("dd/MM/yyyy") : "N/A")</p>
+                                    <p class="text-lg font-semibold">@endDate.ToString("dd/MM/yyyy")</p>
                                 </div>
                                 <div>
                                     <p class="text-primary-100 text-sm">Thời gian còn lại:</p>
                                     <p class="text-lg font-semibold">
                                         @{
-                                            if (endDate.HasValue)
+                                            var remainingDays = (endDate - DateTime.Now).Days;
+                                            if (remainingDays > 0)
                                             {
-                                                var remainingDays = (endDate.Value - DateTime.Now).Days;
-                                                if (remainingDays > 0)
-                                                {
-                                                    @Html.Raw($"{remainingDays} ngày")
-                                                }
-                                                else if (remainingDays == 0)
-                                                {
-                                                    @Html.Raw("Hôm nay hết hạn")
-                                                }
-                                                else
-                                                {
-                                                    @Html.Raw("Đã hết hạn")
-                                                }
+                                                @Html.Raw($"{remainingDays} ngày")
+                                            }
+                                            else if (remainingDays == 0)
+                                            {
+                                                @Html.Raw("Hôm nay hết hạn")
+                                            }
+                                            else
+                                            {
+                                                @Html.Raw("Đã hết hạn")
                                             }
                                         }
                                     </p>
@@ -797,12 +880,9 @@
                                 <a href="/subscription/pricing" class="flex-1 px-4 py-2 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition text-center">
                                     Nâng cấp gói
                                 </a>
-                                <form method="post" action="@Url.Action("CancelSubscription", "Subscription")" class="flex-1" onsubmit="return confirm('Bạn có chắc muốn hủy gói hội viên? Bạn sẽ mất toàn bộ quyền lợi.');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="w-full px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition border border-white/30">
-                                        Hủy gói
-                                    </button>
-                                </form>
+                                <button type="button" onclick="showCancelSubscriptionModal()" class="w-full px-4 py-2 bg-white/20 text-white rounded-lg font-semibold hover:bg-white/30 transition border border-white/30">
+                                    Hủy gói
+                                </button>
                             </div>
                         </div>
                     }
@@ -823,7 +903,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             @foreach (var plan in membershipPlans.OrderBy(p => p.Price))
                             {
-                                var isCurrentPlan = ViewBag.ActiveSubscription != null && plan.Id == ViewBag.ActiveSubscription.PlanId && isPremium;
+                                var isCurrentPlan = hasActiveSubscription && activeSubscription != null && plan.Id == activeSubscription.PlanId;
                                 if (!isCurrentPlan)
                                 {
                                     <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
@@ -831,7 +911,7 @@
                                         <p class="text-2xl font-bold text-primary mb-1">@(plan.Price?.ToString("N0") ?? "0")đ</p>
                                         <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">@(plan.DurationDays ?? 30) ngày</p>
                                         <a href="/subscription/pricing" class="block w-full px-3 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-dark transition text-center text-sm">
-                                            @(isPremium ? "Nâng cấp" : "Chọn gói")
+                                            @(hasActiveSubscription ? "Nâng cấp" : "Chọn gói")
                                         </a>
                                     </div>
                                 }
@@ -1195,35 +1275,49 @@
 
     function toggleCategoryInputModal() {
         const checkbox = document.getElementById('useNewCategoryModal');
+        const selectDiv = document.getElementById('categorySelectModal');
         const select = document.getElementById('CategoryIdModal');
-        const input = document.getElementById('newCategoryInputModal');
+        const inputDiv = document.getElementById('newCategoryInputModal');
+        const input = document.getElementById('NewCategoryTitleModal');
         
         if (checkbox.checked) {
-            select.required = false;
+            // Khi tick "Tạo mới": Ẩn dropdown, hiện input, bỏ required khỏi dropdown
+            selectDiv.classList.add('hidden');
+            inputDiv.classList.remove('hidden');
+            select.removeAttribute('required');
             select.value = '';
-            input.classList.remove('hidden');
-            document.getElementById('NewCategoryTitleModal').required = true;
+            input.setAttribute('required', 'required');
         } else {
-            select.required = true;
-            input.classList.add('hidden');
-            document.getElementById('NewCategoryTitleModal').required = false;
+            // Khi không tick: Hiện dropdown, ẩn input, dropdown là bắt buộc
+            selectDiv.classList.remove('hidden');
+            inputDiv.classList.add('hidden');
+            select.setAttribute('required', 'required');
+            input.removeAttribute('required');
+            input.value = '';
         }
     }
 
     function toggleSubjectInputModal() {
         const checkbox = document.getElementById('useNewSubjectModal');
+        const selectDiv = document.getElementById('subjectSelectModal');
         const select = document.getElementById('SubjectIdModal');
-        const input = document.getElementById('newSubjectInputModal');
+        const inputDiv = document.getElementById('newSubjectInputModal');
+        const input = document.getElementById('NewSubjectTitleModal');
         
         if (checkbox.checked) {
-            select.required = false;
+            // Khi tick "Tạo mới": Ẩn dropdown, hiện input, bỏ required khỏi dropdown
+            selectDiv.classList.add('hidden');
+            inputDiv.classList.remove('hidden');
+            select.removeAttribute('required');
             select.value = '';
-            input.classList.remove('hidden');
-            document.getElementById('NewSubjectTitleModal').required = true;
+            input.setAttribute('required', 'required');
         } else {
-            select.required = true;
-            input.classList.add('hidden');
-            document.getElementById('NewSubjectTitleModal').required = false;
+            // Khi không tick: Hiện dropdown, ẩn input, dropdown là bắt buộc
+            selectDiv.classList.remove('hidden');
+            inputDiv.classList.add('hidden');
+            select.setAttribute('required', 'required');
+            input.removeAttribute('required');
+            input.value = '';
         }
     }
 
@@ -1353,6 +1447,208 @@
         }
     }
 
+    // Import functions for user
+    function showImportModalUser() {
+        document.getElementById('importModalUser').classList.remove('hidden');
+        showImportTabUser('text');
+    }
+
+    function hideImportModalUser() {
+        document.getElementById('importModalUser').classList.add('hidden');
+        document.getElementById('importStatusUser').style.display = 'none';
+        document.getElementById('textImportInputUser').value = '';
+        document.getElementById('wordFileInputUser').value = '';
+    }
+
+    function showImportTabUser(tab) {
+        const wordTab = document.getElementById('wordImportTabUser');
+        const textTab = document.getElementById('textImportTabUser');
+        const btnWord = document.getElementById('btnWordTabUser');
+        const btnText = document.getElementById('btnTextTabUser');
+        
+        if (tab === 'word') {
+            wordTab.style.display = 'block';
+            textTab.style.display = 'none';
+            btnWord.classList.add('border-primary', 'text-primary');
+            btnWord.classList.remove('border-transparent', 'text-gray-500');
+            btnText.classList.add('border-transparent', 'text-gray-500');
+            btnText.classList.remove('border-primary', 'text-primary');
+        } else {
+            wordTab.style.display = 'none';
+            textTab.style.display = 'block';
+            btnText.classList.add('border-primary', 'text-primary');
+            btnText.classList.remove('border-transparent', 'text-gray-500');
+            btnWord.classList.add('border-transparent', 'text-gray-500');
+            btnWord.classList.remove('border-primary', 'text-primary');
+        }
+    }
+
+    async function importFromTextUser() {
+        const textInput = document.getElementById('textImportInputUser');
+        const text = textInput.value.trim();
+        const statusDiv = document.getElementById('importStatusUser');
+        
+        if (!text) {
+            statusDiv.innerHTML = '<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">⚠️ Vui lòng nhập hoặc dán nội dung đề thi</div>';
+            statusDiv.style.display = 'block';
+            return;
+        }
+        
+        statusDiv.innerHTML = '<div class="bg-info/10 border border-info/30 text-info rounded-lg p-4">⏳ Đang xử lý văn bản...</div>';
+        statusDiv.style.display = 'block';
+        
+        try {
+            const response = await fetch('/quiz/parse-questions-text', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({ text: text })
+            });
+            
+            const result = await response.json();
+            handleImportResultUser(result);
+        } catch (error) {
+            statusDiv.innerHTML = `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">❌ Lỗi: ${error.message}</div>`;
+        }
+    }
+
+    async function importFromWordUser() {
+        const fileInput = document.getElementById('wordFileInputUser');
+        const file = fileInput.files[0];
+        const statusDiv = document.getElementById('importStatusUser');
+        
+        if (!file) {
+            statusDiv.innerHTML = '<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">⚠️ Vui lòng chọn file Word (.docx)</div>';
+            statusDiv.style.display = 'block';
+            return;
+        }
+        
+        statusDiv.innerHTML = '<div class="bg-info/10 border border-info/30 text-info rounded-lg p-4">⏳ Đang xử lý file...</div>';
+        statusDiv.style.display = 'block';
+        
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            formData.append('__RequestVerificationToken', token);
+            
+            const response = await fetch('/quiz/parse-questions-word', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            handleImportResultUser(result);
+        } catch (error) {
+            statusDiv.innerHTML = `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">❌ Lỗi: ${error.message}</div>`;
+        }
+    }
+
+    function handleImportResultUser(result) {
+        const statusDiv = document.getElementById('importStatusUser');
+        
+        if (result.success && result.questions && result.questions.length > 0) {
+            // Add imported questions to form
+            result.questions.forEach((q, index) => {
+                addQuestionFromImport(q);
+            });
+            
+            statusDiv.innerHTML = `<div class="bg-success/10 border border-success/30 text-success rounded-lg p-4">
+                <strong>✅ Đã import thành công ${result.questions.length} câu hỏi!</strong><br>
+                <small>Các câu hỏi đã được thêm vào form. Bạn có thể chỉnh sửa trước khi gửi.</small>
+            </div>`;
+            
+            // Close modal after 2 seconds
+            setTimeout(() => {
+                hideImportModalUser();
+            }, 2000);
+        } else {
+            statusDiv.innerHTML = `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">
+                ❌ ${result.message || 'Không thể import câu hỏi'}<br>
+                ${result.errors ? result.errors.map(e => `- ${e}`).join('<br>') : ''}
+            </div>`;
+        }
+    }
+
+    function addQuestionFromImport(q) {
+        questionCountModal++;
+        const container = document.getElementById('questionsContainerModal');
+        
+        const questionHtml = `
+            <div class="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-lg p-4" data-question-index-modal="${questionCountModal}">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="font-semibold text-primary">Câu hỏi ${questionCountModal} (Đã import)</span>
+                    <button type="button" onclick="removeQuestionModal(${questionCountModal})" class="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600">
+                        Xóa
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nội dung câu hỏi *</label>
+                        <textarea name="Questions[${questionCountModal - 1}].Content" required placeholder="Nhập nội dung câu hỏi..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="2">${escapeHtml(q.question || '')}</textarea>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="A" ${(q.correctOption || '').toUpperCase() === 'A' ? 'checked' : ''} required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án A *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionA" required placeholder="Nhập đáp án A" value="${escapeHtml(q.optionA || '')}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="B" ${(q.correctOption || '').toUpperCase() === 'B' ? 'checked' : ''} required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án B *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionB" required placeholder="Nhập đáp án B" value="${escapeHtml(q.optionB || '')}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="C" ${(q.correctOption || '').toUpperCase() === 'C' ? 'checked' : ''} required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án C *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionC" required placeholder="Nhập đáp án C" value="${escapeHtml(q.optionC || '')}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="radio" name="Questions[${questionCountModal - 1}].CorrectOption" value="D" ${(q.correctOption || '').toUpperCase() === 'D' ? 'checked' : ''} required>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Đáp án D *</label>
+                        </div>
+                        <input type="text" name="Questions[${questionCountModal - 1}].OptionD" required placeholder="Nhập đáp án D" value="${escapeHtml(q.optionD || '')}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Điểm số</label>
+                        <input type="number" name="Questions[${questionCountModal - 1}].Marks" min="0" step="0.5" value="1" placeholder="1.0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', questionHtml);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Close import modal when clicking outside
+    document.getElementById('importModalUser')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            hideImportModalUser();
+        }
+    });
+
     function toggleMobileSidebar() {
         const sidebar = document.getElementById('mobileSidebar');
         sidebar.classList.toggle('hidden');
@@ -1387,10 +1683,162 @@
     });
 </script>
 
+<!-- Cancel Subscription Modal -->
+<div id="cancelSubscriptionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Hủy gói hội viên</h3>
+                <button type="button" onclick="closeCancelSubscriptionModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <div class="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p class="text-sm text-yellow-800 dark:text-yellow-200">
+                    <strong>⚠️ Lưu ý:</strong> Khi hủy gói, bạn sẽ mất toàn bộ quyền lợi. Số tiền hoàn lại sẽ được tính theo số ngày còn lại và chuyển vào tài khoản ngân hàng bạn cung cấp.
+                </p>
+            </div>
+
+            @if (hasActiveSubscription && activeSubscription != null)
+            {
+                var totalDays = (activeSubscription.EndDate - activeSubscription.StartDate).TotalDays;
+                var remainingDays = (activeSubscription.EndDate - DateTime.UtcNow).TotalDays;
+                var currentPlan = activeSubscription.Plan as QuizlyWebsite.Models.TbMembershipPlan;
+                var originalPrice = currentPlan?.Price ?? 0;
+                var refundAmount = remainingDays > 0 && totalDays > 0 ? originalPrice * (decimal)(remainingDays / totalDays) : 0;
+                refundAmount = Math.Round(refundAmount, 2);
+                
+                <div class="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p class="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                        <strong>Thông tin hoàn tiền:</strong>
+                    </p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300">
+                        Số ngày còn lại: <strong>@remainingDays.ToString("F0") ngày</strong><br>
+                        Số tiền hoàn lại: <strong>@refundAmount.ToString("N0") VND</strong>
+                    </p>
+                </div>
+            }
+
+            <form method="post" action="@Url.Action("CancelSubscription", "Subscription")" id="cancelSubscriptionForm">
+                @Html.AntiForgeryToken()
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Tên chủ tài khoản <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="AccountHolderName" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Nhập tên chủ tài khoản">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Số tài khoản ngân hàng <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="AccountNumber" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Nhập số tài khoản">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Tên ngân hàng <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="BankName" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Ví dụ: Vietcombank, Techcombank, BIDV...">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Chi nhánh ngân hàng
+                        </label>
+                        <input type="text" name="BankBranch" 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Nhập chi nhánh (tùy chọn)">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Số điện thoại liên hệ <span class="text-red-500">*</span>
+                        </label>
+                        <input type="tel" name="PhoneNumber" required 
+                               class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="Nhập số điện thoại">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Ghi chú
+                        </label>
+                        <textarea name="Notes" rows="3" 
+                                  class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent"
+                                  placeholder="Ghi chú thêm (nếu có)"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeCancelSubscriptionModal()" 
+                            class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                        Hủy
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition">
+                        Xác nhận hủy gói
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section Styles {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css">
+    <style>
+        #cancelSubscriptionModal {
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
 }
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
+    <script>
+        function showCancelSubscriptionModal() {
+            document.getElementById('cancelSubscriptionModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCancelSubscriptionModal() {
+            document.getElementById('cancelSubscriptionModal').classList.add('hidden');
+            document.body.style.overflow = '';
+            // Reset form
+            document.getElementById('cancelSubscriptionForm').reset();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('cancelSubscriptionModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCancelSubscriptionModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCancelSubscriptionModal();
+            }
+        });
+    </script>
 }

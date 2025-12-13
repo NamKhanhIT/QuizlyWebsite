@@ -146,20 +146,38 @@
                     }
                     else if (isPaidExam && !canAccessPaidExam)
                     {
+                        var examPrice = ViewBag.ExamPrice as decimal? ?? 0;
+                        var hasPurchase = ViewBag.HasPurchase as bool? ?? false;
+                        
                         <div class="space-y-3">
                             <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                                 <p class="text-sm text-yellow-800 dark:text-yellow-200 font-semibold mb-2">
                                     <span class="material-symbols-outlined align-middle mr-1">lock</span>
                                     Đề thi trả phí
                                 </p>
-                                <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                                    Bạn cần đăng ký gói trả phí để làm đề thi này.
+                                <p class="text-sm text-yellow-700 dark:text-yellow-300 mb-3">
+                                    Bạn có thể đăng ký gói hội viên để truy cập tất cả đề thi trả phí, hoặc mua đề thi này riêng lẻ.
                                 </p>
+                                @if (examPrice > 0)
+                                {
+                                    <p class="text-sm font-semibold text-yellow-800 dark:text-yellow-200">
+                                        Giá: @string.Format("{0:N0}", examPrice) VNĐ
+                                    </p>
+                                }
                             </div>
-                            <a href="@Url.Action("Pricing", "Subscription")" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-base font-bold leading-normal shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all">
-                                <span class="material-symbols-outlined align-middle mr-2">workspace_premium</span>
-                                <span class="truncate">Đăng Ký Gói Trả Phí</span>
-                            </a>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <form method="post" action="@Url.Action("PurchaseExam", "Quiz", new { id = Model.Id })">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
+                                        <span class="material-symbols-outlined align-middle mr-2">shopping_cart</span>
+                                        <span class="truncate">Mua đề thi này</span>
+                                    </button>
+                                </form>
+                                <a href="@Url.Action("Pricing", "Subscription")" class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-base font-bold leading-normal shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all">
+                                    <span class="material-symbols-outlined align-middle mr-2">workspace_premium</span>
+                                    <span class="truncate">Đăng Ký Gói Hội Viên</span>
+                                </a>
+                            </div>
                         </div>
                     }
                     else

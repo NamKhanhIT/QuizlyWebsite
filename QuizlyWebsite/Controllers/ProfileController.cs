@@ -145,29 +145,39 @@ namespace QuizlyWebsite.Controllers
 
             ViewBag.Payments = payments;
 
-            // Load membership plans for payment tab
             var plans = await _context.TbMembershipPlans.ToListAsync();
             ViewBag.Plans = plans;
-
-            // Load courses with progress for learning history
-            var enrolledCourses = await _context.TbCourses
-                .AsSplitQuery()
-                .Where(c => c.TbLessons.Any(l => l.TbLessonProgresses.Any(p => p.UserId == userId)))
+            var allCourses = await _context.TbCourses
+                .Where(c => c.IsApproved == true)
                 .Include(c => c.TbLessons)
-                    .ThenInclude(l => l.TbLessonProgresses)
+                    .ThenInclude(l => l.TbLessonProgresses.Where(p => p.UserId == userId))
                 .ToListAsync();
 
             var coursesWithProgress = new List<object>();
-            foreach (var course in enrolledCourses)
+            foreach (var course in allCourses)
             {
                 var courseLessons = course.TbLessons?.ToList() ?? new List<TbLesson>();
-                // Only count non-preview lessons
                 var nonPreviewLessons = courseLessons.Where(l => l.IsPreview != true).ToList();
+                
+                var hasProgress = nonPreviewLessons.Any(l => 
+                    l.TbLessonProgresses?.Any(p => p.UserId == userId) == true);
+                
+                if (!hasProgress && nonPreviewLessons.Count > 0)
+                    continue;
+                
                 var completedNonPreviewLessons = nonPreviewLessons
                     .Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true);
                 var totalNonPreviewLessons = nonPreviewLessons.Count;
                 var progressPercent = totalNonPreviewLessons > 0 ? (completedNonPreviewLessons * 100 / totalNonPreviewLessons) : 0;
-                var currentLesson = nonPreviewLessons.FirstOrDefault(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted != true) == true);
+                var currentLesson = nonPreviewLessons.FirstOrDefault(l => 
+                    l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted != true) == true);
+                
+                // Get the last completed lesson date
+                var lastCompletedDate = nonPreviewLessons
+                    .Where(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true)
+                    .SelectMany(l => l.TbLessonProgresses?.Where(p => p.UserId == userId && p.IsCompleted == true && p.CompletedAt.HasValue) ?? Enumerable.Empty<TbLessonProgress>())
+                    .OrderByDescending(p => p.CompletedAt)
+                    .FirstOrDefault()?.CompletedAt;
 
                 coursesWithProgress.Add(new
                 {
@@ -175,9 +185,38 @@ namespace QuizlyWebsite.Controllers
                     ProgressPercent = progressPercent,
                     CompletedLessons = completedNonPreviewLessons,
                     TotalLessons = totalNonPreviewLessons,
-                    CurrentLesson = (TbLesson?)currentLesson
+                    CurrentLesson = (TbLesson?)currentLesson,
+                    LastCompletedDate = lastCompletedDate,
+                    IsCompleted = progressPercent >= 100 && totalNonPreviewLessons > 0
                 });
             }
+            
+            // Sort by last completed date (most recent first), then by progress
+            coursesWithProgress = coursesWithProgress
+                .OrderByDescending(c => 
+                {
+                    try
+                    {
+                        var lastDate = ((dynamic)c).LastCompletedDate as DateTime?;
+                        return lastDate ?? DateTime.MinValue;
+                    }
+                    catch
+                    {
+                        return DateTime.MinValue;
+                    }
+                })
+                .ThenByDescending(c => 
+                {
+                    try
+                    {
+                        return ((dynamic)c).ProgressPercent ?? 0;
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
+                })
+                .ToList();
 
             ViewBag.CoursesWithProgress = coursesWithProgress;
 

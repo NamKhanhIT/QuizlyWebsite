@@ -1,0 +1,98 @@
+@model List<QuizlyWebsite.Models.TbContact>
+
+@{
+    ViewData["Title"] = "Lịch Sử Liên Hệ";
+}
+
+<main class="min-h-screen bg-background-light dark:bg-background-dark py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="/profile" class="text-primary hover:underline flex items-center gap-2 mb-4">
+                <span class="material-symbols-outlined text-sm">arrow_back</span>
+                Quay Lại Hồ Sơ
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Lịch Sử Liên Hệ</h1>
+            <p class="text-gray-600 dark:text-gray-400">Xem lại các tin nhắn bạn đã gửi cho chúng tôi</p>
+        </div>
+
+        <!-- Contact List -->
+        @if (Model.Any())
+        {
+            <div class="space-y-4">
+                @foreach (var contact in Model)
+                {
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                        @contact.Subject switch
+                                        {
+                                            "course" => "Tư vấn khóa học",
+                                            "exam" => "Vấn đề về đề thi",
+                                            "technical" => "Lỗi kỹ thuật",
+                                            "partnership" => "Hợp tác doanh nghiệp",
+                                            "other" => "Khác",
+                                            _ => contact.Subject
+                                        }
+                                    </h3>
+                                    @if (!string.IsNullOrEmpty(contact.Response))
+                                    {
+                                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-success/20 text-success flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">check_circle</span>
+                                            Đã phản hồi
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-warning/20 text-warning flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">schedule</span>
+                                            Chờ phản hồi
+                                        </span>
+                                    }
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Gửi lúc: @(contact.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 block">Nội dung tin nhắn:</label>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                                <p class="text-gray-900 dark:text-white whitespace-pre-wrap">@contact.Message</p>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(contact.Response))
+                        {
+                            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <label class="text-sm font-semibold text-success mb-2 block">Phản hồi từ admin:</label>
+                                <div class="p-4 bg-success/10 border border-success/30 rounded-lg">
+                                    <p class="text-gray-900 dark:text-white whitespace-pre-wrap">@contact.Response</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                        Phản hồi lúc: @(contact.RespondedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")
+                                    </p>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+                <span class="material-symbols-outlined text-6xl text-gray-400 mb-4 block">mail_outline</span>
+                <p class="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">Chưa có lịch sử liên hệ</p>
+                <p class="text-sm text-gray-500 dark:text-gray-500 mb-6">Bạn chưa gửi tin nhắn nào cho chúng tôi</p>
+                <a href="/contact" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                    <span class="material-symbols-outlined">send</span>
+                    Gửi Tin Nhắn Mới
+                </a>
+            </div>
+        }
+    </div>
+</main>
+

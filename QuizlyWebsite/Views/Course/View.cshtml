@@ -90,9 +90,10 @@
                     <div class="mt-4">
                         @if (Model.IsPaid == true && !userHasAccess)
                         {
-                            <button class="flex w-full md:w-auto min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:bg-opacity-90 transition-all">
-                                <span class="truncate">Đăng ký khóa học</span>
-                            </button>
+                            <a href="@Url.Action("Pricing", "Subscription")" class="flex w-full md:w-auto min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-base font-bold leading-normal shadow-lg shadow-primary/30 hover:from-purple-600 hover:to-pink-600 transition-all">
+                                <span class="material-symbols-outlined align-middle mr-2">workspace_premium</span>
+                                <span class="truncate">Đăng ký gói hội viên</span>
+                            </a>
                         }
                         else
                         {

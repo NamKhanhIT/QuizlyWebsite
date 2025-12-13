@@ -12,6 +12,44 @@
 
 <main class="min-h-screen bg-background-light dark:bg-background-dark py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Promotional Banner -->
+        <div class="mb-8 animate-slide-up">
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 p-8 shadow-2xl">
+                <div class="relative z-10">
+                    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex-1 text-center md:text-left">
+                            <h2 class="text-3xl md:text-4xl font-bold text-white mb-3">
+                                🎯 Nâng cao kỹ năng với đề thi chất lượng
+                            </h2>
+                            <p class="text-lg text-white/90 mb-4">
+                                Hàng ngàn đề thi từ cơ bản đến nâng cao, giúp bạn tự tin chinh phục mọi kỳ thi
+                            </p>
+                            <div class="flex flex-wrap gap-3 justify-center md:justify-start">
+                                <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
+                                    ✓ Đề thi đa dạng
+                                </span>
+                                <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
+                                    ✓ Chấm điểm tự động
+                                </span>
+                                <span class="px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-white text-sm font-semibold">
+                                    ✓ Học mọi lúc mọi nơi
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="@Url.Action("Pricing", "Subscription")" class="inline-flex items-center gap-2 px-8 py-4 bg-white text-purple-600 font-bold rounded-xl hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+                                <span class="material-symbols-outlined">rocket_launch</span>
+                                <span>Khám phá ngay</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative elements -->
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
+            </div>
+        </div>
+
         <!-- Header -->
         <div class="mb-8 animate-slide-up">
             <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">Đề thi</h1>
@@ -93,7 +131,12 @@
 
                     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden card-hover group">
                         <!-- Thumbnail/Header -->
-                        <div class="h-32 bg-gradient-to-br from-primary to-primary-dark relative">
+                        <div class="h-32 bg-gradient-to-br from-primary to-primary-dark relative overflow-hidden">
+                            @if (!string.IsNullOrEmpty(exam.ImageUrl))
+                            {
+                                <img src="@exam.ImageUrl" alt="@exam.Title" class="w-full h-full object-cover">
+                            }
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                             @if (isAdmin)
                             {
                                 <div class="absolute top-3 right-3 px-2 py-1 bg-white/20 backdrop-blur-sm rounded text-white text-xs font-semibold flex items-center gap-1">

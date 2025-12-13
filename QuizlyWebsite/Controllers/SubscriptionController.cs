@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
 using QuizlyWebsite.Services;
+using System.Text.Json;
 
 namespace QuizlyWebsite.Controllers
 {
@@ -85,13 +86,19 @@ namespace QuizlyWebsite.Controllers
             {
                 await _subscriptionService.CreateSubscriptionAsync(userId.Value, planType.ToUpper(), daysValid);
                 _logger.LogInformation($"User {userId} upgraded to {planType} plan");
-                TempData["Success"] = $"You have successfully upgraded to {planType} plan!";
+                TempData["Success"] = $"Bạn đã đăng ký thành công gói {planType}!";
                 return RedirectToAction("Index", "Profile", new { area = "" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning($"User {userId} tried to upgrade but has active subscription: {ex.Message}");
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Pricing));
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error upgrading subscription: {ex.Message}");
-                TempData["Error"] = "Failed to upgrade subscription";
+                TempData["Error"] = "Có lỗi xảy ra khi đăng ký gói. Vui lòng thử lại.";
                 return RedirectToAction(nameof(Pricing));
             }
         }
@@ -325,18 +332,34 @@ namespace QuizlyWebsite.Controllers
                     }
 
                     // Create subscription with correct planId and planType
-                    await _subscriptionService.CreateSubscriptionAsync(userId, planType, durationDays, planId > 0 ? planId : null);
+                    try
+                    {
+                        await _subscriptionService.CreateSubscriptionAsync(userId, planType, durationDays, planId > 0 ? planId : null);
 
-                    // Clear session
-                    HttpContext.Session.Remove("PendingPaymentId");
-                    HttpContext.Session.Remove("PendingPlanType");
-                    HttpContext.Session.Remove("PendingPlanId");
-                    HttpContext.Session.Remove("PendingDurationDays");
+                        // Clear session
+                        HttpContext.Session.Remove("PendingPaymentId");
+                        HttpContext.Session.Remove("PendingPlanType");
+                        HttpContext.Session.Remove("PendingPlanId");
+                        HttpContext.Session.Remove("PendingDurationDays");
 
-                    _logger.LogInformation("Payment successful. PaymentId: {PaymentId}, UserId: {UserId}, PlanId: {PlanId}, PlanType: {PlanType}", 
-                        paymentId, userId, planId, planType);
-                    TempData["Success"] = "Thanh toán thành công! Gói hội viên đã được kích hoạt.";
-                    return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                        _logger.LogInformation("Payment successful. PaymentId: {PaymentId}, UserId: {UserId}, PlanId: {PlanId}, PlanType: {PlanType}", 
+                            paymentId, userId, planId, planType);
+                        TempData["Success"] = "Thanh toán thành công! Gói hội viên đã được kích hoạt.";
+                        return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        // Nếu có subscription đang active, hoàn tiền
+                        _logger.LogWarning("Payment successful but user has active subscription. Refunding payment {PaymentId}: {Message}", 
+                            paymentId, ex.Message);
+                        
+                        // Hoàn tiền
+                        payment.Status = "Refunded";
+                        await _context.SaveChangesAsync();
+                        
+                        TempData["Error"] = ex.Message + " Số tiền đã được hoàn lại vào tài khoản của bạn.";
+                        return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                    }
                 }
                 else
                 {
@@ -373,7 +396,13 @@ namespace QuizlyWebsite.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("subscription/cancel")]
-        public async Task<IActionResult> CancelSubscription()
+        public async Task<IActionResult> CancelSubscription(
+            string AccountHolderName,
+            string AccountNumber,
+            string BankName,
+            string BankBranch,
+            string PhoneNumber,
+            string Notes)
         {
             try
             {
@@ -383,6 +412,31 @@ namespace QuizlyWebsite.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(AccountHolderName))
+                {
+                    TempData["Error"] = "Vui lòng nhập tên chủ tài khoản";
+                    return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                }
+
+                if (string.IsNullOrWhiteSpace(AccountNumber))
+                {
+                    TempData["Error"] = "Vui lòng nhập số tài khoản ngân hàng";
+                    return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                }
+
+                if (string.IsNullOrWhiteSpace(BankName))
+                {
+                    TempData["Error"] = "Vui lòng nhập tên ngân hàng";
+                    return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                }
+
+                if (string.IsNullOrWhiteSpace(PhoneNumber))
+                {
+                    TempData["Error"] = "Vui lòng nhập số điện thoại liên hệ";
+                    return RedirectToAction("Index", "Profile", new { tab = "membership" });
+                }
+
                 var subscription = await _subscriptionService.GetActiveSubscriptionAsync(userId.Value);
                 if (subscription == null)
                 {
@@ -390,14 +444,69 @@ namespace QuizlyWebsite.Controllers
                     return RedirectToAction("Index", "Profile", new { tab = "membership" });
                 }
 
+                // Tính toán số tiền hoàn lại dựa trên số ngày còn lại
+                var now = DateTime.UtcNow;
+                var totalDays = (subscription.EndDate - subscription.StartDate).TotalDays;
+                var remainingDays = (subscription.EndDate - now).TotalDays;
+                
+                // Chỉ hoàn tiền nếu còn ít nhất 1 ngày
+                decimal refundAmount = 0;
+                if (remainingDays > 0 && totalDays > 0 && subscription.Plan != null && subscription.Plan.Price.HasValue)
+                {
+                    // Tính số tiền hoàn lại theo tỷ lệ số ngày còn lại
+                    var originalPrice = subscription.Plan.Price.Value;
+                    refundAmount = originalPrice * (decimal)(remainingDays / totalDays);
+                    
+                    // Làm tròn đến 2 chữ số thập phân
+                    refundAmount = Math.Round(refundAmount, 2);
+                    
+                    // Lưu thông tin ngân hàng dạng JSON vào ProviderTransId
+                    var bankInfo = new
+                    {
+                        AccountHolderName = AccountHolderName.Trim(),
+                        AccountNumber = AccountNumber.Trim(),
+                        BankName = BankName.Trim(),
+                        BankBranch = BankBranch?.Trim() ?? "",
+                        PhoneNumber = PhoneNumber.Trim(),
+                        Notes = Notes?.Trim() ?? ""
+                    };
+                    var bankInfoJson = System.Text.Json.JsonSerializer.Serialize(bankInfo);
+                    
+                    // Tạo payment record cho refund
+                    var refundPayment = new TbPayment
+                    {
+                        UserId = userId.Value,
+                        Amount = -refundAmount, 
+                        Provider = "Refund",
+                        Status = "Pending", // Chờ xử lý hoàn tiền
+                        CreatedAt = DateTime.Now,
+                        Currency = "VND",
+                        ProviderTransId = bankInfoJson // Lưu thông tin ngân hàng
+                    };
+                    
+                    _context.TbPayments.Add(refundPayment);
+                    _logger.LogInformation("Refund request created for subscription {SubscriptionId}: {RefundAmount} VND (Remaining days: {RemainingDays}/{TotalDays}). Bank: {BankName}, Account: {AccountNumber}", 
+                        subscription.Id, refundAmount, remainingDays, totalDays, BankName, AccountNumber);
+                }
+
                 // Deactivate subscription
                 subscription.IsActive = false;
-                subscription.EndDate = DateTime.UtcNow;
+                subscription.EndDate = now;
                 _context.TbUserSubscriptions.Update(subscription);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("User {UserId} cancelled subscription {SubscriptionId}", userId.Value, subscription.Id);
-                TempData["Success"] = "Gói hội viên của bạn đã được hủy thành công.";
+                _logger.LogInformation("User {UserId} cancelled subscription {SubscriptionId}. Refund: {RefundAmount} VND", 
+                    userId.Value, subscription.Id, refundAmount);
+                
+                if (refundAmount > 0)
+                {
+                    TempData["Success"] = $"Gói hội viên của bạn đã được hủy thành công. Yêu cầu hoàn tiền {refundAmount:N0} VND đã được gửi. Chúng tôi sẽ xử lý và chuyển khoản vào tài khoản {AccountNumber} ({BankName}) trong vòng 3-5 ngày làm việc.";
+                }
+                else
+                {
+                    TempData["Success"] = "Gói hội viên của bạn đã được hủy thành công.";
+                }
+                
                 return RedirectToAction("Index", "Profile", new { tab = "membership" });
             }
             catch (Exception ex)
@@ -408,7 +517,6 @@ namespace QuizlyWebsite.Controllers
             }
         }
 
-        // GET: Test VNPay URL generation (for debugging)
         [Route("subscription/test-vnpay")]
         public IActionResult TestVNPay()
         {

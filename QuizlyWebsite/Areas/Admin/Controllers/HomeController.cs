@@ -31,7 +31,9 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             var totalUsers = await _context.TbUsers.CountAsync();
             var totalQuestions = await _context.TbQuestions.CountAsync();
             var totalResults = await _context.TbExamResults.CountAsync();
-            var totalRevenue = await _context.TbPayments.Where(p => p.Status == "Completed").SumAsync(p => p.Amount);
+            var totalRevenue = await _context.TbPayments
+                .Where(p => p.Status == "Completed" || p.Status == "Success")
+                .SumAsync(p => p.Amount ?? 0);
             
             // Pending approvals
             var pendingExams = await _context.TbExams.Where(e => e.IsApproved == false).CountAsync();
@@ -60,14 +62,22 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Settings(string siteName, string siteDescription, string adminEmail, string supportEmail)
+        public IActionResult Settings(string siteName, string siteDescription, string adminEmail, string supportEmail)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            // Placeholder for settings save logic
-            TempData["Success"] = "Cài đặt đã được lưu thành công";
-            return RedirectToAction("Settings");
+            try
+            {
+                // Placeholder for settings save logic
+                TempData["Success"] = "Cài đặt đã được lưu thành công";
+                return RedirectToAction("Settings");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Lỗi khi lưu cài đặt: " + ex.Message;
+                return RedirectToAction("Settings");
+            }
         }
     }
 }

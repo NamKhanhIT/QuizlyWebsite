@@ -26,7 +26,7 @@
                 <div class="grid grid-cols-3 gap-4">
                     <div>
                         <p class="text-blue-100 text-sm">Tổng Câu Hỏi</p>
-                        <p class="text-2xl font-bold">@(Model?.Count ?? 0)</p>
+                        <p class="text-2xl font-bold">@(ViewData["TotalQuestions"] ?? 0)</p>
                     </div>
                     <div>
                         <p class="text-blue-100 text-sm">Độ Khó</p>
@@ -38,10 +38,20 @@
                     </div>
                 </div>
             </div>
-            <a href="/admin/question-form?examId=@exam?.Id" class="px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition flex items-center gap-2">
-                <span class="material-symbols-outlined">add</span>
-                Thêm Câu Hỏi
-            </a>
+            <div class="flex gap-3">
+                <a href="/admin/question-form?examId=@exam?.Id" class="px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition flex items-center gap-2">
+                    <span class="material-symbols-outlined">add</span>
+                    Thêm Câu Hỏi
+                </a>
+                <button onclick="showImportModal()" class="px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition flex items-center gap-2">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    Import Câu Hỏi
+                </button>
+                <button onclick="normalizeMarks(@exam?.Id)" class="px-6 py-3 bg-white text-warning rounded-lg font-semibold hover:bg-yellow-100 transition flex items-center gap-2" title="Chuẩn hóa điểm số để tổng = 10 điểm">
+                    <span class="material-symbols-outlined">calculate</span>
+                    Chuẩn Hóa Điểm
+                </button>
+            </div>
         </div>
     </div>
 
@@ -93,6 +103,41 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- Pagination -->
+            @{
+                var totalPages = (int)(ViewData["TotalPages"] ?? 1);
+                var currentPage = (int)(ViewData["CurrentPage"] ?? 1);
+                var totalQuestions = (int)(ViewData["TotalQuestions"] ?? 0);
+            }
+            @if (totalPages > 1)
+            {
+                <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <div class="text-sm text-[#4c739a] dark:text-slate-400">
+                        Hiển thị @((currentPage - 1) * 10 + 1) - @(Math.Min(currentPage * 10, totalQuestions)) trong tổng số @totalQuestions câu hỏi
+                    </div>
+                    <div class="flex gap-2">
+                        @if (currentPage > 1)
+                        {
+                            <a href="/admin/questions?examId=@exam?.Id&page=@(currentPage - 1)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                Trước
+                            </a>
+                        }
+                        @for (int i = Math.Max(1, currentPage - 2); i <= Math.Min(totalPages, currentPage + 2); i++)
+                        {
+                            <a href="/admin/questions?examId=@exam?.Id&page=@i" class="px-4 py-2 @(i == currentPage ? "bg-primary text-white" : "bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50") rounded-lg hover:bg-primary hover:text-white transition">
+                                @i
+                            </a>
+                        }
+                        @if (currentPage < totalPages)
+                        {
+                            <a href="/admin/questions?examId=@exam?.Id&page=@(currentPage + 1)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                Sau
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
         </div>
     }
     else
@@ -162,6 +207,62 @@ else
     </div>
 }
 
+<!-- Import Modal -->
+<div id="importModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" style="display: none;">
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold">Import Câu Hỏi</h3>
+            <button onclick="hideImportModal()" class="text-gray-500 hover:text-gray-700">
+                <span class="material-symbols-outlined text-2xl">close</span>
+            </button>
+        </div>
+
+        <div class="mb-4">
+            <div class="flex gap-3 border-b border-gray-200 dark:border-gray-700">
+                <button onclick="showImportTab('word')" id="btnWordTab" class="px-4 py-2 font-semibold border-b-2 border-primary text-primary">
+                    📄 File Word
+                </button>
+                <button onclick="showImportTab('text')" id="btnTextTab" class="px-4 py-2 font-semibold border-b-2 border-transparent text-gray-500 hover:text-primary">
+                    📝 Văn Bản
+                </button>
+            </div>
+        </div>
+
+        <!-- Word Import -->
+        <div id="wordImportTab" style="display: none;">
+            <input type="file" id="wordFileInput" accept=".docx" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg mb-4">
+            <button onclick="importFromWordAdmin(@exam?.Id)" class="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                ⬆️ Import từ file Word
+            </button>
+        </div>
+
+        <!-- Text Import -->
+        <div id="textImportTab">
+            <textarea id="textImportInput" rows="15" placeholder="Dán nội dung đề thi theo định dạng:
+                Câu hỏi: React là gì?
+
+                A. Một ngôn ngữ lập trình
+                *B. Một thư viện JavaScript
+                C. Một framework backend
+                D. Một cơ sở dữ liệu
+
+                Câu hỏi: JavaScript là gì?
+
+                A. Một framework
+                *B. Một ngôn ngữ lập trình
+                C. Một thư viện CSS
+                D. Một database" 
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg font-mono text-sm mb-4"></textarea>
+            <button onclick="importFromTextAdmin(@exam?.Id)" class="w-full px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                Import từ văn bản
+            </button>
+        </div>
+
+        <!-- Import Status -->
+        <div id="importStatus" class="mt-4" style="display: none;"></div>
+    </div>
+</div>
+
 <div id="messageBox"> 
     @section Scripts {
     <script>
@@ -181,6 +282,162 @@ else
                 const data = await response.json();
                 if (data.success) {
                     alert('Câu hỏi đã được xóa thành công');
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+
+        function showImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            showImportTab('text');
+        }
+
+        function hideImportModal() {
+            document.getElementById('importModal').style.display = 'none';
+            document.getElementById('importStatus').style.display = 'none';
+            document.getElementById('textImportInput').value = '';
+            document.getElementById('wordFileInput').value = '';
+        }
+
+        function showImportTab(tab) {
+            const wordTab = document.getElementById('wordImportTab');
+            const textTab = document.getElementById('textImportTab');
+            const btnWord = document.getElementById('btnWordTab');
+            const btnText = document.getElementById('btnTextTab');
+            
+            if (tab === 'word') {
+                wordTab.style.display = 'block';
+                textTab.style.display = 'none';
+                btnWord.classList.add('border-primary', 'text-primary');
+                btnWord.classList.remove('border-transparent', 'text-gray-500');
+                btnText.classList.add('border-transparent', 'text-gray-500');
+                btnText.classList.remove('border-primary', 'text-primary');
+            } else {
+                wordTab.style.display = 'none';
+                textTab.style.display = 'block';
+                btnText.classList.add('border-primary', 'text-primary');
+                btnText.classList.remove('border-transparent', 'text-gray-500');
+                btnWord.classList.add('border-transparent', 'text-gray-500');
+                btnWord.classList.remove('border-primary', 'text-primary');
+            }
+        }
+
+        async function importFromTextAdmin(examId) {
+            const textInput = document.getElementById('textImportInput');
+            const text = textInput.value.trim();
+            const statusDiv = document.getElementById('importStatus');
+            
+            if (!text) {
+                statusDiv.innerHTML = '<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">⚠️ Vui lòng nhập hoặc dán nội dung đề thi</div>';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="bg-info/10 border border-info/30 text-info rounded-lg p-4">⏳ Đang xử lý văn bản...</div>';
+            statusDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch('/admin/import-questions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ examId: examId, text: text })
+                });
+                
+                const result = await response.json();
+                handleImportResultAdmin(result);
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">❌ Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        async function importFromWordAdmin(examId) {
+            const fileInput = document.getElementById('wordFileInput');
+            const file = fileInput.files[0];
+            const statusDiv = document.getElementById('importStatus');
+            
+            if (!file) {
+                statusDiv.innerHTML = '<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">⚠️ Vui lòng chọn file Word (.docx)</div>';
+                statusDiv.style.display = 'block';
+                return;
+            }
+            
+            statusDiv.innerHTML = '<div class="bg-info/10 border border-info/30 text-info rounded-lg p-4">⏳ Đang xử lý file...</div>';
+            statusDiv.style.display = 'block';
+            
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                const response = await fetch(`/admin/import-questions-word?examId=${examId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                handleImportResultAdmin(result);
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">❌ Lỗi: ${error.message}</div>`;
+            }
+        }
+
+        function handleImportResultAdmin(result) {
+            const statusDiv = document.getElementById('importStatus');
+            
+            if (result.success) {
+                let statusHtml = `<div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-2">
+                    <strong>✅ ${result.message}</strong><br>
+                    - Tổng số câu hỏi: ${result.report.totalQuestions}<br>
+                    - Câu hỏi hợp lệ: ${result.report.validCount}<br>
+                    - Đã lưu: ${result.report.savedCount}<br>
+                    - Câu hỏi lỗi: ${result.report.errorCount}
+                </div>`;
+                
+                if (result.report.errorCount > 0 && result.report.errors.length > 0) {
+                    statusHtml += `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">
+                        <strong>⚠️ Lỗi:</strong><br>
+                        ${result.report.errors.map(e => `Câu ${e.questionNumber}: ${e.errorReason}`).join('<br>')}
+                    </div>`;
+                }
+                
+                statusDiv.innerHTML = statusHtml;
+                
+                // Reload page after 2 seconds
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                statusDiv.innerHTML = `<div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4">❌ ${result.message}</div>`;
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('importModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideImportModal();
+            }
+        });
+
+        async function normalizeMarks(examId) {
+            if (!confirm('Bạn có chắc chắn muốn chuẩn hóa điểm số? Tất cả điểm số sẽ được điều chỉnh để tổng = 10 điểm.')) return;
+
+            try {
+                const response = await fetch(`/admin/normalize-exam-marks/${examId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert(data.message);
                     window.location.reload();
                 } else {
                     alert('Lỗi: ' + data.message);

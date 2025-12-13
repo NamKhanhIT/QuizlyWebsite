@@ -22,24 +22,64 @@ namespace QuizlyWebsite.Controllers
             return View();
         }
 
+        [Route("contact/history")]
+        public async Task<IActionResult> History()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            // Get user email from database
+            var user = await _context.TbUsers.FindAsync(userId.Value);
+            if (user == null)
+                return RedirectToAction("Login", "Auth");
+
+            var contacts = await _context.TbContacts
+                .Where(c => c.Email == user.Email)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+
+            return View(contacts);
+        }
+
         // POST: /contact
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Route("contact")]
-        public async Task<IActionResult> Index(string name, string email, string subject, string message)
+        public async Task<IActionResult> Index(string name, string email, string? phone, string subject, string message)
         {
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email) || 
                 string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(message))
             {
-                ModelState.AddModelError("", "Vui lòng điền đầy đủ thông tin");
+                ModelState.AddModelError("", "Vui lòng điền đầy đủ thông tin bắt buộc");
+                return View();
+            }
+
+            // Validate email format
+            if (!email.Contains("@") || !email.Contains("."))
+            {
+                ModelState.AddModelError("email", "Email không hợp lệ");
                 return View();
             }
 
             try
             {
-                // In a real application, you would save this to a database or send an email
-                // For now, we'll just log it
-                _logger.LogInformation($"Contact form submitted: {name} ({email}) - {subject}: {message}");
+                // Lưu thông tin liên hệ vào database
+                var contact = new TbContact
+                {
+                    Name = name.Trim(),
+                    Email = email.Trim(),
+                    Phone = !string.IsNullOrWhiteSpace(phone) ? phone.Trim() : null,
+                    Subject = subject.Trim(),
+                    Message = message.Trim(),
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+
+                _context.TbContacts.Add(contact);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Contact form submitted and saved: {name} ({email}) - {subject}");
 
                 TempData["Success"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.";
                 return RedirectToAction("Index");

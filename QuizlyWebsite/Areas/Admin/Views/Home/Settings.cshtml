@@ -3,6 +3,20 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
 <!-- Header -->
 <div class="mb-8">
     <h2 class="text-3xl font-bold">@ViewData["Title"]</h2>

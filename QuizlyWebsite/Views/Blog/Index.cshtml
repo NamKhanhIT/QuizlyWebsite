@@ -110,7 +110,7 @@
                                 var blog = otherBlogs[i];
                                 <article class="flex gap-4 group cursor-pointer">
                                     <a href="@Url.Action("Detail", "Blog", new { id = blog.Id })" class="flex gap-4 w-full">
-                                        <span class="text-2xl font-black text-gray-200 dark:text-gray-700 leading-none">@(i + 1).ToString("00")</span>
+                                        <span class="text-2xl font-black text-gray-200 dark:text-gray-700 leading-none">@((i + 1).ToString("00"))</span>
                                         <div class="flex flex-col gap-1">
                                             <span class="text-xs font-semibold text-primary uppercase">Tin tức</span>
                                             <h4 class="text-base font-bold text-gray-800 dark:text-gray-100 group-hover:text-primary transition-colors line-clamp-2">

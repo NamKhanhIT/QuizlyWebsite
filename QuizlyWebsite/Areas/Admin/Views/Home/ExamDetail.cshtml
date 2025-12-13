@@ -1,0 +1,184 @@
+@model QuizlyWebsite.Models.TbExam
+
+@{
+    ViewData["Title"] = "Chi Tiết Đề Thi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <a href="/admin/exams" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <div class="flex justify-between items-center">
+        <h2 class="text-3xl font-bold">Chi Tiết Đề Thi</h2>
+        @if (Model.IsApproved == false)
+        {
+            <button onclick="approveExam(@Model.Id)" class="px-6 py-2 bg-success text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                <span class="material-symbols-outlined">check_circle</span> Duyệt Đề Thi
+            </button>
+        }
+    </div>
+</div>
+
+<!-- Exam Info Card -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left Column -->
+        <div>
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Tên Đề Thi</label>
+                <p class="text-xl font-bold text-[#0d141b] dark:text-slate-50 mt-1">@Model.Title</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Môn Học</label>
+                <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.Subject?.Title</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Danh Mục</label>
+                <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.Subject?.Category?.Title</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Người Tạo</label>
+                <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.CreatedByNavigation?.FullName</p>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Số Câu Hỏi</label>
+                <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.QuestionCount</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Thời Gian (phút)</label>
+                <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.Duration</p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Độ Khó</label>
+                <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full @(Model.Difficulty == "Dễ" ? "bg-green-100 text-green-800" : Model.Difficulty == "Trung bình" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
+                        @Model.Difficulty
+                    </span>
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Trạng Thái</label>
+                <p class="text-lg mt-1">
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full @(Model.IsApproved == true ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400")">
+                        @(Model.IsApproved == true ? "Đã Duyệt" : "Chờ Duyệt")
+                    </span>
+                </p>
+            </div>
+
+            @if (Model.IsApproved == true && Model.ApprovedByNavigation != null)
+            {
+                <div class="mb-4">
+                    <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Người Duyệt</label>
+                    <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.ApprovedByNavigation.FullName</p>
+                </div>
+
+                <div class="mb-4">
+                    <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Ngày Duyệt</label>
+                    <p class="text-lg text-[#0d141b] dark:text-slate-50 mt-1">@Model.ApprovedAt?.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Questions List -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold">Danh Sách Câu Hỏi (@(Model.TbQuestions?.Count ?? 0))</h3>
+        <a href="/admin/questions?examId=@Model.Id" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-700 transition text-sm">
+            Quản Lý Câu Hỏi
+        </a>
+    </div>
+
+    @if (Model.TbQuestions != null && Model.TbQuestions.Any())
+    {
+        <div class="space-y-4">
+            @{ int index = 1; }
+            @foreach (var question in Model.TbQuestions)
+            {
+                <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="font-semibold text-[#0d141b] dark:text-slate-50">Câu @index: @question.Content</p>
+                        <span class="text-xs text-[#4c739a] dark:text-slate-400">@((question.Marks ?? 0).ToString("F2")) điểm</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-3 text-sm">
+                        <div class="@(question.CorrectOption == "A" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300") p-2 rounded">
+                            <strong>A:</strong> @question.OptionA
+                        </div>
+                        <div class="@(question.CorrectOption == "B" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300") p-2 rounded">
+                            <strong>B:</strong> @question.OptionB
+                        </div>
+                        <div class="@(question.CorrectOption == "C" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300") p-2 rounded">
+                            <strong>C:</strong> @question.OptionC
+                        </div>
+                        <div class="@(question.CorrectOption == "D" ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400" : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300") p-2 rounded">
+                            <strong>D:</strong> @question.OptionD
+                        </div>
+                    </div>
+                </div>
+                index++;
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-[#4c739a] dark:text-slate-400 text-center py-8">Đề thi này chưa có câu hỏi nào.</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        async function approveExam(id) {
+            if (!confirm('Bạn có chắc chắn muốn duyệt đề thi này?')) return;
+
+            try {
+                const response = await fetch('/admin/approve-exam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Đề thi đã được duyệt thành công');
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+    </script>
+}
+

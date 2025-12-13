@@ -1,0 +1,226 @@
+@model QuizlyWebsite.Models.TbContact
+
+@{
+    ViewData["Title"] = "Chi Tiết Liên Hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
+<!-- Header -->
+<div class="mb-8">
+    <a href="/admin/contacts" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Liên Hệ</h2>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Contact Information -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Contact Details Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-[#0d141b] dark:text-slate-50">Thông Tin Liên Hệ</h3>
+                @if (Model.IsRead == true)
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-success/20 text-success flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">mark_email_read</span>
+                        Đã Đọc
+                    </span>
+                }
+                else
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-danger/20 text-danger flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">mark_email_unread</span>
+                        Chưa Đọc
+                    </span>
+                }
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Họ và Tên</label>
+                    <p class="text-lg font-semibold text-[#0d141b] dark:text-slate-50 mt-1">@Model.Name</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Email</label>
+                        <p class="text-[#0d141b] dark:text-slate-50 mt-1">
+                            <a href="mailto:@Model.Email" class="text-primary hover:underline">@Model.Email</a>
+                        </p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Số Điện Thoại</label>
+                        <p class="text-[#0d141b] dark:text-slate-50 mt-1">
+                            @if (!string.IsNullOrEmpty(Model.Phone))
+                            {
+                                <a href="tel:@Model.Phone" class="text-primary hover:underline">@Model.Phone</a>
+                            }
+                            else
+                            {
+                                <span class="text-gray-400">N/A</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Chủ Đề</label>
+                    <p class="mt-1">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-primary/20 text-primary">
+                            @(Model.Subject switch
+                            {
+                                "course" => "Tư vấn khóa học",
+                                "exam" => "Vấn đề về đề thi",
+                                "technical" => "Lỗi kỹ thuật",
+                                "partnership" => "Hợp tác doanh nghiệp",
+                                "other" => "Khác",
+                                _ => Model.Subject
+                            })
+                        </span>
+                    </p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Nội Dung Tin Nhắn</label>
+                    <div class="mt-2 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        <p class="text-[#0d141b] dark:text-slate-50 whitespace-pre-wrap">@Model.Message</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div>
+                        <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Ngày Gửi</label>
+                        <p class="text-[#0d141b] dark:text-slate-50 mt-1">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")</p>
+                    </div>
+                    @if (Model.IsRead == true && Model.ReadAt.HasValue)
+                    {
+                        <div>
+                            <label class="text-sm font-semibold text-[#4c739a] dark:text-slate-400">Ngày Đọc</label>
+                            <p class="text-[#0d141b] dark:text-slate-50 mt-1">@Model.ReadAt.Value.ToString("dd/MM/yyyy HH:mm:ss")</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-xl font-bold text-[#0d141b] dark:text-slate-50 mb-4">Phản Hồi</h3>
+            
+            @if (!string.IsNullOrEmpty(Model.Response))
+            {
+                <div class="mb-4 p-4 bg-success/10 border border-success/30 rounded-lg">
+                    <label class="text-sm font-semibold text-success mb-2 block">Phản hồi đã gửi:</label>
+                    <p class="text-[#0d141b] dark:text-slate-50 whitespace-pre-wrap">@Model.Response</p>
+                    <p class="text-xs text-[#4c739a] dark:text-slate-400 mt-2">
+                        Phản hồi lúc: @(Model.RespondedAt?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A")
+                    </p>
+                </div>
+            }
+
+            <form method="post" action="/admin/contact-response/@Model.Id" class="space-y-4">
+                @Html.AntiForgeryToken()
+                <div>
+                    <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                        Nội Dung Phản Hồi
+                    </label>
+                    <textarea name="response" rows="6" 
+                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition resize-none"
+                              placeholder="Nhập nội dung phản hồi cho người dùng...">@(Model.Response ?? "")</textarea>
+                </div>
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition flex items-center gap-2">
+                    <span class="material-symbols-outlined">send</span>
+                    @(string.IsNullOrEmpty(Model.Response) ? "Gửi Phản Hồi" : "Cập Nhật Phản Hồi")
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Actions Sidebar -->
+    <div class="space-y-6">
+        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+            <h3 class="text-lg font-bold text-[#0d141b] dark:text-slate-50 mb-4">Hành Động</h3>
+            <div class="space-y-3">
+                @if (Model.IsRead != true)
+                {
+                    <button onclick="markAsRead(@Model.Id)" class="w-full px-4 py-3 bg-success text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">mark_email_read</span>
+                        Đánh Dấu Đã Đọc
+                    </button>
+                }
+                <a href="mailto:@Model.Email?subject=Re: @Model.Subject" class="w-full px-4 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">mail</span>
+                    Gửi Email
+                </a>
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                {
+                    <a href="tel:@Model.Phone" class="w-full px-4 py-3 bg-success text-white rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">call</span>
+                        Gọi Điện
+                    </a>
+                }
+                <button onclick="deleteContact(@Model.Id)" class="w-full px-4 py-3 bg-danger text-white rounded-lg font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">delete</span>
+                    Xóa Liên Hệ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function markAsRead(id) {
+        fetch(`/admin/contact-mark-read/${id}`, {
+            method: 'POST',
+            headers: {
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message || 'Có lỗi xảy ra');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Có lỗi xảy ra');
+        });
+    }
+
+    function deleteContact(id) {
+        if (confirm('Bạn có chắc muốn xóa liên hệ này?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/contact-delete/${id}`;
+            
+            const token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '__RequestVerificationToken';
+            token.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            form.appendChild(token);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+

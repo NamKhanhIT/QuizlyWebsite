@@ -1,0 +1,131 @@
+@model List<QuizlyWebsite.Models.TbCourse>
+
+@{
+    ViewData["Title"] = "Quản Lý Khóa Học";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-3xl font-bold">Danh Sách Khóa Học</h2>
+    <a href="/admin/course-form" class="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+        <span class="material-symbols-outlined">add</span> Thêm Khóa Học
+    </a>
+</div>
+
+<!-- Table -->
+<div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <table class="w-full">
+        <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Tên Khóa Học</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Ảnh</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Người Tạo</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Số Bài Học</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Loại</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Trạng Thái</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Ngày Tạo</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold">Hành Động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                    
+                    <td class="px-6 py-4 font-semibold">@course.Title</td>
+                    <td class="px-6 py-4">
+                        @if (!string.IsNullOrEmpty(course.ImageUrl))
+                        {
+                            <img src="@course.ImageUrl" alt="@course.Title" class="w-20 h-14 object-cover rounded-lg border border-gray-300 dark:border-gray-600">
+                        }
+                        else
+                        {
+                            <div class="w-20 h-14 bg-gradient-to-br from-primary to-primary-dark rounded-lg flex items-center justify-center">
+                                <span class="material-symbols-outlined text-white text-2xl">school</span>
+                            </div>
+                        }
+                    </td>
+                    <td class="px-6 py-4">@course.CreatedByNavigation?.FullName</td>
+                    <td class="px-6 py-4">@(course.TbLessons?.Count ?? 0)</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full @(course.IsPaid == true ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400" : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400")">
+                            @(course.IsPaid == true ? "Trả Phí" : "Miễn Phí")
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs font-semibold px-3 py-1 rounded-full @(course.IsApproved == true ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400")">
+                            @(course.IsApproved == true ? "Đã Duyệt" : "Chờ Duyệt")
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm">@course.CreatedAt?.ToString("dd/MM/yyyy")</td>
+                    <td class="px-6 py-4 text-sm">
+                        <div class="flex gap-2">
+                            <a href="/admin/course-form/@course.Id" class="text-primary hover:underline">Sửa</a>
+                            <a href="/admin/courses/@course.Id/lessons" class="text-success hover:underline">Bài Học</a>
+                            <button onclick="deleteCourse(@course.Id)" class="text-danger hover:underline">Xóa</button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="flex justify-between items-center mt-6">
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+        Trang @ViewData["CurrentPage"] / @ViewData["TotalPages"]
+    </p>
+    <div class="flex gap-2">
+        @if ((ViewData["CurrentPage"] as int? ?? 1) > 1)
+        {
+            <a href="?page=@((ViewData["CurrentPage"] as int? ?? 1) - 1)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">Trước</a>
+        }
+        @if ((ViewData["CurrentPage"] as int? ?? 1) < (ViewData["TotalPages"] as int? ?? 1))
+        {
+            <a href="?page=@((ViewData["CurrentPage"] as int? ?? 1) + 1)" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600">Tiếp</a>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function deleteCourse(id) {
+            if (!confirm('Bạn có chắc chắn muốn xóa khóa học này?')) return;
+
+            try {
+                const response = await fetch('/admin/delete-course', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Khóa học đã được xóa thành công');
+                    window.location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (error) {
+                alert('Lỗi: ' + error.message);
+            }
+        }
+    </script>
+}
+

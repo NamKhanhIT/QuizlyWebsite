@@ -42,7 +42,8 @@ namespace QuizlyWebsite.Services
 
         public async Task<bool> CanAccessPremiumContentAsync(int userId)
         {
-            return await IsPremiumPlanAsync(userId);
+            // Bất kỳ subscription active nào (Plus, Premium, VIP) đều được truy cập nội dung trả phí
+            return await HasActiveSubscriptionAsync(userId);
         }
 
         public async Task<TbUserSubscription> CreateSubscriptionAsync(int userId, string planType, int daysValid, int? planId = null)
@@ -50,55 +51,24 @@ namespace QuizlyWebsite.Services
             // Check if user has an active subscription
             var existingSubscription = await GetActiveSubscriptionAsync(userId);
             
-            if (existingSubscription != null)
+            if (existingSubscription != null && existingSubscription.EndDate > DateTime.UtcNow)
             {
-                // If upgrading to a different plan (different planId), update the plan
-                if (planId.HasValue && existingSubscription.PlanId != planId)
-                {
-                    // Update to new plan
-                    existingSubscription.PlanId = planId;
-                    existingSubscription.PlanType = planType;
-                    // Extend from current end date
-                    existingSubscription.EndDate = existingSubscription.EndDate.AddDays(daysValid);
-                    _context.TbUserSubscriptions.Update(existingSubscription);
-                }
-                else if (planId.HasValue && existingSubscription.PlanId == planId)
-                {
-                    // Same plan, just extend
-                    existingSubscription.EndDate = existingSubscription.EndDate.AddDays(daysValid);
-                    _context.TbUserSubscriptions.Update(existingSubscription);
-                }
-                else
-                {
-                    // No planId provided, just extend and update planType if different
-                    if (existingSubscription.PlanType != planType)
-                    {
-                        existingSubscription.PlanType = planType;
-                    }
-                    existingSubscription.EndDate = existingSubscription.EndDate.AddDays(daysValid);
-                    _context.TbUserSubscriptions.Update(existingSubscription);
-                }
+                throw new InvalidOperationException($"Bạn đang có gói hội viên đang hoạt động (hết hạn: {existingSubscription.EndDate:dd/MM/yyyy}). Vui lòng đợi hết hạn trước khi đăng ký gói mới.");
             }
-            else
+            
+            var subscription = new TbUserSubscription
             {
-                // Create new subscription
-                var subscription = new TbUserSubscription
-                {
-                    UserId = userId,
-                    PlanId = planId,
-                    PlanType = planType,
-                    StartDate = DateTime.UtcNow,
-                    EndDate = DateTime.UtcNow.AddDays(daysValid),
-                    IsActive = true
-                };
-                
-                _context.TbUserSubscriptions.Add(subscription);
-                await _context.SaveChangesAsync();
-                return subscription;
-            }
-
+                UserId = userId,
+                PlanId = planId,
+                PlanType = planType,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(daysValid),
+                IsActive = true
+            };
+            
+            _context.TbUserSubscriptions.Add(subscription);
             await _context.SaveChangesAsync();
-            return existingSubscription;
+            return subscription;
         }
 
         public async Task<IEnumerable<TbUserSubscription>> GetUserSubscriptionsAsync(int userId)

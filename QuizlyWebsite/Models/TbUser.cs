@@ -21,6 +21,10 @@ public partial class TbUser
 
     public DateTime? CreatedAt { get; set; }
 
+    public string? Address { get; set; }
+
+    public string? PhoneNumber { get; set; }
+
     public virtual ICollection<TbBlog> TbBlogs { get; set; } = new List<TbBlog>();
 
     public virtual ICollection<TbCourse> TbCourses { get; set; } = new List<TbCourse>();

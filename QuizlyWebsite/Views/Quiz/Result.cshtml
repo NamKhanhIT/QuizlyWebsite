@@ -5,6 +5,20 @@
 }
 
 <div class="px-4 sm:px-8 md:px-16 lg:px-24 xl:px-40 py-10">
+    <!-- Success/Error Messages -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6 max-w-4xl mx-auto">
+            <p class="font-semibold">@TempData["SuccessMessage"]</p>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6 max-w-4xl mx-auto">
+            <p class="font-semibold">@TempData["ErrorMessage"]</p>
+        </div>
+    }
+    
     <!-- Result Header -->
     <div class="bg-gradient-to-r from-primary/20 to-blue-100 dark:from-primary/30 dark:to-blue-900/30 rounded-xl p-8 md:p-12 text-center mb-8">
         <div class="mb-6">
@@ -184,10 +198,199 @@
             </div>
         }
     </div>
+
+    <!-- Review & Rating Section -->
+    <div class="max-w-4xl mx-auto mt-12">
+        <h2 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50 mb-6">
+            <span class="material-symbols-outlined align-middle mr-2">rate_review</span>
+            Đánh Giá Đề Thi
+        </h2>
+
+        <!-- User's Review Form -->
+        @if (ViewBag.UserId != null)
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6 mb-8">
+                <h3 class="text-lg font-semibold text-[#0d141b] dark:text-slate-50 mb-4">
+                    @(ViewBag.UserReview != null ? "Chỉnh Sửa Đánh Giá Của Bạn" : "Đánh Giá Đề Thi")
+                </h3>
+                
+                <form method="post" action="/quiz/submit-review" class="space-y-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="examId" value="@Model.ExamId" />
+                    
+                    <!-- Rating Stars -->
+                    <div>
+                        <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                            Điểm Đánh Giá <span class="text-danger">*</span>
+                        </label>
+                        <div class="flex gap-2" id="ratingContainer">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <button type="button" class="rating-star text-3xl text-gray-300 hover:text-yellow-400 transition" 
+                                        data-rating="@i" aria-label="@i sao">
+                                    <span class="material-symbols-outlined">star</span>
+                                </button>
+                            }
+                        </div>
+                        <input type="hidden" name="rating" id="ratingInput" value="@(ViewBag.UserReview?.Rating ?? 0)" required />
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1" id="ratingText">Chọn số sao đánh giá</p>
+                    </div>
+
+                    <!-- Comment -->
+                    <div>
+                        <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                            Nhận Xét (tùy chọn)
+                        </label>
+                        <textarea name="comment" id="commentInput" rows="4" 
+                                  placeholder="Chia sẻ ý kiến của bạn về đề thi này..."
+                                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition resize-none">@(ViewBag.UserReview?.Comment ?? "")</textarea>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Tối đa 800 ký tự</p>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex gap-3">
+                        <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition">
+                            <span class="material-symbols-outlined align-middle mr-2">send</span>
+                            @(ViewBag.UserReview != null ? "Cập Nhật Đánh Giá" : "Gửi Đánh Giá")
+                        </button>
+                    </div>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-2 border-yellow-300 dark:border-yellow-700 rounded-lg p-6 text-center mb-8">
+                <p class="text-yellow-700 dark:text-yellow-300">
+                    <a href="/auth/login" class="text-primary hover:underline font-semibold">Đăng nhập</a> để đánh giá đề thi này.
+                </p>
+            </div>
+        }
+
+        <!-- Other Users' Reviews -->
+        @if (ViewBag.OtherReviews != null && ((List<QuizlyWebsite.Models.TbExamReview>)ViewBag.OtherReviews).Any())
+        {
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-[#0d141b] dark:text-slate-50 mb-4">
+                    Đánh Giá Từ Người Dùng Khác (@(((List<QuizlyWebsite.Models.TbExamReview>)ViewBag.OtherReviews).Count))
+                </h3>
+                <div class="space-y-4">
+                    @foreach (var review in (List<QuizlyWebsite.Models.TbExamReview>)ViewBag.OtherReviews)
+                    {
+                        <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-primary">person</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-[#0d141b] dark:text-slate-50">
+                                            @(review.User?.FullName ?? "Người dùng ẩn danh")
+                                        </p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            @(review.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "")
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <span class="material-symbols-outlined text-lg @(i <= (review.Rating ?? 0) ? "text-yellow-400" : "text-gray-300")">
+                                            star
+                                        </span>
+                                    }
+                                    <span class="ml-2 text-sm font-semibold text-[#0d141b] dark:text-slate-50">
+                                        @(review.Rating ?? 0)/5
+                                    </span>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(review.Comment))
+                            {
+                                <p class="text-[#0d141b] dark:text-slate-50 mt-3">
+                                    @review.Comment
+                                </p>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-6 text-center">
+                <p class="text-gray-500 dark:text-gray-400">
+                    Chưa có đánh giá nào từ người dùng khác.
+                </p>
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
     <script>
-        // Add any additional scripts for result page here
+        // Rating star selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.rating-star');
+            const ratingInput = document.getElementById('ratingInput');
+            const ratingText = document.getElementById('ratingText');
+            
+            // Initialize with existing rating
+            const currentRating = parseInt(ratingInput.value) || 0;
+            if (currentRating > 0) {
+                updateStarDisplay(currentRating);
+            }
+
+            stars.forEach((star, index) => {
+                star.addEventListener('click', function() {
+                    const rating = index + 1;
+                    ratingInput.value = rating;
+                    updateStarDisplay(rating);
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = index + 1;
+                    updateStarDisplay(rating, true);
+                });
+            });
+
+            const ratingContainer = document.getElementById('ratingContainer');
+            if (ratingContainer) {
+                ratingContainer.addEventListener('mouseleave', function() {
+                    const currentRating = parseInt(ratingInput.value) || 0;
+                    updateStarDisplay(currentRating);
+                });
+            }
+
+            function updateStarDisplay(rating, isHover = false) {
+                stars.forEach((star, index) => {
+                    const starIcon = star.querySelector('.material-symbols-outlined');
+                    if (index < rating) {
+                        starIcon.textContent = 'star';
+                        starIcon.classList.add('text-yellow-400');
+                        starIcon.classList.remove('text-gray-300');
+                    } else {
+                        starIcon.textContent = 'star';
+                        starIcon.classList.add('text-gray-300');
+                        starIcon.classList.remove('text-yellow-400');
+                    }
+                });
+
+                const ratingLabels = ['', 'Rất tệ', 'Tệ', 'Bình thường', 'Tốt', 'Rất tốt'];
+                if (rating > 0 && rating <= 5) {
+                    ratingText.textContent = ratingLabels[rating];
+                } else {
+                    ratingText.textContent = 'Chọn số sao đánh giá';
+                }
+            }
+
+            // Comment character limit
+            const commentInput = document.getElementById('commentInput');
+            if (commentInput) {
+                commentInput.addEventListener('input', function() {
+                    if (this.value.length > 800) {
+                        this.value = this.value.substring(0, 800);
+                    }
+                });
+            }
+        });
     </script>
 }

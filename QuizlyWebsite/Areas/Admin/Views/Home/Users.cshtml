@@ -5,12 +5,30 @@
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
 <!-- Header -->
 <div class="flex justify-between items-center mb-8">
     <h2 class="text-3xl font-bold">Danh Sách Người Dùng</h2>
     <div class="flex gap-3">
         <input type="text" id="searchInput" placeholder="Tìm kiếm người dùng..." 
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50">
+        <a href="/admin/user-form" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-blue-700 transition flex items-center gap-2">
+            <span class="material-symbols-outlined">add</span>
+            Thêm Người Dùng
+        </a>
         <a href="/admin/user-permissions" class="px-6 py-3 bg-warning text-white rounded-lg font-semibold hover:bg-orange-600 transition flex items-center gap-2">
             <span class="material-symbols-outlined">admin_panel_settings</span>
             Phân Quyền
@@ -50,7 +68,7 @@
                                 Hoạt Động
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-sm text-[#4c739a] dark:text-slate-400">@user.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A"</td>
+                        <td class="px-6 py-4 text-sm text-[#4c739a] dark:text-slate-400">@(user.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
                         <td class="px-6 py-4 text-sm">
                             <div class="flex gap-2">
                                 <button class="text-primary hover:text-primary-dark" title="Chỉnh sửa" onclick="editUser(@user.Id)">
@@ -89,9 +107,29 @@
             console.log('Change role for user:', id);
         }
         function deleteUser(id) {
-            if (confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
-                console.log('Delete user:', id);
+            const reason = prompt('Vui lòng nhập lý do xóa người dùng này:');
+            if (reason && reason.trim()) {
+                fetch('/admin/delete-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, reason: reason.trim() })
+                }).then(r => r.json()).then(d => {
+                    if (d.success) {
+                        alert(d.message);
+                        location.reload();
+                    } else {
+                        alert(d.message || 'Lỗi xảy ra');
+                    }
+                });
             }
+        }
+        
+        function editUser(id) {
+            window.location.href = '/admin/user-form/' + id;
+        }
+        
+        function changeRole(id) {
+            window.location.href = '/admin/user-permissions';
         }
         
         // Search functionality

@@ -1,0 +1,177 @@
+@model QuizlyWebsite.Models.TbCourse
+
+@{
+    ViewData["Title"] = Model?.Id > 0 ? "Chỉnh Sửa Khóa Học" : "Thêm Khóa Học Mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+<div asp-validation-summary="All"></div>
+<!-- Header -->
+<div class="mb-8">
+    <a href="/admin/courses" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">@ViewData["Title"]</h2>
+</div>
+
+<!-- Form -->
+<form method="post" action="@(Model?.Id > 0 ? $"/admin/course-form/{Model.Id}" : "/admin/course-form")" enctype="multipart/form-data" class="max-w-4xl">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+
+        <!-- Error Messages -->
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <p class="text-sm">@error.ErrorMessage</p>
+                }
+            </div>
+        }
+
+        <!-- Title -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">edit</span>
+                Tên Khóa Học *
+            </label>
+            <input type="text" name="title" value="@Model?.Title" placeholder="Nhập tên khóa học"
+                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                   required>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">description</span>
+                Mô Tả
+            </label>
+            <textarea name="description" rows="4" placeholder="Nhập mô tả khóa học"
+                      class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">@Model?.Description</textarea>
+        </div>
+
+        <!-- Image Upload -->
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                <span class="material-symbols-outlined align-middle mr-1 text-primary">image</span>
+                Ảnh Khóa Học (tùy chọn)
+            </label>
+            <input type="file" name="imageFile" id="imageFile" accept="image/*"
+                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-dark">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chọn ảnh từ máy tính (JPG, PNG, GIF - tối đa 5MB)</p>
+            
+            <!-- Preview uploaded image -->
+            <div id="imagePreview" class="mt-3 hidden">
+                <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Ảnh đã chọn:</p>
+                <img id="previewImg" src="" alt="Preview" class="w-48 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600">
+            </div>
+
+            <!-- Current image if exists -->
+            @if (!string.IsNullOrEmpty(Model?.ImageUrl))
+            {
+                <div class="mt-3">
+                    <p class="text-xs text-gray-600 dark:text-gray-400 mb-2">Ảnh hiện tại:</p>
+                    <img src="@Model.ImageUrl" alt="Current" class="w-48 h-32 object-cover rounded-lg border border-gray-300 dark:border-gray-600">
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chọn ảnh mới để thay thế</p>
+                </div>
+            }
+        </div>
+
+        <!-- Course Type & Free Lesson Count -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-sm font-semibold mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">card_membership</span>
+                    Loại Khóa Học
+                </label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="isPaid" value="false"
+                               checked="@(Model?.IsPaid != true)"
+                               onchange="document.getElementById('freeLessonSection').classList.remove('hidden')">
+                        <span>Miễn Phí</span>
+                    </label>
+                    <label class="flex items-center gap-2">
+                        <input type="radio" name="isPaid" value="true"
+                               checked="@(Model?.IsPaid == true)"
+                               onchange="document.getElementById('freeLessonSection').classList.add('hidden')">
+                        <span>Trả Phí</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="freeLessonSection" class="@(Model?.IsPaid == true ? "hidden" : "")">
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    <span class="material-symbols-outlined align-middle mr-1 text-primary">visibility</span>
+                    Số Bài Học Preview
+                </label>
+                <input type="number" name="freeLessonCount" value="@Model?.FreeLessonCount" placeholder="0" min="0"
+                       class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Số bài học đầu tiên được xem miễn phí (chỉ áp dụng cho khóa học trả phí)</p>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="mb-6">
+            <label class="flex items-center gap-2">
+                <input type="checkbox" name="isApproved" checked="@(Model?.IsApproved == true)">
+                <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-50">Tự Động Duyệt Khóa Học</span>
+            </label>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-3">
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                <span class="material-symbols-outlined align-middle mr-2">save</span>
+                @(Model?.Id > 0 ? "Cập Nhật" : "Tạo Mới")
+            </button>
+            <a href="/admin/courses" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                <span class="material-symbols-outlined align-middle mr-2">close</span>
+                Hủy
+            </a>
+        </div>
+
+    </div>
+</form>
+
+<script>
+    // Update free lesson section visibility on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const isPaid = document.querySelector('input[name="isPaid"][value="true"]')?.checked;
+        if (isPaid) {
+            document.getElementById('freeLessonSection').classList.add('hidden');
+        }
+    });
+
+    // Preview image before upload
+    document.getElementById('imageFile')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('imagePreview');
+                const img = document.getElementById('previewImg');
+                img.src = e.target.result;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            document.getElementById('imagePreview').classList.add('hidden');
+        }
+    });
+</script>
+

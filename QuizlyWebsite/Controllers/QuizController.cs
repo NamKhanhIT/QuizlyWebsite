@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Services;
 
+// Nam Khánh code đoạn này
+
 namespace QuizlyWebsite.Controllers
 {
     public class QuizController : Controller
@@ -10,12 +12,27 @@ namespace QuizlyWebsite.Controllers
         private readonly QuizlyDbContext _context;
         private readonly ISubscriptionService _subscriptionService;
         private readonly IAccessControlService _accessControlService;
+        private readonly IVNPayService _vnPayService;
+        private readonly ILogger<QuizController> _logger;
+        private readonly IXpService _xpService;
+        private readonly IQuestionParserService _questionParserService;
 
-        public QuizController(QuizlyDbContext context, ISubscriptionService subscriptionService, IAccessControlService accessControlService)
+        public QuizController(
+            QuizlyDbContext context,
+            ISubscriptionService subscriptionService,
+            IAccessControlService accessControlService,
+            IVNPayService vnPayService,
+            ILogger<QuizController> logger,
+            IXpService xpService,
+            IQuestionParserService questionParserService)
         {
             _context = context;
             _subscriptionService = subscriptionService;
             _accessControlService = accessControlService;
+            _vnPayService = vnPayService;
+            _logger = logger;
+            _xpService = xpService;
+            _questionParserService = questionParserService;
         }
 
         // GET: /quiz/list
@@ -75,7 +92,6 @@ namespace QuizlyWebsite.Controllers
             if (exam == null)
                 return NotFound();
 
-            // Kiểm tra quyền xem: chỉ người tạo mới xem được đề chưa duyệt
             if (exam.IsApproved != true)
             {
                 if (!userId.HasValue || exam.CreatedBy != userId.Value)
@@ -85,11 +101,25 @@ namespace QuizlyWebsite.Controllers
                 }
             }
 
-            // Kiểm tra quyền truy cập đề trả phí
-            if (exam.IsPaid == true && userId.HasValue)
+            if (exam.IsPaid == true)
             {
-                var canAccess = await _accessControlService.CanAccessExamAsync(userId.Value, exam);
-                ViewBag.CanAccessPaidExam = canAccess;
+                if (userId.HasValue)
+                {
+                    var canAccess = await _accessControlService.CanAccessExamAsync(userId.Value, exam);
+                    ViewBag.CanAccessPaidExam = canAccess;
+
+                    var hasPurchase = await _context.TbUserPurchases
+                        .AnyAsync(p => p.UserId == userId.Value &&
+                                      p.ExamId == exam.Id &&
+                                      (p.ExpiredAt == null || p.ExpiredAt > DateTime.UtcNow));
+                    ViewBag.HasPurchase = hasPurchase;
+                    ViewBag.ExamPrice = exam.Price ?? 0;
+                }
+                else
+                {
+                    ViewBag.CanAccessPaidExam = false;
+                    ViewBag.ExamPrice = exam.Price ?? 0;
+                }
             }
             else
             {
@@ -97,6 +127,139 @@ namespace QuizlyWebsite.Controllers
             }
 
             return View(exam);
+        }
+
+        // POST: /quiz/purchase/{id}
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PurchaseExam(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            var exam = await _context.TbExams.FindAsync(id);
+            if (exam == null)
+                return NotFound();
+
+            if (exam.IsPaid != true)
+            {
+                TempData["ErrorMessage"] = "Đề thi này là miễn phí.";
+                return RedirectToAction("Detail", new { id });
+            }
+
+            var hasSubscription = await _subscriptionService.CanAccessPremiumContentAsync(userId.Value);
+            if (hasSubscription)
+            {
+                TempData["SuccessMessage"] = "Bạn đã có gói hội viên, không cần mua đề thi này.";
+                return RedirectToAction("Detail", new { id });
+            }
+
+            var hasPurchase = await _context.TbUserPurchases
+                .AnyAsync(p => p.UserId == userId.Value &&
+                              p.ExamId == exam.Id &&
+                              (p.ExpiredAt == null || p.ExpiredAt > DateTime.UtcNow));
+            if (hasPurchase)
+            {
+                TempData["SuccessMessage"] = "Bạn đã mua đề thi này rồi.";
+                return RedirectToAction("Detail", new { id });
+            }
+
+            var price = exam.Price ?? 0;
+            if (price <= 0)
+            {
+                TempData["ErrorMessage"] = "Đề thi này không có giá.";
+                return RedirectToAction("Detail", new { id });
+            }
+
+            var payment = new TbPayment
+            {
+                UserId = userId.Value,
+                ExamId = id,
+                Amount = price,
+                Currency = "VND",
+                Provider = "VNPay",
+                Status = "Pending",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.TbPayments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            // Get user info
+            var user = await _context.TbUsers.FindAsync(userId.Value);
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+            if (ipAddress == "::1" || string.IsNullOrEmpty(ipAddress))
+                ipAddress = "127.0.0.1";
+            var returnUrl = Url.Action("PurchaseCallback", "Quiz", new { id = exam.Id }, Request.Scheme) ?? "";
+
+            var paymentUrl = _vnPayService.CreatePaymentUrl(
+                orderId: payment.Id,
+                orderCode: $"EXAM_{exam.Id}_{payment.Id}",
+                amount: price,
+                orderDescription: $"Mua de thi: {exam.Title}",
+                customerName: user?.FullName,
+                customerEmail: user?.Email,
+                customerPhone: user?.PhoneNumber,
+                ipAddress: ipAddress,
+                returnUrl: returnUrl
+            );
+
+            return Redirect(paymentUrl);
+        }
+
+        // GET: /quiz/purchase-callback
+        public async Task<IActionResult> PurchaseCallback(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return RedirectToAction("Login", "Auth");
+
+            var exam = await _context.TbExams.FindAsync(id);
+            if (exam == null)
+                return NotFound();
+
+            var payment = await _context.TbPayments
+                .Where(p => p.UserId == userId.Value && p.ExamId == id && p.Status == "Pending")
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (payment == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy giao dịch thanh toán.";
+                return RedirectToAction("Detail", new { id });
+            }
+
+            var vnpResponse = Request.Query.ToDictionary(q => q.Key, q => q.Value.ToString());
+            var response = _vnPayService.ProcessPaymentResponse(vnpResponse);
+
+            if (response.Success && response.ResponseCode == "00")
+            {
+                payment.Status = "Success";
+                payment.ProviderTransId = response.TransactionId;
+
+                var purchase = new TbUserPurchase
+                {
+                    UserId = userId.Value,
+                    ExamId = id,
+                    PurchasedAt = DateTime.UtcNow,
+                    ExpiredAt = null // Mua một lần, không hết hạn
+                };
+
+                _context.TbUserPurchases.Add(purchase);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Mua đề thi thành công! Bạn có thể bắt đầu làm bài ngay.";
+                return RedirectToAction("Detail", new { id });
+            }
+            else
+            {
+                payment.Status = "Failed";
+                await _context.SaveChangesAsync();
+                var errorMsg = response.ResponseCode == "00" ? "Lỗi xác thực chữ ký" : $"Mã lỗi: {response.ResponseCode}";
+                TempData["ErrorMessage"] = $"Thanh toán thất bại: {errorMsg}";
+                return RedirectToAction("Detail", new { id });
+            }
         }
 
         // GET: /quiz/start/{id}
@@ -118,29 +281,26 @@ namespace QuizlyWebsite.Controllers
 
             // If this is a lesson quiz, skip some checks
             bool isLessonQuiz = exam.LessonId.HasValue || lessonId.HasValue;
-            
+
             if (!isLessonQuiz)
             {
-                // Kiểm tra quyền xem: chỉ người tạo mới xem được đề chưa duyệt
                 if (exam.IsApproved != true && exam.CreatedBy != userId)
                 {
                     TempData["ErrorMessage"] = "Đề thi này đang chờ duyệt và chỉ có người tạo mới được thi.";
                     return RedirectToAction("List");
                 }
 
-                // Kiểm tra quyền truy cập đề trả phí (chỉ cho exam thông thường, không phải lesson quiz)
                 if (exam.IsPaid == true)
                 {
                     var canAccess = await _accessControlService.CanAccessExamAsync(userId.Value, exam);
                     if (!canAccess)
                     {
-                        TempData["ErrorMessage"] = "Bạn cần đăng ký gói trả phí để làm đề thi này.";
+                        TempData["ErrorMessage"] = "Bạn cần đăng ký gói hội viên để làm đề thi này.";
                         return RedirectToAction("Detail", new { id = id });
                     }
                 }
             }
 
-            // Kiểm tra đề có câu hỏi không
             if (exam.TbQuestions == null || !exam.TbQuestions.Any())
             {
                 TempData["ErrorMessage"] = "Đề thi này chưa có câu hỏi. Vui lòng quay lại sau.";
@@ -209,7 +369,7 @@ namespace QuizlyWebsite.Controllers
             }
 
             // Get session and calculate penalty
-            var session = sessionId.HasValue 
+            var session = sessionId.HasValue
                 ? await _context.TbExamSessions
                     .Include(s => s.TbExamViolations)
                     .FirstOrDefaultAsync(s => s.Id == sessionId.Value)
@@ -225,7 +385,7 @@ namespace QuizlyWebsite.Controllers
                     var penaltyRule = await _context.TbPenaltyRules
                         .Where(p => p.ExamId == examId && p.Reason == "TabSwitch")
                         .FirstOrDefaultAsync();
-                    
+
                     // Default to 0.5 points per violation if no rule found
                     decimal penaltyPerViolation = 0.5m;
                     if (penaltyRule != null && penaltyRule.PenaltyPercent.HasValue)
@@ -234,7 +394,7 @@ namespace QuizlyWebsite.Controllers
                         // If PenaltyPercent is 50, it means 0.5 points (50% of 1 point)
                         penaltyPerViolation = penaltyRule.PenaltyPercent.Value / 100m;
                     }
-                    
+
                     // Apply penalty: 0.5 points per violation
                     penaltyPoints = penaltyPerViolation * violationCount;
                 }
@@ -242,19 +402,48 @@ namespace QuizlyWebsite.Controllers
 
             // Calculate score
             int correctAnswers = 0;
+            decimal totalScore = 0;
             var resultDetails = new List<TbExamResultDetail>();
+
+            // Calculate total possible points (sum of all question marks, or default to 10 if no marks set)
+            decimal totalPossiblePoints = 0;
+            foreach (var question in exam.TbQuestions)
+            {
+                if (question.Marks.HasValue && question.Marks.Value > 0)
+                {
+                    totalPossiblePoints += question.Marks.Value;
+                }
+                else
+                {
+                    // If no marks set, default to equal distribution: 10 points / total questions
+                    totalPossiblePoints += 10m / exam.TbQuestions.Count;
+                }
+            }
 
             foreach (var question in exam.TbQuestions)
             {
                 bool isCorrect = false;
                 string? selectedOption = null;
-                
+
                 if (answers.TryGetValue(question.Id.ToString(), out var selected))
                 {
                     selectedOption = selected;
                     // Compare with correct option (case-insensitive)
                     isCorrect = selectedOption?.Trim().ToUpperInvariant() == question.CorrectOption?.Trim().ToUpperInvariant();
-                    if (isCorrect) correctAnswers++;
+                    if (isCorrect)
+                    {
+                        correctAnswers++;
+                        // Add points for correct answer
+                        if (question.Marks.HasValue && question.Marks.Value > 0)
+                        {
+                            totalScore += question.Marks.Value;
+                        }
+                        else
+                        {
+                            // If no marks set, default to equal distribution
+                            totalScore += 10m / exam.TbQuestions.Count;
+                        }
+                    }
                 }
 
                 resultDetails.Add(new TbExamResultDetail
@@ -265,20 +454,15 @@ namespace QuizlyWebsite.Controllers
                 });
             }
 
-            // Calculate score on scale of 10 (thang điểm 10)
-            var baseScore = exam.TbQuestions.Count > 0 
-                ? (decimal)correctAnswers / exam.TbQuestions.Count * 10 
-                : 0;
-            
             // Apply penalty (subtract points from score)
-            var score = Math.Max(0, baseScore - penaltyPoints);
+            var score = Math.Max(0, totalScore - penaltyPoints);
 
             // Get actual start time from session
             var startedAt = session?.StartedAt ?? DateTime.Now.AddMinutes(-exam.Duration);
 
             // Calculate percentage score for lesson quiz check
-            var percentageScore = exam.TbQuestions.Count > 0 
-                ? (decimal)correctAnswers / exam.TbQuestions.Count * 100 
+            var percentageScore = exam.TbQuestions.Count > 0
+                ? (decimal)correctAnswers / exam.TbQuestions.Count * 100
                 : 0;
 
             var result = new TbExamResult
@@ -304,7 +488,7 @@ namespace QuizlyWebsite.Controllers
             }
 
             await _context.SaveChangesAsync();
-            
+
             // Update session status
             if (session != null)
             {
@@ -312,19 +496,58 @@ namespace QuizlyWebsite.Controllers
                 _context.Update(session);
                 await _context.SaveChangesAsync();
             }
-            
+
             HttpContext.Session.Remove("SessionId");
 
             // If this is a lesson quiz, redirect back to lesson page
             if (lessonId.HasValue && courseId.HasValue)
             {
-                if (percentageScore >= 70)
+                if (score >= 8m)
                 {
-                    TempData["SuccessMessage"] = $"Chúc mừng! Bạn đã đạt {percentageScore:F1}% và có thể hoàn thành bài học.";
+                    var lesson = await _context.TbLessons.FindAsync(lessonId.Value);
+                    if (lesson != null)
+                    {
+                        var progress = await _context.TbLessonProgresses
+                            .FirstOrDefaultAsync(p => p.UserId == userId.Value && p.LessonId == lessonId.Value);
+
+                        var isNewCompletion = false;
+                        if (progress == null)
+                        {
+                            progress = new TbLessonProgress
+                            {
+                                UserId = userId.Value,
+                                LessonId = lessonId.Value,
+                                IsCompleted = true,
+                                CompletedAt = DateTime.UtcNow
+                            };
+                            _context.TbLessonProgresses.Add(progress);
+                            isNewCompletion = true;
+                        }
+                        else if (progress.IsCompleted != true)
+                        {
+                            progress.IsCompleted = true;
+                            if (!progress.CompletedAt.HasValue)
+                            {
+                                progress.CompletedAt = DateTime.UtcNow;
+                            }
+                            _context.Update(progress);
+                            isNewCompletion = true;
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        // Award XP only if this is a new completion
+                        if (isNewCompletion)
+                        {
+                            await _xpService.AddXpAsync(userId.Value, 10);
+                        }
+                    }
+
+                    TempData["SuccessMessage"] = $"Chúc mừng! Bạn đã đạt {score:F1}/10 điểm. Bài học đã được đánh dấu hoàn thành! +10 XP";
                 }
                 else
                 {
-                    TempData["ErrorMessage"] = $"Bạn đạt {percentageScore:F1}%. Cần đạt ít nhất 70% để hoàn thành bài học. Hãy làm lại!";
+                    TempData["ErrorMessage"] = $"Bạn đạt {score:F1}/10 điểm. Cần đạt ít nhất 8/10 điểm để hoàn thành bài học. Hãy làm lại!";
                 }
                 return RedirectToAction("Learn", "Lesson", new { courseId = courseId.Value, lessonId = lessonId.Value });
             }
@@ -367,21 +590,22 @@ namespace QuizlyWebsite.Controllers
 
             // Check violation count
             var violationCount = session.TbExamViolations?.Count ?? 0;
-            
+
             // If already 3+ violations, cancel exam and save result
             if (violationCount >= 3)
             {
                 session.Status = "Cancelled";
                 _context.Update(session);
                 await _context.SaveChangesAsync();
-                
+
                 // Create exam result to save history even when cancelled
                 var resultId = await CreateCancelledExamResult(session, userId);
                 int? nullableResultId = resultId;
-                
-                return Json(new { 
-                    success = true, 
-                    cancelled = true, 
+
+                return Json(new
+                {
+                    success = true,
+                    cancelled = true,
                     message = "Bài thi đã bị hủy do vi phạm quá 3 lần.",
                     resultId = nullableResultId
                 });
@@ -401,11 +625,12 @@ namespace QuizlyWebsite.Controllers
             var newCount = violationCount + 1;
             var remaining = 3 - newCount;
 
-            return Json(new { 
-                success = true, 
-                violationCount = newCount, 
+            return Json(new
+            {
+                success = true,
+                violationCount = newCount,
                 remaining = remaining,
-                message = $"Cảnh báo! Bạn đã chuyển tab/thoát màn hình. Đã trừ 0.5 điểm. Còn lại {remaining} lần trước khi hủy bài thi." 
+                message = $"Cảnh báo! Bạn đã chuyển tab/thoát màn hình. Đã trừ 0.5 điểm. Còn lại {remaining} lần trước khi hủy bài thi."
             });
         }
 
@@ -413,6 +638,7 @@ namespace QuizlyWebsite.Controllers
         [Route("quiz/result/{resultId}")]
         public async Task<IActionResult> Result(int resultId)
         {
+            var userId = HttpContext.Session.GetInt32("UserId");
             var result = await _context.TbExamResults
                 .AsSplitQuery()
                 .Include(r => r.Exam)
@@ -420,25 +646,246 @@ namespace QuizlyWebsite.Controllers
                 .Include(r => r.TbExamResultDetails)
                 .ThenInclude(d => d.Question)
                 .Include(r => r.Session)
-                .ThenInclude(s => s.TbExamViolations)
+                    .ThenInclude(s => s != null ? s.TbExamViolations : null!)
                 .FirstOrDefaultAsync(r => r.Id == resultId);
 
             if (result == null)
                 return NotFound();
 
+            // Load user's review if exists
+            TbExamReview? userReview = null;
+            if (userId.HasValue)
+            {
+                userReview = await _context.TbExamReviews
+                    .FirstOrDefaultAsync(r => r.UserId == userId.Value && r.ExamId == result.ExamId);
+            }
+
+            // Load other users' reviews (latest 10)
+            var otherReviews = await _context.TbExamReviews
+                .Where(r => r.ExamId == result.ExamId && (userId == null || r.UserId != userId.Value))
+                .Include(r => r.User)
+                .OrderByDescending(r => r.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+            ViewBag.UserReview = userReview;
+            ViewBag.OtherReviews = otherReviews;
+            ViewBag.UserId = userId;
+
             return View(result);
         }
 
-        // GET: /quiz/create - Create new exam form
-        public async Task<IActionResult> Create()
+        // POST: /quiz/submit-review
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("quiz/submit-review")]
+        public async Task<IActionResult> SubmitReview(int examId, int? rating, string? comment)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+            {
+                TempData["ErrorMessage"] = "Vui lòng đăng nhập để đánh giá đề thi.";
+                return RedirectToAction("Detail", new { id = examId });
+            }
+
+            if (!rating.HasValue || rating < 1 || rating > 5)
+            {
+                TempData["ErrorMessage"] = "Vui lòng chọn điểm đánh giá từ 1 đến 5 sao.";
+                return RedirectToAction("List");
+            }
+
+            // Check if user already reviewed this exam
+            var existingReview = await _context.TbExamReviews
+                .FirstOrDefaultAsync(r => r.UserId == userId.Value && r.ExamId == examId);
+
+            if (existingReview != null)
+            {
+                // Update existing review
+                existingReview.Rating = rating.Value;
+                existingReview.Comment = comment;
+                existingReview.CreatedAt = DateTime.UtcNow;
+                _context.TbExamReviews.Update(existingReview);
+            }
+            else
+            {
+                // Create new review
+                var review = new TbExamReview
+                {
+                    UserId = userId.Value,
+                    ExamId = examId,
+                    Rating = rating.Value,
+                    Comment = comment,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _context.TbExamReviews.AddAsync(review);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Update exam rating
+            var exam = await _context.TbExams.FindAsync(examId);
+            var reviews = await _context.TbExamReviews
+                .Where(r => r.ExamId == examId)
+                .ToListAsync();
+
+            if (reviews.Any() && exam != null)
+            {
+                exam.AvgRating = (double)(reviews.Average(r => r.Rating ?? 0));
+                exam.TotalReviews = reviews.Count;
+                _context.Update(exam);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Cảm ơn bạn đã đánh giá đề thi!";
+            
+            // Redirect back to result page if we have resultId
+            var result = await _context.TbExamResults
+                .FirstOrDefaultAsync(r => r.UserId == userId.Value && r.ExamId == examId && r.FinishedAt != null);
+            
+            if (result != null)
+            {
+                return RedirectToAction("Result", new { resultId = result.Id });
+            }
+            
+            return RedirectToAction("Detail", new { id = examId });
+        }
+
+        // GET: /quiz/create - Redirect to profile page with my-exams tab
+        public IActionResult Create()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
                 return RedirectToAction("Login", "Account");
 
-            ViewData["Subjects"] = await _context.TbSubjects.Include(s => s.Category).ToListAsync();
-            ViewData["Categories"] = await _context.TbCategories.ToListAsync();
-            return View();
+            // Redirect to profile page with my-exams tab (form is integrated there)
+            return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("quiz/parse-questions-text")]
+        public IActionResult ParseQuestionsText([FromBody] ParseTextRequest request)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return Json(new { success = false, message = "Vui lòng đăng nhập" });
+
+            if (string.IsNullOrWhiteSpace(request.Text))
+                return Json(new { success = false, message = "Vui lòng nhập nội dung đề thi" });
+
+            try
+            {
+                var parseResult = _questionParserService.ParseFromText(request.Text);
+
+                if (parseResult.ValidQuestions.Count == 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Không tìm thấy câu hỏi hợp lệ trong văn bản",
+                        errors = parseResult.Report.Errors.Select(e => $"Câu {e.QuestionNumber}: {e.ErrorReason}").ToList()
+                    });
+                }
+
+                // Convert to simple format for frontend
+                var questions = parseResult.ValidQuestions.Select(q => new
+                {
+                    question = q.Question,
+                    optionA = q.OptionA,
+                    optionB = q.OptionB,
+                    optionC = q.OptionC,
+                    optionD = q.OptionD,
+                    correctOption = q.CorrectOption
+                }).ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Đã parse thành công {questions.Count} câu hỏi",
+                    questions = questions,
+                    report = new
+                    {
+                        totalQuestions = parseResult.Report.TotalQuestions,
+                        validCount = parseResult.Report.ValidCount,
+                        errorCount = parseResult.Report.ErrorCount
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error parsing questions from text");
+                return Json(new { success = false, message = $"Lỗi khi parse: {ex.Message}" });
+            }
+        }
+
+        // POST: /quiz/parse-questions-word - Parse questions from Word file (for user import)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(10_000_000)] // 10MB limit
+        [Route("quiz/parse-questions-word")]
+        public async Task<IActionResult> ParseQuestionsWord(IFormFile file)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return Json(new { success = false, message = "Vui lòng đăng nhập" });
+
+            if (file == null || file.Length == 0)
+                return Json(new { success = false, message = "Vui lòng chọn file Word" });
+
+            var extension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (extension != ".docx")
+                return Json(new { success = false, message = "Chỉ chấp nhận file Word (.docx)" });
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var parseResult = await _questionParserService.ParseFromWordAsync(stream);
+
+                if (parseResult.ValidQuestions.Count == 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Không tìm thấy câu hỏi hợp lệ trong file Word",
+                        errors = parseResult.Report.Errors.Select(e => $"Câu {e.QuestionNumber}: {e.ErrorReason}").ToList()
+                    });
+                }
+
+                // Convert to simple format for frontend
+                var questions = parseResult.ValidQuestions.Select(q => new
+                {
+                    question = q.Question,
+                    optionA = q.OptionA,
+                    optionB = q.OptionB,
+                    optionC = q.OptionC,
+                    optionD = q.OptionD,
+                    correctOption = q.CorrectOption
+                }).ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    message = $"Đã parse thành công {questions.Count} câu hỏi",
+                    questions = questions,
+                    report = new
+                    {
+                        totalQuestions = parseResult.Report.TotalQuestions,
+                        validCount = parseResult.Report.ValidCount,
+                        errorCount = parseResult.Report.ErrorCount
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error parsing questions from Word");
+                return Json(new { success = false, message = $"Lỗi khi parse: {ex.Message}" });
+            }
+        }
+
+        // Request model for parse text
+        public class ParseTextRequest
+        {
+            public string Text { get; set; } = null!;
         }
 
         // POST: /quiz/create - Submit new exam
@@ -447,10 +894,10 @@ namespace QuizlyWebsite.Controllers
         public async Task<IActionResult> Create(
             string Title,
             int? CategoryId,
-            string NewCategoryTitle,
+            string? NewCategoryTitle,
             int? SubjectId,
-            string NewSubjectTitle,
-            string NewSubjectDescription,
+            string? NewSubjectTitle,
+            string? NewSubjectDescription,
             int Duration,
             string Difficulty,
             IFormCollection form)
@@ -475,39 +922,56 @@ namespace QuizlyWebsite.Controllers
                 // Handle Category
                 int finalCategoryId = 0;
                 var useNewCategoryValue = form["UseNewCategory"].ToString();
-                bool useNewCategory = useNewCategoryValue == "true" && !string.IsNullOrWhiteSpace(NewCategoryTitle);
-                
+                bool useNewCategory = useNewCategoryValue == "true" || useNewCategoryValue == "on";
+
                 if (useNewCategory)
                 {
-                    // Create new category
-                    var newCategory = new TbCategory
+                    // Khi tick "Tạo mới": Chỉ cần kiểm tra NewCategoryTitle, HOÀN TOÀN BỎ QUA CategoryId
+                    if (string.IsNullOrWhiteSpace(NewCategoryTitle))
                     {
-                        Title = NewCategoryTitle.Trim(),
-                        CreatedAt = DateTime.Now
-                    };
-                    _context.TbCategories.Add(newCategory);
-                    await _context.SaveChangesAsync();
-                    finalCategoryId = newCategory.Id;
-                }
-                else if (CategoryId.HasValue && CategoryId.Value > 0)
-                {
-                    finalCategoryId = CategoryId.Value;
+                        ModelState.AddModelError("NewCategoryTitle", "Vui lòng nhập tên danh mục mới");
+                    }
+                    else
+                    {
+                        // Create new category
+                        var newCategory = new TbCategory
+                        {
+                            Title = NewCategoryTitle.Trim(),
+                            CreatedAt = DateTime.Now
+                        };
+                        _context.TbCategories.Add(newCategory);
+                        await _context.SaveChangesAsync();
+                        finalCategoryId = newCategory.Id;
+                    }
                 }
                 else
                 {
-                    ModelState.AddModelError("", "Vui lòng chọn hoặc tạo danh mục");
+                    // Khi KHÔNG tick "Tạo mới": Chỉ kiểm tra CategoryId từ dropdown
+                    if (CategoryId.HasValue && CategoryId.Value > 0)
+                    {
+                        finalCategoryId = CategoryId.Value;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("CategoryId", "Vui lòng chọn danh mục");
+                    }
                 }
 
                 // Handle Subject
                 int finalSubjectId = 0;
                 var useNewSubjectValue = form["UseNewSubject"].ToString();
-                bool useNewSubject = useNewSubjectValue == "true" && !string.IsNullOrWhiteSpace(NewSubjectTitle);
-                
+                bool useNewSubject = useNewSubjectValue == "true" || useNewSubjectValue == "on";
+
                 if (useNewSubject)
                 {
-                    if (finalCategoryId == 0)
+                    // Khi tick "Tạo mới": Chỉ cần kiểm tra NewSubjectTitle, HOÀN TOÀN BỎ QUA SubjectId
+                    if (string.IsNullOrWhiteSpace(NewSubjectTitle))
                     {
-                        ModelState.AddModelError("", "Cần có danh mục để tạo môn học mới");
+                        ModelState.AddModelError("NewSubjectTitle", "Vui lòng nhập tên môn học mới");
+                    }
+                    else if (finalCategoryId == 0)
+                    {
+                        ModelState.AddModelError("", "Cần có danh mục để tạo môn học mới. Vui lòng chọn hoặc tạo danh mục trước.");
                     }
                     else
                     {
@@ -523,19 +987,23 @@ namespace QuizlyWebsite.Controllers
                         finalSubjectId = newSubject.Id;
                     }
                 }
-                else if (SubjectId.HasValue && SubjectId.Value > 0)
-                {
-                    finalSubjectId = SubjectId.Value;
-                }
                 else
                 {
-                    ModelState.AddModelError("", "Vui lòng chọn hoặc tạo môn học");
+                    // Khi KHÔNG tick "Tạo mới": Chỉ kiểm tra SubjectId từ dropdown
+                    if (SubjectId.HasValue && SubjectId.Value > 0)
+                    {
+                        finalSubjectId = SubjectId.Value;
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("SubjectId", "Vui lòng chọn môn học");
+                    }
                 }
 
                 // Extract questions from form
                 var questions = new List<QuestionViewModel>();
                 var questionIndices = new List<int>();
-                
+
                 foreach (var key in form.Keys)
                 {
                     if (key.StartsWith("Questions[") && key.Contains("].Content"))
@@ -636,6 +1104,9 @@ namespace QuizlyWebsite.Controllers
 
                 await _context.SaveChangesAsync();
 
+                // Normalize marks to ensure total = 10
+                await NormalizeExamMarksAsync(exam.Id);
+
                 TempData["SuccessMessage"] = $"Đề thi đã được tạo thành công với {questions.Count} câu hỏi! Đang chờ duyệt từ admin.";
                 return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
             }
@@ -662,20 +1133,53 @@ namespace QuizlyWebsite.Controllers
             public decimal Marks { get; set; }
         }
 
-        // GET: /quiz/myexams - View user's created exams
-        public async Task<IActionResult> MyExams()
+        // Helper method to normalize exam marks so total = 10
+        // Distributes 10 points equally among all questions, rounded to 2 decimal places
+        private async Task NormalizeExamMarksAsync(int examId)
         {
-            var userId = HttpContext.Session.GetInt32("UserId");
-            if (userId == null)
-                return RedirectToAction("Login", "Account");
-
-            var userExams = await _context.TbExams
-                .Where(e => e.CreatedBy == userId.Value)
-                .Include(e => e.Subject)
-                .OrderByDescending(e => e.CreatedAt)
+            var questions = await _context.TbQuestions
+                .Where(q => q.ExamId == examId)
+                .OrderBy(q => q.Id)
                 .ToListAsync();
 
-            return View(userExams);
+            if (questions == null || !questions.Any())
+                return;
+
+            int questionCount = questions.Count;
+            
+            // Calculate equal marks per question: 10 / questionCount
+            // Round to 2 decimal places
+            decimal baseMarks = Math.Round(10m / questionCount, 2, MidpointRounding.AwayFromZero);
+            
+            // Distribute base marks to all questions
+            for (int i = 0; i < questions.Count; i++)
+            {
+                questions[i].Marks = baseMarks;
+            }
+            
+            // Adjust the last question to ensure total exactly equals 10
+            // Calculate what the total would be with base marks
+            decimal currentTotal = baseMarks * questionCount;
+            decimal difference = 10m - currentTotal;
+            
+            // Add the difference to the last question to make total exactly 10
+            if (questions.Count > 0)
+            {
+                decimal lastQuestionMarks = baseMarks + difference;
+                // Round to 2 decimal places
+                questions[questions.Count - 1].Marks = Math.Round(lastQuestionMarks, 2, MidpointRounding.AwayFromZero);
+            }
+
+            _context.TbQuestions.UpdateRange(questions);
+            await _context.SaveChangesAsync();
+        }
+
+        // GET: /quiz/myexams - Redirect to profile page (deprecated)
+        [Route("quiz/myexams")]
+        public IActionResult MyExams()
+        {
+            // Redirect to profile page with my-exams tab
+            return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
         }
 
         // POST: /quiz/delete/{id} - Delete exam (only by creator)
@@ -702,7 +1206,7 @@ namespace QuizlyWebsite.Controllers
             {
                 // Delete associated questions
                 _context.TbQuestions.RemoveRange(exam.TbQuestions);
-                
+
                 // Delete exam
                 _context.TbExams.Remove(exam);
                 await _context.SaveChangesAsync();
@@ -730,7 +1234,7 @@ namespace QuizlyWebsite.Controllers
                 .ThenInclude(s => s.Category)
                 .Include(e => e.TbQuestions)
                 .FirstOrDefaultAsync(e => e.Id == id);
-            
+
             if (exam == null)
                 return NotFound();
 
@@ -741,7 +1245,7 @@ namespace QuizlyWebsite.Controllers
             ViewData["Subjects"] = await _context.TbSubjects.Include(s => s.Category).ToListAsync();
             ViewData["Categories"] = await _context.TbCategories.ToListAsync();
             ViewData["Questions"] = exam.TbQuestions?.OrderBy(q => q.Id).ToList() ?? new List<TbQuestion>();
-            
+
             return View(exam);
         }
 
@@ -752,10 +1256,10 @@ namespace QuizlyWebsite.Controllers
             int id,
             string Title,
             int? CategoryId,
-            string NewCategoryTitle,
+            string? NewCategoryTitle,
             int? SubjectId,
-            string NewSubjectTitle,
-            string NewSubjectDescription,
+            string? NewSubjectTitle,
+            string? NewSubjectDescription,
             int Duration,
             string Difficulty,
             IFormCollection form)
@@ -767,7 +1271,7 @@ namespace QuizlyWebsite.Controllers
             var existingExam = await _context.TbExams
                 .Include(e => e.TbQuestions)
                 .FirstOrDefaultAsync(e => e.Id == id);
-            
+
             if (existingExam == null)
                 return NotFound();
 
@@ -791,19 +1295,32 @@ namespace QuizlyWebsite.Controllers
                 // Handle Category
                 int finalCategoryId = 0;
                 var useNewCategoryValue = form["UseNewCategory"].ToString();
-                bool useNewCategory = useNewCategoryValue == "true" && !string.IsNullOrWhiteSpace(NewCategoryTitle);
-                
+                bool useNewCategory = useNewCategoryValue == "true";
+
+                if (!useNewCategory)
+                {
+                    ModelState.Remove("NewCategoryTitle");
+                }
+
                 if (useNewCategory)
                 {
-                    // Create new category
-                    var newCategory = new TbCategory
+                    // Validate new category title
+                    if (string.IsNullOrWhiteSpace(NewCategoryTitle))
                     {
-                        Title = NewCategoryTitle.Trim(),
-                        CreatedAt = DateTime.Now
-                    };
-                    _context.TbCategories.Add(newCategory);
-                    await _context.SaveChangesAsync();
-                    finalCategoryId = newCategory.Id;
+                        ModelState.AddModelError("NewCategoryTitle", "Vui lòng nhập tên danh mục mới");
+                    }
+                    else
+                    {
+                        // Create new category
+                        var newCategory = new TbCategory
+                        {
+                            Title = NewCategoryTitle.Trim(),
+                            CreatedAt = DateTime.Now
+                        };
+                        _context.TbCategories.Add(newCategory);
+                        await _context.SaveChangesAsync();
+                        finalCategoryId = newCategory.Id;
+                    }
                 }
                 else if (CategoryId.HasValue && CategoryId.Value > 0)
                 {
@@ -821,18 +1338,30 @@ namespace QuizlyWebsite.Controllers
                     }
                     else
                     {
-                        ModelState.AddModelError("", "Vui lòng chọn hoặc tạo danh mục");
+                        ModelState.AddModelError("CategoryId", "Vui lòng chọn hoặc tạo danh mục");
                     }
                 }
 
                 // Handle Subject
                 int finalSubjectId = 0;
                 var useNewSubjectValue = form["UseNewSubject"].ToString();
-                bool useNewSubject = useNewSubjectValue == "true" && !string.IsNullOrWhiteSpace(NewSubjectTitle);
-                
+                bool useNewSubject = useNewSubjectValue == "true";
+
+                // Clear validation errors for these fields if not using new subject
+                if (!useNewSubject)
+                {
+                    ModelState.Remove("NewSubjectTitle");
+                    ModelState.Remove("NewSubjectDescription");
+                }
+
                 if (useNewSubject)
                 {
-                    if (finalCategoryId == 0)
+                    // Validate new subject title
+                    if (string.IsNullOrWhiteSpace(NewSubjectTitle))
+                    {
+                        ModelState.AddModelError("NewSubjectTitle", "Vui lòng nhập tên môn học mới");
+                    }
+                    else if (finalCategoryId == 0)
                     {
                         ModelState.AddModelError("", "Cần có danh mục để tạo môn học mới");
                     }
@@ -862,7 +1391,7 @@ namespace QuizlyWebsite.Controllers
                 // Extract questions from form
                 var questions = new List<QuestionViewModel>();
                 var questionIndices = new List<int>();
-                
+
                 foreach (var key in form.Keys)
                 {
                     if (key.StartsWith("Questions[") && key.Contains("].Content"))
@@ -884,7 +1413,7 @@ namespace QuizlyWebsite.Controllers
                     var questionIdStr = form[$"Questions[{index}].Id"].ToString();
                     int questionId = 0;
                     int.TryParse(questionIdStr, out questionId);
-                    
+
                     var content = form[$"Questions[{index}].Content"].ToString();
                     var optionA = form[$"Questions[{index}].OptionA"].ToString();
                     var optionB = form[$"Questions[{index}].OptionB"].ToString();
@@ -1011,7 +1540,10 @@ namespace QuizlyWebsite.Controllers
 
                 await _context.SaveChangesAsync();
 
-                TempData["SuccessMessage"] = $"Đề thi đã được cập nhật thành công với {questions.Count} câu hỏi!";
+                // Normalize marks to ensure total = 10
+                await NormalizeExamMarksAsync(id);
+
+                TempData["SuccessMessage"] = $"Đề thi đã được cập nhật thành công với {questions.Count} câu hỏi! Điểm số đã được tự động điều chỉnh để tổng = 10 điểm.";
                 return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
             }
             catch (DbUpdateConcurrencyException)
@@ -1031,7 +1563,6 @@ namespace QuizlyWebsite.Controllers
             return View(existingExam);
         }
 
-        // Helper method to create exam result when exam is cancelled
         private async Task<int?> CreateCancelledExamResult(TbExamSession session, int userId)
         {
             // Check if result already exists for this session
@@ -1081,10 +1612,119 @@ namespace QuizlyWebsite.Controllers
 
             return null;
         }
+
+        [HttpPost]
+        [Route("quiz/parse-text")]
+        [Consumes("application/json")]
+        public IActionResult ParseText([FromBody] ParseTextRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.Text))
+            {
+                return BadRequest(new { error = "Vui lòng cung cấp nội dung văn bản" });
+            }
+
+            try
+            {
+                var result = _questionParserService.ParseFromText(request.Text);
+
+                // Format kết quả theo yêu cầu
+                var response = new
+                {
+                    validQuestions = result.ValidQuestions.Select(q => new
+                    {
+                        question = q.Question,
+                        optionA = q.OptionA,
+                        optionB = q.OptionB,
+                        optionC = q.OptionC,
+                        optionD = q.OptionD,
+                        correctOption = q.CorrectOption
+                    }).ToList(),
+                    report = new
+                    {
+                        totalQuestions = result.Report.TotalQuestions,
+                        validCount = result.Report.ValidCount,
+                        errorCount = result.Report.ErrorCount,
+                        errors = result.Report.Errors.Select(e => new
+                        {
+                            questionNumber = e.QuestionNumber,
+                            questionContent = e.QuestionContent,
+                            errorReason = e.ErrorReason
+                        }).ToList()
+                    }
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi parse đề thi từ text");
+                return StatusCode(500, new { error = $"Lỗi khi xử lý: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        [Route("quiz/parse-word")]
+        [RequestSizeLimit(10_000_000)] // 10MB limit
+        public async Task<IActionResult> ParseWord(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return BadRequest(new { error = "Vui lòng tải lên file Word (.docx)" });
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (extension != ".docx")
+            {
+                return BadRequest(new { error = "Chỉ chấp nhận file Word (.docx)" });
+            }
+
+            try
+            {
+                using var stream = file.OpenReadStream();
+                var result = await _questionParserService.ParseFromWordAsync(stream);
+
+                var response = new
+                {
+                    validQuestions = result.ValidQuestions.Select(q => new
+                    {
+                        question = q.Question,
+                        optionA = q.OptionA,
+                        optionB = q.OptionB,
+                        optionC = q.OptionC,
+                        optionD = q.OptionD,
+                        correctOption = q.CorrectOption
+                    }).ToList(),
+                    report = new
+                    {
+                        totalQuestions = result.Report.TotalQuestions,
+                        validCount = result.Report.ValidCount,
+                        errorCount = result.Report.ErrorCount,
+                        errors = result.Report.Errors.Select(e => new
+                        {
+                            questionNumber = e.QuestionNumber,
+                            questionContent = e.QuestionContent,
+                            errorReason = e.ErrorReason
+                        }).ToList()
+                    }
+                };
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi khi parse đề thi từ Word");
+                return StatusCode(500, new { error = $"Lỗi khi xử lý file Word: {ex.Message}" });
+            }
+        }
     }
 
     public class ViolationRequest
     {
         public int SessionId { get; set; }
+    }
+
+    public class ParseTextRequest
+    {
+        public string Text { get; set; } = string.Empty;
     }
 }

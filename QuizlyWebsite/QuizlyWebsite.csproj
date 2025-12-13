@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.1.1" />
     <PackageReference Include="elFinder.NetCore" Version="1.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.21" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21" />

@@ -1,0 +1,213 @@
+@model List<QuizlyWebsite.Models.TbContact>
+
+@{
+    ViewData["Title"] = "Quản Lý Liên Hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var filter = ViewData["Filter"] as string ?? "all";
+    var unreadCount = ViewData["UnreadCount"] as int? ?? 0;
+}
+
+<!-- Success/Error Messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Error"]</p>
+    </div>
+}
+
+<!-- Header -->
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h2 class="text-3xl font-bold mb-2">Quản Lý Liên Hệ</h2>
+        <p class="text-[#4c739a] dark:text-slate-400">Quản lý tin nhắn từ người dùng</p>
+    </div>
+    @if (unreadCount > 0)
+    {
+        <div class="bg-danger/10 border border-danger/30 text-danger rounded-lg px-4 py-2 flex items-center gap-2">
+            <span class="material-symbols-outlined">mail</span>
+            <span class="font-semibold">@unreadCount tin nhắn chưa đọc</span>
+        </div>
+    }
+</div>
+
+<!-- Filter Tabs -->
+<div class="flex gap-3 mb-6">
+    <a href="/admin/contacts?filter=all" 
+       class="px-4 py-2 rounded-lg font-semibold transition @(filter == "all" ? "bg-primary text-white" : "bg-gray-100 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 hover:bg-gray-200 dark:hover:bg-gray-600")">
+        Tất Cả (@(ViewData["Total"] ?? 0))
+    </a>
+    <a href="/admin/contacts?filter=unread" 
+       class="px-4 py-2 rounded-lg font-semibold transition @(filter == "unread" ? "bg-primary text-white" : "bg-gray-100 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 hover:bg-gray-200 dark:hover:bg-gray-600")">
+        Chưa Đọc (@unreadCount)
+    </a>
+    <a href="/admin/contacts?filter=read" 
+       class="px-4 py-2 rounded-lg font-semibold transition @(filter == "read" ? "bg-primary text-white" : "bg-gray-100 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 hover:bg-gray-200 dark:hover:bg-gray-600")">
+        Đã Đọc
+    </a>
+</div>
+
+<!-- Table -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Trạng Thái</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Họ Tên</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Email</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Số Điện Thoại</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Chủ Đề</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Ngày Gửi</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    @foreach (var contact in Model)
+                    {
+                        <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition @(contact.IsRead != true ? "bg-blue-50/50 dark:bg-blue-900/10" : "")">
+                            <td class="px-6 py-4">
+                                @if (contact.IsRead == true)
+                                {
+                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-success/20 text-success flex items-center gap-1 w-fit">
+                                        <span class="material-symbols-outlined text-sm">mark_email_read</span>
+                                        Đã Đọc
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-danger/20 text-danger flex items-center gap-1 w-fit">
+                                        <span class="material-symbols-outlined text-sm">mark_email_unread</span>
+                                        Chưa Đọc
+                                    </span>
+                                }
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">@contact.Name</td>
+                            <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@contact.Email</td>
+                            <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@(contact.Phone ?? "N/A")</td>
+                            <td class="px-6 py-4">
+                                <span class="text-xs font-semibold px-3 py-1 rounded-full bg-primary/20 text-primary">
+                                    @(contact.Subject switch
+                                    {
+                                        "course" => "Tư vấn khóa học",
+                                        "exam" => "Vấn đề về đề thi",
+                                        "technical" => "Lỗi kỹ thuật",
+                                        "partnership" => "Hợp tác doanh nghiệp",
+                                        "other" => "Khác",
+                                        _ => contact.Subject
+                                    })
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-[#4c739a] dark:text-slate-400">@(contact.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                            <td class="px-6 py-4 text-sm">
+                                <div class="flex gap-2">
+                                    <a href="/admin/contact-detail/@contact.Id" class="text-primary hover:text-primary-dark" title="Xem chi tiết">
+                                        <span class="material-symbols-outlined text-sm">visibility</span>
+                                    </a>
+                                    @if (contact.IsRead != true)
+                                    {
+                                        <button class="text-success hover:text-green-700" title="Đánh dấu đã đọc" onclick="markAsRead(@contact.Id)">
+                                            <span class="material-symbols-outlined text-sm">mark_email_read</span>
+                                        </button>
+                                    }
+                                    <button class="text-danger hover:text-red-700" title="Xóa" onclick="deleteContact(@contact.Id)">
+                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center text-[#4c739a] dark:text-slate-400">
+                            <span class="material-symbols-outlined text-6xl mb-4 block">mail_outline</span>
+                            <p class="text-lg font-semibold">Chưa có liên hệ nào</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if ((ViewData["TotalPages"] as int? ?? 0) > 1)
+{
+    <div class="flex justify-center items-center gap-2 mt-6">
+        @{
+            var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+            var totalPages = ViewData["TotalPages"] as int? ?? 1;
+        }
+        @if (currentPage > 1)
+        {
+            <a href="/admin/contacts?page=@(currentPage - 1)&filter=@filter" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </a>
+        }
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <a href="/admin/contacts?page=@i&filter=@filter" 
+               class="px-4 py-2 rounded-lg font-semibold transition @(i == currentPage ? "bg-primary text-white" : "bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 hover:bg-gray-300 dark:hover:bg-gray-600")">
+                @i
+            </a>
+        }
+        @if (currentPage < totalPages)
+        {
+            <a href="/admin/contacts?page=@(currentPage + 1)&filter=@filter" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </a>
+        }
+    </div>
+}
+
+<script>
+    function markAsRead(id) {
+        if (confirm('Bạn có chắc muốn đánh dấu đã đọc?')) {
+            fetch(`/admin/contact-mark-read/${id}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra');
+            });
+        }
+    }
+
+    function deleteContact(id) {
+        if (confirm('Bạn có chắc muốn xóa liên hệ này?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/admin/contact-delete/${id}`;
+            
+            const token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '__RequestVerificationToken';
+            token.value = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+            form.appendChild(token);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+
