@@ -19,10 +19,6 @@ namespace QuizlyWebsite.Services
             _context = context;
             _logger = logger;
         }
-
-        /// <summary>
-        /// Automatically assign first N lessons as preview based on FreeLessonCount
-        /// </summary>
         public async Task AssignPreviewLessonsAsync(int courseId)
         {
             try
@@ -35,14 +31,11 @@ namespace QuizlyWebsite.Services
                 }
 
                 var freeCount = course.FreeLessonCount ?? 2;
-
-                // Get all lessons for this course ordered by CreatedAt
                 var lessons = await _context.TbLessons
                     .Where(l => l.CourseId == courseId)
                     .OrderBy(l => l.CreatedAt)
                     .ToListAsync();
 
-                // Mark first N lessons as preview
                 for (int i = 0; i < lessons.Count; i++)
                 {
                     lessons[i].IsPreview = i < freeCount;
@@ -59,9 +52,6 @@ namespace QuizlyWebsite.Services
             }
         }
 
-        /// <summary>
-        /// Update preview lessons when FreeLessonCount changes
-        /// </summary>
         public async Task UpdatePreviewLessonsAsync(int courseId, int newFreeLessonCount)
         {
             try
@@ -71,7 +61,6 @@ namespace QuizlyWebsite.Services
                     .OrderBy(l => l.CreatedAt)
                     .ToListAsync();
 
-                // Update preview status
                 for (int i = 0; i < lessons.Count; i++)
                 {
                     lessons[i].IsPreview = i < newFreeLessonCount;

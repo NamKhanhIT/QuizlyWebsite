@@ -1,6 +1,5 @@
 using System;
-using System.Security.Cryptography;
-using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,221 +23,175 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return role == "Admin";
         }
 
-        // GET: /admin/users
-        [Route("admin/users")]
-        public async Task<IActionResult> Index(int page = 1)
+        // GET: Admin/Users
+        public async Task<IActionResult> Index()
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var users = await _context.TbUsers
-                .OrderByDescending(u => u.CreatedAt ?? DateTime.MinValue)
-                .ThenByDescending(u => u.Id)
-                .Skip((page - 1) * 10)
-                .Take(10)
-                .ToListAsync();
-
-            var total = await _context.TbUsers.CountAsync();
-            ViewData["TotalPages"] = (total + 9) / 10;
-            ViewData["CurrentPage"] = page;
-
-            return View("~/Areas/Admin/Views/Home/Users.cshtml", users);
+            return View(await _context.TbUsers.OrderByDescending(u => u.CreatedAt ?? DateTime.MinValue).ToListAsync());
         }
 
-        // GET: /admin/user-form or /admin/user-form/{id}
-        [Route("admin/user-form")]
-        [Route("admin/user-form/{id}")]
-        public async Task<IActionResult> Form(int? id)
+        // GET: Admin/Users/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (id.HasValue)
+            if (id == null)
             {
-                var user = await _context.TbUsers.FindAsync(id.Value);
-                if (user == null) return NotFound();
-                return View("~/Areas/Admin/Views/Home/UserForm.cshtml", user);
+                return NotFound();
             }
 
-            return View("~/Areas/Admin/Views/Home/UserForm.cshtml", new TbUser());
+            var tbUser = await _context.TbUsers
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbUser == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbUser);
         }
 
-        // POST: /admin/user-form or /admin/user-form/{id}
+        // GET: Admin/Users/Create
+        public IActionResult Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            return View();
+        }
+
+        // POST: Admin/Users/Create
         [HttpPost]
-        [Route("admin/user-form")]
-        [Route("admin/user-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string username, string email, string? fullName, string? phoneNumber, string? address, string? avatarUrl, string? password)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Username,Email,PasswordHash,FullName,AvatarUrl,Role,CreatedAt,Address,PhoneNumber")] TbUser tbUser, string password)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (string.IsNullOrWhiteSpace(username))
-                ModelState.AddModelError(nameof(username), "Tên đăng nhập không được để trống");
-
-            if (string.IsNullOrWhiteSpace(email))
-                ModelState.AddModelError(nameof(email), "Email không được để trống");
-
-            // Check if username already exists (for new users)
-            if (!id.HasValue || id == 0)
+            if (ModelState.IsValid)
             {
-                if (string.IsNullOrWhiteSpace(password))
-                    ModelState.AddModelError(nameof(password), "Mật khẩu không được để trống");
-
-                var existingUser = await _context.TbUsers.FirstOrDefaultAsync(u => u.Username == username);
-                if (existingUser != null)
-                    ModelState.AddModelError(nameof(username), "Tên đăng nhập đã tồn tại");
-            }
-
-            // Check if email already exists
-            var existingEmail = await _context.TbUsers.FirstOrDefaultAsync(u => u.Email == email && (!id.HasValue || u.Id != id.Value));
-            if (existingEmail != null)
-                ModelState.AddModelError(nameof(email), "Email đã tồn tại");
-
-            if (!ModelState.IsValid)
-            {
-                var model = id.HasValue ? await _context.TbUsers.FindAsync(id) : new TbUser();
-                return View("~/Areas/Admin/Views/Home/UserForm.cshtml", model);
-            }
-
-            try
-            {
-                if (id.HasValue && id > 0)
+                if (!string.IsNullOrEmpty(password))
                 {
-                    var user = await _context.TbUsers.FindAsync(id.Value);
-                    if (user == null) return NotFound();
-                    user.Email = email;
-                    user.FullName = fullName;
-                    user.PhoneNumber = phoneNumber;
-                    user.Address = address;
-                    user.AvatarUrl = avatarUrl;
+                    using var sha256 = System.Security.Cryptography.SHA256.Create();
+                    var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                    tbUser.PasswordHash = Convert.ToBase64String(hashedBytes);
+                }
+                tbUser.CreatedAt = DateTime.Now;
+                _context.Add(tbUser);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Người dùng đã được tạo thành công";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(tbUser);
+        }
 
-                    _context.TbUsers.Update(user);
+        // GET: Admin/Users/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tbUser = await _context.TbUsers.FindAsync(id);
+            if (tbUser == null)
+            {
+                return NotFound();
+            }
+            return View(tbUser);
+        }
+
+        // POST: Admin/Users/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Username,Email,PasswordHash,FullName,AvatarUrl,Role,CreatedAt,Address,PhoneNumber")] TbUser tbUser, string password)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id != tbUser.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (!string.IsNullOrEmpty(password))
+                    {
+                        using var sha256 = System.Security.Cryptography.SHA256.Create();
+                        var hashedBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                        tbUser.PasswordHash = Convert.ToBase64String(hashedBytes);
+                    }
+                    _context.Update(tbUser);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Người dùng đã được cập nhật thành công";
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    // Hash password using SHA256 (same as AccountController)
-                    string passwordHash = HashPassword(password ?? "");
-
-                    var user = new TbUser
+                    if (!TbUserExists(tbUser.Id))
                     {
-                        Username = username,
-                        Email = email,
-                        FullName = fullName,
-                        PhoneNumber = phoneNumber,
-                        Address = address,
-                        AvatarUrl = avatarUrl,
-                        PasswordHash = passwordHash,
-                        Role = "User",
-                        CreatedAt = DateTime.Now
-                    };
-
-                    await _context.TbUsers.AddAsync(user);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Người dùng mới đã được tạo thành công";
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
-                var model = id.HasValue ? await _context.TbUsers.FindAsync(id) : new TbUser();
-                return View("~/Areas/Admin/Views/Home/UserForm.cshtml", model);
-            }
+            return View(tbUser);
         }
 
-        // GET: /admin/user-permissions
-        [Route("admin/user-permissions")]
-        public async Task<IActionResult> UserPermissions()
+        // GET: Admin/Users/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var users = await _context.TbUsers
-                .OrderByDescending(u => u.CreatedAt ?? DateTime.MinValue)
-                .ThenByDescending(u => u.Id)
-                .ToListAsync();
-            return View("~/Areas/Admin/Views/Home/UserPermissions.cshtml", users);
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tbUser = await _context.TbUsers
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbUser == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbUser);
         }
 
-        // POST: /admin/users/{id}/permissions - Update user role
-        [HttpPost]
-        [Route("admin/users/{id}/permissions")]
-        public async Task<IActionResult> UserPermissionsPost(int id, string role)
+        // POST: Admin/Users/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (!IsAdmin())
-                return Json(new { success = false, message = "Không có quyền" });
+                return RedirectToAction("Index", "Home", new { area = "" });
 
-            var user = await _context.TbUsers.FindAsync(id);
-            if (user == null)
-                return Json(new { success = false, message = "Người dùng không tồn tại" });
-
-            if (string.IsNullOrWhiteSpace(role) || (role != "User" && role != "Admin"))
-                return Json(new { success = false, message = "Vai trò không hợp lệ. Chỉ có User và Admin." });
-
-            try
+            var tbUser = await _context.TbUsers.FindAsync(id);
+            if (tbUser != null)
             {
-                user.Role = role;
-                _context.TbUsers.Update(user);
+                _context.TbUsers.Remove(tbUser);
                 await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Vai trò đã được cập nhật thành công" });
+                TempData["Success"] = "Người dùng đã được xóa thành công";
             }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Lỗi khi cập nhật vai trò: " + ex.Message });
-            }
+
+            return RedirectToAction(nameof(Index));
         }
 
-        // POST: /admin/delete-user (used by AJAX)
-        [HttpPost]
-        [Route("admin/delete-user")]
-        public async Task<IActionResult> Delete([FromBody] DeleteUserRequest req)
+        private bool TbUserExists(int id)
         {
-            if (!IsAdmin())
-                return Json(new { success = false, message = "Không có quyền" });
-
-            if (req == null) return Json(new { success = false, message = "Invalid request" });
-
-            if (string.IsNullOrWhiteSpace(req.Reason))
-                return Json(new { success = false, message = "Vui lòng nhập lý do xóa" });
-
-            var user = await _context.TbUsers.FindAsync(req.Id);
-            if (user == null) return Json(new { success = false, message = "Người dùng không tồn tại" });
-
-            // Không cho phép xóa chính mình
-            var currentUserId = HttpContext.Session.GetInt32("UserId");
-            if (user.Id == currentUserId)
-                return Json(new { success = false, message = "Không thể xóa chính mình" });
-
-            // Không cho phép xóa admin khác
-            if (user.Role == "Admin")
-                return Json(new { success = false, message = "Không thể xóa tài khoản Admin" });
-            
-            try
-            {
-                _context.TbUsers.Remove(user);
-                await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "Người dùng đã được xóa thành công" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Lỗi khi xóa người dùng: " + ex.Message });
-            }
-        }
-
-        public class DeleteRequest { public int Id { get; set; } }
-        public class DeleteUserRequest { public int Id { get; set; } public string Reason { get; set; } = string.Empty; }
-
-        // Helper method for password hashing (same as AccountController)
-        private string HashPassword(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return Convert.ToBase64String(hashedBytes);
-            }
+            return _context.TbUsers.Any(e => e.Id == id);
         }
     }
 }

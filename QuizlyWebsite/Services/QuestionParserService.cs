@@ -14,7 +14,7 @@ public class QuestionParserService : IQuestionParserService
         RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
     private static readonly Regex OptionPattern = new Regex(
-        @"^(\*?|\(Đúng\)|\[Đúng\]|✓|✅)\s*([A-D])[\.\):]\s*(.+)$",
+        @"^(\*?|\(Đúng\)|\[Đúng\]|✓)\s*([A-D])[\.\):]\s*(.+)$",
         RegexOptions.IgnoreCase);
 
     public QuestionParseResult ParseFromText(string text)
@@ -40,7 +40,6 @@ public class QuestionParserService : IQuestionParserService
             return result;
         }
 
-        // Normalize line endings
         text = text.Replace("\r\n", "\n").Replace("\r", "\n");
         var lines = text.Split('\n');
 
@@ -51,7 +50,6 @@ public class QuestionParserService : IQuestionParserService
         int i = 0;
         while (i < lines.Length)
         {
-            // Tìm dòng bắt đầu câu hỏi với nhiều định dạng
             int questionStartIndex = -1;
             string questionContent = string.Empty;
             
@@ -64,7 +62,6 @@ public class QuestionParserService : IQuestionParserService
                     continue;
                 }
 
-                // Kiểm tra các định dạng câu hỏi
                 if (QuestionPattern.IsMatch(line) || 
                     line.StartsWith("Câu hỏi", StringComparison.OrdinalIgnoreCase) ||
                     Regex.IsMatch(line, @"^(Câu\s*\d+|^\d+[\.\)])", RegexOptions.IgnoreCase))
@@ -78,7 +75,6 @@ public class QuestionParserService : IQuestionParserService
                     }
                     else
                     {
-                        // Fallback: remove common prefixes
                         questionContent = Regex.Replace(line, @"^(Câu\s*(?:hỏi|số)?\s*:?\s*\d*|Câu\s*\d+|^\d+[\.\)]\s*|Câu\s*:)\s*", "", RegexOptions.IgnoreCase).Trim();
                     }
                     break;
@@ -92,7 +88,6 @@ public class QuestionParserService : IQuestionParserService
             questionNumber++;
             i = questionStartIndex + 1;
 
-            // Đọc câu hỏi nhiều dòng (nếu có)
             var questionLines = new List<string> { questionContent };
             while (i < lines.Length)
             {
@@ -118,7 +113,6 @@ public class QuestionParserService : IQuestionParserService
 
             questionContent = string.Join(" ", questionLines).Trim();
 
-            // Đọc các đáp án với nhiều định dạng
             string? optionA = null;
             string? optionB = null;
             string? optionC = null;
@@ -206,7 +200,6 @@ public class QuestionParserService : IQuestionParserService
                     continue;
                 }
 
-                // Fallback: Parse đáp án đơn giản (A., B., C., D.)
                 var simpleMatch = Regex.Match(line, @"^(\*?)\s*([A-D])[\.\):]\s*(.+)$", RegexOptions.IgnoreCase);
                 if (simpleMatch.Success)
                 {
@@ -296,7 +289,6 @@ public class QuestionParserService : IQuestionParserService
             }
             else
             {
-                // Câu hỏi hợp lệ
                 questions.Add(new ParsedQuestion
                 {
                     Question = questionContent,

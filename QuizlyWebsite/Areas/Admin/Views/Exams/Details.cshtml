@@ -1,0 +1,211 @@
+@model QuizlyWebsite.Models.TbExam
+
+@{
+    ViewData["Title"] = "Chi Tiết Đề Thi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Đề Thi</h2>
+</div>
+
+<!-- Thông tin cơ bản -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 mb-8">
+    <h3 class="text-xl font-semibold mb-6 text-[#0d141b] dark:text-slate-50">Thông Tin Cơ Bản</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">ID</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Id</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Tiêu Đề</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Title</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Môn Học</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Subject?.Title</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Độ Khó</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.Difficulty ?? "N/A")</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Thời Gian (Phút)</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Duration</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Số Câu Hỏi</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.QuestionCount ?? 0)</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Giá</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.Price?.ToString("N0") ?? "0") VND</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Trạng Thái</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">
+                @if (Model.IsApproved == true)
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Đã duyệt</span>
+                }
+                else if (Model.IsApproved == false && !string.IsNullOrEmpty(Model.RejectionReason))
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Bị từ chối</span>
+                }
+                else
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Chờ duyệt</span>
+                }
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Premium</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.IsPremium == true ? "Có" : "Không")</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Ngày Tạo</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</dd>
+        </div>
+        @if (Model.IsApproved == false && !string.IsNullOrEmpty(Model.RejectionReason))
+        {
+            <div class="col-span-1 md:col-span-2">
+                <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Lý Do Từ Chối</dt>
+                <dd class="text-lg text-[#0d141b] dark:text-slate-50 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    @Model.RejectionReason
+                </dd>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Danh sách câu hỏi -->
+@if (Model.TbQuestions != null && Model.TbQuestions.Any())
+{
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold text-[#0d141b] dark:text-slate-50">Danh Sách Câu Hỏi (@Model.TbQuestions.Count)</h3>
+            <div class="flex gap-2">
+                <a asp-controller="Questions" asp-action="Create" asp-route-examId="@Model.Id" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm">
+                    <span class="material-symbols-outlined text-sm mr-1">add</span>
+                    Thêm Câu Hỏi
+                </a>
+                <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold text-sm">
+                    <span class="material-symbols-outlined text-sm mr-1">edit</span>
+                    Quản Lý Câu Hỏi
+                </a>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            @foreach (var question in Model.TbQuestions.OrderBy(q => q.Id))
+            {
+                var questionNumber = Model.TbQuestions.OrderBy(q => q.Id).ToList().IndexOf(question) + 1;
+                <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-6 bg-gray-50 dark:bg-gray-700">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                                Câu @questionNumber
+                            </h4>
+                            <p class="text-[#0d141b] dark:text-slate-50 font-medium">
+                                @question.Content
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium px-2 py-1 rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                Điểm: @(question.Marks ?? 1)
+                            </span>
+                            <a asp-controller="Questions" asp-action="Edit" asp-route-id="@question.Id" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200">
+                                <span class="material-symbols-outlined text-lg">edit</span>
+                            </a>
+                            <a asp-controller="Questions" asp-action="Delete" asp-route-id="@question.Id" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
+                               onclick="return confirm('Bạn có chắc chắn muốn xóa câu hỏi này?')">
+                                <span class="material-symbols-outlined text-lg">delete</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <!-- Đáp án A -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg @(question.CorrectOption == "A" ? "bg-green-100 dark:bg-green-900 border-2 border-green-300" : "bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500")">
+                            <span class="font-semibold text-primary min-w-[24px]">A.</span>
+                            <span class="text-[#0d141b] dark:text-slate-50">@question.OptionA</span>
+                            @if (question.CorrectOption == "A")
+                            {
+                                <span class="material-symbols-outlined text-green-600 ml-auto">check_circle</span>
+                            }
+                        </div>
+
+                        <!-- Đáp án B -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg @(question.CorrectOption == "B" ? "bg-green-100 dark:bg-green-900 border-2 border-green-300" : "bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500")">
+                            <span class="font-semibold text-primary min-w-[24px]">B.</span>
+                            <span class="text-[#0d141b] dark:text-slate-50">@question.OptionB</span>
+                            @if (question.CorrectOption == "B")
+                            {
+                                <span class="material-symbols-outlined text-green-600 ml-auto">check_circle</span>
+                            }
+                        </div>
+
+                        <!-- Đáp án C -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg @(question.CorrectOption == "C" ? "bg-green-100 dark:bg-green-900 border-2 border-green-300" : "bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500")">
+                            <span class="font-semibold text-primary min-w-[24px]">C.</span>
+                            <span class="text-[#0d141b] dark:text-slate-50">@question.OptionC</span>
+                            @if (question.CorrectOption == "C")
+                            {
+                                <span class="material-symbols-outlined text-green-600 ml-auto">check_circle</span>
+                            }
+                        </div>
+
+                        <!-- Đáp án D -->
+                        <div class="flex items-center gap-3 p-3 rounded-lg @(question.CorrectOption == "D" ? "bg-green-100 dark:bg-green-900 border-2 border-green-300" : "bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-500")">
+                            <span class="font-semibold text-primary min-w-[24px]">D.</span>
+                            <span class="text-[#0d141b] dark:text-slate-50">@question.OptionD</span>
+                            @if (question.CorrectOption == "D")
+                            {
+                                <span class="material-symbols-outlined text-green-600 ml-auto">check_circle</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600 dark:text-gray-400 border-t border-gray-200 dark:border-gray-600 pt-3">
+                        <strong>Đáp án đúng:</strong> @question.CorrectOption
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <div class="text-gray-500 dark:text-gray-400 mb-4">
+            <span class="material-symbols-outlined text-6xl">quiz</span>
+        </div>
+        <h3 class="text-xl font-semibold text-[#0d141b] dark:text-slate-50 mb-2">Chưa có câu hỏi</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-4">Đề thi này chưa có câu hỏi nào được thêm vào.</p>
+        <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold">
+            <span class="material-symbols-outlined text-sm mr-1">add</span>
+            Thêm Câu Hỏi
+        </a>
+    </div>
+}
+
+<!-- Action buttons -->
+<div class="flex gap-3 mt-8 justify-center">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+        <span class="material-symbols-outlined text-sm mr-1">edit</span>
+        Chỉnh Sửa
+    </a>
+    <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold">
+        <span class="material-symbols-outlined text-sm mr-1">quiz</span>
+        Quản Lý Câu Hỏi
+    </a>
+    <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+        <span class="material-symbols-outlined text-sm mr-1">arrow_back</span>
+        Quay Lại
+    </a>
+</div>
+

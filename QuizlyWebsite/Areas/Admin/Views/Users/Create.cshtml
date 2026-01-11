@@ -1,0 +1,93 @@
+@model QuizlyWebsite.Models.TbUser
+
+@{
+    ViewData["Title"] = "Thêm Người Dùng Mới";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Thêm Người Dùng Mới</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-2xl">
+    <form asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+        
+        <div class="mb-6">
+            <label asp-for="Username" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Tên Đăng Nhập
+            </label>
+            <input asp-for="Username" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+            <span asp-validation-for="Username" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="Email" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Email
+            </label>
+            <input asp-for="Email" type="email" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+            <span asp-validation-for="Email" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="mb-6">
+            <label for="password" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Mật Khẩu
+            </label>
+            <input name="password" type="password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" required />
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="FullName" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Họ Tên
+            </label>
+            <input asp-for="FullName" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+            <span asp-validation-for="FullName" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="Role" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Vai Trò
+            </label>
+            <select asp-for="Role" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                <option value="">-- Chọn vai trò --</option>
+                <option value="User">User</option>
+                <option value="Admin">Admin</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="PhoneNumber" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Số Điện Thoại
+            </label>
+            <input asp-for="PhoneNumber" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+            <span asp-validation-for="PhoneNumber" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="Address" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Địa Chỉ
+            </label>
+            <textarea asp-for="Address" rows="3" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"></textarea>
+            <span asp-validation-for="Address" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                Tạo Mới
+            </button>
+            <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

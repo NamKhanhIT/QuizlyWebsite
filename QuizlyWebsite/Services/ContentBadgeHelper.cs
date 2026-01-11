@@ -4,11 +4,11 @@ namespace QuizlyWebsite.Services
     {
         public enum BadgeType
         {
-            Official,      // Admin created exam
-            Community,     // User created exam
-            Premium,       // Locked premium content
-            Free,          // Free content
-            Preview        // Preview lesson
+            Official,     
+            Community,     
+            Premium,       
+            Free,         
+            Preview        
         }
 
         public static string GetBadgeIcon(BadgeType type)

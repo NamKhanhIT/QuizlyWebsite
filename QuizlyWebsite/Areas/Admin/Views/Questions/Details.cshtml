@@ -1,0 +1,67 @@
+@model QuizlyWebsite.Models.TbQuestion
+
+@{
+    ViewData["Title"] = "Chi Tiết Câu Hỏi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" asp-route-examId="@Model.ExamId" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Câu Hỏi</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-3xl">
+    <dl class="space-y-4">
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">ID</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Id</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Đề Thi</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Exam?.Title</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Nội Dung Câu Hỏi</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50 whitespace-pre-wrap">@Model.Content</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Đáp Án A</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.OptionA</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Đáp Án B</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.OptionB</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Đáp Án C</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.OptionC</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Đáp Án D</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.OptionD</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Đáp Án Đúng</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">
+                <span class="px-3 py-1 bg-success/20 text-success rounded-full font-semibold">@(Model.CorrectOption ?? "N/A")</span>
+            </dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Điểm</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.Marks?.ToString("F2") ?? "0")</dd>
+        </div>
+    </dl>
+
+    <div class="flex gap-3 mt-8">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+            Chỉnh Sửa
+        </a>
+        <a asp-action="Index" asp-route-examId="@Model.ExamId" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+            Quay Lại
+        </a>
+    </div>
+</div>
+

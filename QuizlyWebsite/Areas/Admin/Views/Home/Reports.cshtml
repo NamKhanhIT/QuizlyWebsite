@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Báo Cáo & Thống Kê";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    
+
     var totalRevenue = (decimal?)ViewData["TotalRevenue"] ?? 0;
     var totalPayments = (int?)ViewData["TotalPayments"] ?? 0;
     var successfulPayments = (int?)ViewData["SuccessfulPayments"] ?? 0;

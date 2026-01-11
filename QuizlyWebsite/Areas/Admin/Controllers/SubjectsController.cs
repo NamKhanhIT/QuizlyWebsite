@@ -1,7 +1,8 @@
 using System;
-using System.Threading.Tasks;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
 
@@ -23,145 +24,169 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return role == "Admin";
         }
 
-        // GET: /admin/subjects
-        [Route("admin/subjects")]
-        public async Task<IActionResult> Index(int page = 1)
+        // GET: Admin/Subjects
+        public async Task<IActionResult> Index()
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var subjects = await _context.TbSubjects
-                .OrderBy(s => s.Id)
-                .Skip((page - 1) * 10)
-                .Take(10)
-                .ToListAsync();
-
-            var total = await _context.TbSubjects.CountAsync();
-            ViewData["TotalPages"] = (total + 9) / 10;
-            ViewData["CurrentPage"] = page;
-
-            return View("~/Areas/Admin/Views/Home/Subjects.cshtml", subjects);
+            var quizlyDbContext = _context.TbSubjects.Include(t => t.Category);
+            return View(await quizlyDbContext.OrderBy(s => s.Title).ToListAsync());
         }
 
-        // GET: /admin/subject-form or /admin/subject-form/{id}
-        [Route("admin/subject-form")]
-        [Route("admin/subject-form/{id}")]
-        public async Task<IActionResult> Form(int? id)
+        // GET: Admin/Subjects/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            // Load categories for dropdown
-            ViewData["Categories"] = await _context.TbCategories.OrderBy(c => c.Title).ToListAsync();
-
-            if (id.HasValue)
+            if (id == null)
             {
-                var subject = await _context.TbSubjects
-                    .Include(s => s.Category)
-                    .FirstOrDefaultAsync(s => s.Id == id.Value);
-                if (subject == null) return NotFound();
-                return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", subject);
+                return NotFound();
             }
 
-            return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", new TbSubject());
+            var tbSubject = await _context.TbSubjects
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbSubject == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbSubject);
         }
 
-        // POST: /admin/subject-form or /admin/subject-form/{id}
+        // GET: Admin/Subjects/Create
+        public async Task<IActionResult> Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            ViewData["CategoryId"] = new SelectList(_context.TbCategories, "Id", "Title");
+            return View();
+        }
+
+        // POST: Admin/Subjects/Create
         [HttpPost]
-        [Route("admin/subject-form")]
-        [Route("admin/subject-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string title, string description, int categoryId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,CategoryId,Title,Description")] TbSubject tbSubject)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            // Load categories for dropdown (in case of error)
-            ViewData["Categories"] = await _context.TbCategories.OrderBy(c => c.Title).ToListAsync();
-
-            if (string.IsNullOrWhiteSpace(title))
-                ModelState.AddModelError(nameof(title), "Tên môn học không được để trống");
-
-            if (categoryId <= 0)
-                ModelState.AddModelError(nameof(categoryId), "Vui lòng chọn danh mục");
-
-            // Verify category exists
-            if (categoryId > 0)
+            if (ModelState.IsValid)
             {
-                var categoryExists = await _context.TbCategories.AnyAsync(c => c.Id == categoryId);
-                if (!categoryExists)
-                    ModelState.AddModelError(nameof(categoryId), "Danh mục không tồn tại");
+                _context.Add(tbSubject);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Môn học đã được tạo thành công";
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["CategoryId"] = new SelectList(_context.TbCategories, "Id", "Title", tbSubject.CategoryId);
+            return View(tbSubject);
+        }
+
+        // GET: Admin/Subjects/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
             }
 
-            if (!ModelState.IsValid)
+            var tbSubject = await _context.TbSubjects.FindAsync(id);
+            if (tbSubject == null)
             {
-                var model = id.HasValue 
-                    ? await _context.TbSubjects.Include(s => s.Category).FirstOrDefaultAsync(s => s.Id == id) 
-                    : new TbSubject();
-                if (model == null) model = new TbSubject();
-                return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", model);
+                return NotFound();
+            }
+            ViewData["CategoryId"] = new SelectList(_context.TbCategories, "Id", "Title", tbSubject.CategoryId);
+            return View(tbSubject);
+        }
+
+        // POST: Admin/Subjects/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,CategoryId,Title,Description")] TbSubject tbSubject)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id != tbSubject.Id)
+            {
+                return NotFound();
             }
 
-            try
+            if (ModelState.IsValid)
             {
-                if (id.HasValue && id > 0)
+                try
                 {
-                    var subject = await _context.TbSubjects.FindAsync(id.Value);
-                    if (subject == null) return NotFound();
-                    subject.Title = title;
-                    subject.Description = description;
-                    subject.CategoryId = categoryId;
-
-                    _context.TbSubjects.Update(subject);
+                    _context.Update(tbSubject);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Môn học đã được cập nhật thành công";
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    var subject = new TbSubject
+                    if (!TbSubjectExists(tbSubject.Id))
                     {
-                        Title = title,
-                        Description = description,
-                        CategoryId = categoryId
-                    };
-
-                    await _context.TbSubjects.AddAsync(subject);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Môn học mới đã được tạo thành công";
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Lỗi: " + ex.Message;
-                ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
-                var model = id.HasValue 
-                    ? await _context.TbSubjects.Include(s => s.Category).FirstOrDefaultAsync(s => s.Id == id) 
-                    : new TbSubject();
-                if (model == null) model = new TbSubject();
-                return View("~/Areas/Admin/Views/Home/SubjectForm.cshtml", model);
-            }
+            ViewData["CategoryId"] = new SelectList(_context.TbCategories, "Id", "Title", tbSubject.CategoryId);
+            return View(tbSubject);
         }
 
-        // POST: /admin/delete-subject (used by AJAX)
-        [HttpPost]
-        [Route("admin/delete-subject")]
-        public async Task<IActionResult> Delete([FromBody] DeleteRequest req)
+        // GET: Admin/Subjects/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
             if (!IsAdmin())
-                return Json(new { success = false, message = "Không có quyền" });
+                return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (req == null) return Json(new { success = false, message = "Invalid request" });
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            var subject = await _context.TbSubjects.FindAsync(req.Id);
-            if (subject == null) return Json(new { success = false, message = "Môn học không tồn tại" });
+            var tbSubject = await _context.TbSubjects
+                .Include(t => t.Category)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbSubject == null)
+            {
+                return NotFound();
+            }
 
-            _context.TbSubjects.Remove(subject);
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = "Môn học đã được xóa" });
+            return View(tbSubject);
         }
 
-        public class DeleteRequest { public int Id { get; set; } }
+        // POST: Admin/Subjects/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            var tbSubject = await _context.TbSubjects.FindAsync(id);
+            if (tbSubject != null)
+            {
+                _context.TbSubjects.Remove(tbSubject);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Môn học đã được xóa thành công";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TbSubjectExists(int id)
+        {
+            return _context.TbSubjects.Any(e => e.Id == id);
+        }
     }
 }

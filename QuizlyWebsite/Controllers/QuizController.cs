@@ -1565,7 +1565,6 @@ namespace QuizlyWebsite.Controllers
 
         private async Task<int?> CreateCancelledExamResult(TbExamSession session, int userId)
         {
-            // Check if result already exists for this session
             var existingResult = await _context.TbExamResults
                 .FirstOrDefaultAsync(r => r.SessionId == session.Id);
 

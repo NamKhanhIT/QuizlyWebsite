@@ -16,7 +16,7 @@
             </a>
 
             <!-- Quản Lý Đề Thi -->
-            <a href="/admin/exams" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Exams" ? "bg-primary/10 border-l-4 border-primary" : "")">
+            <a asp-area="Admin" asp-controller="Exams" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Exams" ? "bg-primary/10 border-l-4 border-primary" : "")">
                 <span class="material-symbols-outlined">library_books</span>
                 <span class="font-medium">Quản Lý Đề Thi</span>
             </a>
@@ -28,19 +28,19 @@
             </a>
 
             <!-- Quản Lý Người Dùng -->
-            <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "bg-primary/10 border-l-4 border-primary" : "")">
+            <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "bg-primary/10 border-l-4 border-primary" : "")">
                 <span class="material-symbols-outlined">people</span>
                 <span class="font-medium">Quản Lý Người Dùng</span>
             </a>
 
             <!-- Thanh Toán -->
-            <a href="/admin/payments" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "bg-primary/10 border-l-4 border-primary" : "")">
+            <a asp-area="Admin" asp-controller="Payments" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Payments" ? "bg-primary/10 border-l-4 border-primary" : "")">
                 <span class="material-symbols-outlined">attach_money</span>
                 <span class="font-medium">Thanh Toán</span>
             </a>
 
             <!-- Quản Lý Liên Hệ -->
-            <a href="/admin/contacts" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contacts" ? "bg-primary/10 border-l-4 border-primary" : "")">
+            <a asp-area="Admin" asp-controller="Contacts" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contacts" ? "bg-primary/10 border-l-4 border-primary" : "")">
                 <span class="material-symbols-outlined">mail</span>
                 <span class="font-medium">Quản Lý Liên Hệ</span>
             </a>
@@ -52,7 +52,7 @@
             </a>
 
             <!-- Quản Lý Menu -->
-            <a href="/admin/menu" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Menu" ? "bg-primary/10 border-l-4 border-primary" : "")">
+            <a asp-area="Admin" asp-controller="Menu" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Menu" ? "bg-primary/10 border-l-4 border-primary" : "")">
                 <span class="material-symbols-outlined">menu</span>
                 <span class="font-medium">Quản Lý Menu</span>
             </a>

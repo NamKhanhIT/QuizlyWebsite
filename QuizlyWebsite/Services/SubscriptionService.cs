@@ -42,13 +42,11 @@ namespace QuizlyWebsite.Services
 
         public async Task<bool> CanAccessPremiumContentAsync(int userId)
         {
-            // Bất kỳ subscription active nào (Plus, Premium, VIP) đều được truy cập nội dung trả phí
             return await HasActiveSubscriptionAsync(userId);
         }
 
         public async Task<TbUserSubscription> CreateSubscriptionAsync(int userId, string planType, int daysValid, int? planId = null)
         {
-            // Check if user has an active subscription
             var existingSubscription = await GetActiveSubscriptionAsync(userId);
             
             if (existingSubscription != null && existingSubscription.EndDate > DateTime.UtcNow)

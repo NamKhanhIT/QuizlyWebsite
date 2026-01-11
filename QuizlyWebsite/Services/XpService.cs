@@ -15,7 +15,6 @@ namespace QuizlyWebsite.Services
         private readonly QuizlyDbContext _context;
         private readonly ILogger<XpService> _logger;
 
-        // XP thresholds for each level
         private const int Level1Max = 99;
         private const int Level2Max = 299;
         private const int Level3Max = 599;
@@ -34,7 +33,6 @@ namespace QuizlyWebsite.Services
 
                 if (userXp == null)
                 {
-                    // Create new XP record
                     userXp = new TbUserXp
                     {
                         UserId = userId,
@@ -45,7 +43,6 @@ namespace QuizlyWebsite.Services
                 }
                 else
                 {
-                    // Update existing XP
                     userXp.Xp = userXp.Xp + xpAmount;
                     userXp.Level = CalculateLevel(userXp.Xp ?? 0);
                 }
@@ -58,14 +55,12 @@ namespace QuizlyWebsite.Services
                 throw;
             }
         }
-
         public async Task<TbUserXp> GetUserXpAsync(int userId)
         {
             var userXp = await _context.TbUserXps.FindAsync(userId);
 
             if (userXp == null)
             {
-                // Return default if not found
                 return new TbUserXp
                 {
                     UserId = userId,
@@ -76,7 +71,6 @@ namespace QuizlyWebsite.Services
 
             return userXp;
         }
-
         public int CalculateLevel(int xp)
         {
             if (xp <= Level1Max)
@@ -88,7 +82,6 @@ namespace QuizlyWebsite.Services
             else
                 return 4 + ((xp - Level3Max) / 300); // Every 300 XP after level 3 = 1 level
         }
-
         public string GetLevelName(int level)
         {
             return level switch

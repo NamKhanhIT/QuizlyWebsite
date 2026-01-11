@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
 
@@ -22,117 +24,163 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return role == "Admin";
         }
 
-        // GET: /admin/categories
-        [Route("admin/categories")]
-        public async Task<IActionResult> Index(int page = 1)
+        // GET: Admin/Categories
+        public async Task<IActionResult> Index()
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var categories = await _context.TbCategories
-                .OrderByDescending(c => c.CreatedAt)
-                .Skip((page - 1) * 10)
-                .Take(10)
-                .ToListAsync();
-
-            var total = await _context.TbCategories.CountAsync();
-            ViewData["TotalPages"] = (total + 9) / 10;
-            ViewData["CurrentPage"] = page;
-
-            return View("~/Areas/Admin/Views/Home/Categories.cshtml", categories);
+            return View(await _context.TbCategories.OrderByDescending(c => c.CreatedAt).ToListAsync());
         }
 
-        // GET: /admin/category-form or /admin/category-form/{id}
-        [Route("admin/category-form")]
-        [Route("admin/category-form/{id}")]
-        public async Task<IActionResult> Form(int? id)
+        // GET: Admin/Categories/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (id.HasValue)
+            if (id == null)
             {
-                var category = await _context.TbCategories.FindAsync(id.Value);
-                if (category == null) return NotFound();
-                return View("~/Areas/Admin/Views/Home/CategoryForm.cshtml", category);
+                return NotFound();
             }
 
-            return View("~/Areas/Admin/Views/Home/CategoryForm.cshtml", new TbCategory());
+            var tbCategory = await _context.TbCategories
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbCategory == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbCategory);
         }
 
-        // POST: /admin/category-form or /admin/category-form/{id}
+        // GET: Admin/Categories/Create
+        public IActionResult Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            return View();
+        }
+
+        // POST: Admin/Categories/Create
         [HttpPost]
-        [Route("admin/category-form")]
-        [Route("admin/category-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string title)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Title,CreatedAt")] TbCategory tbCategory)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (string.IsNullOrWhiteSpace(title))
-                ModelState.AddModelError(nameof(title), "Tên danh mục không được để trống");
-
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                var model = id.HasValue ? await _context.TbCategories.FindAsync(id) : new TbCategory();
-                return View("~/Areas/Admin/Views/Home/CategoryForm.cshtml", model);
+                tbCategory.CreatedAt = DateTime.Now;
+                _context.Add(tbCategory);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Danh mục đã được tạo thành công";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(tbCategory);
+        }
+
+        // GET: Admin/Categories/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
             }
 
-            try
+            var tbCategory = await _context.TbCategories.FindAsync(id);
+            if (tbCategory == null)
             {
-                if (id.HasValue && id > 0)
-                {
-                    var category = await _context.TbCategories.FindAsync(id.Value);
-                    if (category == null) return NotFound();
-                    category.Title = title;
+                return NotFound();
+            }
+            return View(tbCategory);
+        }
 
-                    _context.TbCategories.Update(category);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Danh mục đã được cập nhật";
-                }
-                else
+        // POST: Admin/Categories/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,CreatedAt")] TbCategory tbCategory)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id != tbCategory.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    var category = new TbCategory
+                    _context.Update(tbCategory);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Danh mục đã được cập nhật thành công";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TbCategoryExists(tbCategory.Id))
                     {
-                        Title = title,
-                        CreatedAt = DateTime.Now
-                    };
-
-                    await _context.TbCategories.AddAsync(category);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Danh mục mới đã được tạo";
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Lỗi: " + ex.Message;
-                ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
-                var model = id.HasValue ? await _context.TbCategories.FindAsync(id) : new TbCategory();
-                return View("~/Areas/Admin/Views/Home/CategoryForm.cshtml", model);
-            }
+            return View(tbCategory);
         }
 
-        // POST: /admin/delete-category (used by AJAX)
-        [HttpPost]
-        [Route("admin/delete-category")]
-        public async Task<IActionResult> Delete([FromBody] DeleteRequest req)
+        // GET: Admin/Categories/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
             if (!IsAdmin())
-                return Json(new { success = false, message = "Không có quyền" });
+                return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (req == null) return Json(new { success = false, message = "Invalid request" });
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            var category = await _context.TbCategories.FindAsync(req.Id);
-            if (category == null) return Json(new { success = false, message = "Danh mục không tồn tại" });
+            var tbCategory = await _context.TbCategories
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbCategory == null)
+            {
+                return NotFound();
+            }
 
-            _context.TbCategories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = "Danh mục đã được xóa" });
+            return View(tbCategory);
         }
 
-        public class DeleteRequest { public int Id { get; set; } }
+        // POST: Admin/Categories/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            var tbCategory = await _context.TbCategories.FindAsync(id);
+            if (tbCategory != null)
+            {
+                _context.TbCategories.Remove(tbCategory);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Danh mục đã được xóa thành công";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TbCategoryExists(int id)
+        {
+            return _context.TbCategories.Any(e => e.Id == id);
+        }
     }
 }

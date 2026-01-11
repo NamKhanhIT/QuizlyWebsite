@@ -156,10 +156,7 @@
                         <span class="material-symbols-outlined text-xl">settings</span>
                         <span class="font-medium">Cài đặt</span>
                     </a>
-                    <a href="/contact/history" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
-                        <span class="material-symbols-outlined text-xl">mail</span>
-                        <span class="font-medium">Lịch sử liên hệ</span>
-                    </a>
+                    
                 </nav>
             </div>
         </aside>
@@ -789,7 +786,10 @@ D. Một database"
                                                     }
                                                     else if (exam.IsApproved == false && exam.RejectionReason != null)
                                                     {
-                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">❌ Bị từ chối</span>
+                                                        <span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 cursor-pointer"
+                                                              title="Lý do từ chối: @exam.RejectionReason"
+                                                              data-bs-toggle="tooltip"
+                                                              data-bs-placement="top">❌ Bị từ chối</span>
                                                     }
                                                     else
                                                     {
@@ -1926,6 +1926,12 @@ D. Một database"
             if (e.target === this) {
                 closeCancelSubscriptionModal();
             }
+        });
+
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
         // Close modal with Escape key

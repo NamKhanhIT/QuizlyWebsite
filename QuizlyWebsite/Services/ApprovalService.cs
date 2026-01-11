@@ -17,6 +17,7 @@ namespace QuizlyWebsite.Services
         
         Task ApproveExamAsync(int examId, int approvedBy);
         Task RejectExamAsync(int examId, int approvedBy, string reason);
+        Task DeleteExamAsync(int examId, int deletedBy, string reason);
     }
 
     public class ApprovalService : IApprovalService
@@ -131,6 +132,46 @@ namespace QuizlyWebsite.Services
 
             await _context.SaveChangesAsync();
             _logger.LogInformation($"Exam {examId} rejected by user {approvedBy}");
+        }
+
+        public async Task DeleteExamAsync(int examId, int deletedBy, string reason)
+        {
+            var exam = await _context.TbExams
+                .Include(e => e.TbQuestions)
+                .FirstOrDefaultAsync(e => e.Id == examId);
+
+            if (exam == null)
+                throw new Exception("Exam not found");
+
+            // Delete related questions and their results first
+            foreach (var question in exam.TbQuestions)
+            {
+                var resultDetails = await _context.TbExamResultDetails
+                    .Where(r => r.QuestionId == question.Id)
+                    .ToListAsync();
+                _context.TbExamResultDetails.RemoveRange(resultDetails);
+            }
+
+            // Delete questions
+            _context.TbQuestions.RemoveRange(exam.TbQuestions);
+
+            // Delete exam results
+            var examResults = await _context.TbExamResults
+                .Where(r => r.ExamId == examId)
+                .ToListAsync();
+            _context.TbExamResults.RemoveRange(examResults);
+
+            // Delete payments
+            var payments = await _context.TbPayments
+                .Where(p => p.ExamId == examId)
+                .ToListAsync();
+            _context.TbPayments.RemoveRange(payments);
+
+            // Delete the exam
+            _context.TbExams.Remove(exam);
+
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"Exam {examId} deleted by user {deletedBy} for reason: {reason}");
         }
     }
 }

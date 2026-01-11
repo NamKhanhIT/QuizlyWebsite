@@ -1,9 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using QuizlyWebsite.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using QuizlyWebsite.Models;
 
 namespace QuizlyWebsite.Areas.Admin.Controllers
 {
@@ -23,102 +24,176 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return role == "Admin";
         }
 
-        // GET: /admin/menu
-        [Route("admin/menu")]
+        // GET: Admin/Menu
         public async Task<IActionResult> Index()
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            // Lấy menu items từ database
-            var menuItems = await _context.TbMenus
-                .Where(m => m.Location == "Header" || m.Location == null)
-                .OrderBy(m => m.Order)
-                .ToListAsync();
-
-            // Nếu chưa có menu items, tạo mặc định
-            if (!menuItems.Any())
-            {
-                var defaultMenus = new List<TbMenu>
-                {
-                    new TbMenu { Title = "Trang chủ", Url = "/", Order = 1, Location = "Header", IsActive = true, CreatedAt = DateTime.Now },
-                    new TbMenu { Title = "Đề thi", Url = "/quiz/list", Order = 2, Location = "Header", IsActive = true, CreatedAt = DateTime.Now },
-                    new TbMenu { Title = "Khóa học", Url = "/courses", Order = 3, Location = "Header", IsActive = true, CreatedAt = DateTime.Now },
-                    new TbMenu { Title = "Gói trả phí", Url = "/subscription/pricing", Order = 4, Location = "Header", IsActive = true, CreatedAt = DateTime.Now },
-                    new TbMenu { Title = "Blogs/News", Url = "/blog", Order = 5, Location = "Header", IsActive = true, CreatedAt = DateTime.Now },
-                    new TbMenu { Title = "Bảng xếp hạng", Url = "/leaderboard", Order = 6, Location = "Header", IsActive = true, CreatedAt = DateTime.Now },
-                    new TbMenu { Title = "Liên hệ", Url = "/contact", Order = 7, Location = "Header", IsActive = true, CreatedAt = DateTime.Now }
-                };
-
-                await _context.TbMenus.AddRangeAsync(defaultMenus);
-                await _context.SaveChangesAsync();
-                menuItems = defaultMenus;
-            }
-
-            return View("~/Areas/Admin/Views/Home/Menu.cshtml", menuItems);
+            var quizlyDbContext = _context.TbMenus.Include(t => t.Parent);
+            return View(await quizlyDbContext.OrderBy(m => m.Order).ToListAsync());
         }
 
-        [HttpPost]
-        [Route("admin/menu")]
-        public async Task<IActionResult> UpdateMenu(IFormCollection form)
+        // GET: Admin/Menu/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            try
+            if (id == null)
             {
-                // Xóa tất cả menu items cũ
-                var oldMenus = await _context.TbMenus
-                    .Where(m => m.Location == "Header" || m.Location == null)
-                    .ToListAsync();
-                _context.TbMenus.RemoveRange(oldMenus);
+                return NotFound();
+            }
 
-                // Lấy dữ liệu từ form
-                var menuItems = new List<TbMenu>();
-                var index = 0;
+            var tbMenu = await _context.TbMenus
+                .Include(t => t.Parent)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbMenu == null)
+            {
+                return NotFound();
+            }
 
-                while (form.ContainsKey($"menuItems[{index}].Title"))
+            return View(tbMenu);
+        }
+
+        // GET: Admin/Menu/Create
+        public IActionResult Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            ViewData["ParentId"] = new SelectList(_context.TbMenus, "Id", "Title");
+            return View();
+        }
+
+        // POST: Admin/Menu/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Title,Url,ParentId,Order,Location,CreatedAt")] TbMenu tbMenu)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            // Xử lý checkbox
+            tbMenu.IsActive = Request.Form["IsActive"].ToString() == "true";
+
+            if (ModelState.IsValid)
+            {
+                tbMenu.CreatedAt = DateTime.Now;
+                _context.Add(tbMenu);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Menu đã được tạo thành công";
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ParentId"] = new SelectList(_context.TbMenus, "Id", "Title", tbMenu.ParentId);
+            return View(tbMenu);
+        }
+
+        // GET: Admin/Menu/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tbMenu = await _context.TbMenus.FindAsync(id);
+            if (tbMenu == null)
+            {
+                return NotFound();
+            }
+            ViewData["ParentId"] = new SelectList(_context.TbMenus.Where(m => m.Id != id), "Id", "Title", tbMenu.ParentId);
+            return View(tbMenu);
+        }
+
+        // POST: Admin/Menu/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Url,ParentId,Order,Location,CreatedAt")] TbMenu tbMenu)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id != tbMenu.Id)
+            {
+                return NotFound();
+            }
+
+            // Xử lý checkbox
+            tbMenu.IsActive = Request.Form["IsActive"].ToString() == "true";
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    var title = form[$"menuItems[{index}].Title"].ToString();
-                    var url = form[$"menuItems[{index}].Url"].ToString();
-                    var orderStr = form[$"menuItems[{index}].Order"].ToString();
-
-                    if (!string.IsNullOrWhiteSpace(title) && !string.IsNullOrWhiteSpace(url))
-                    {
-                        if (int.TryParse(orderStr, out int order))
-                        {
-                            menuItems.Add(new TbMenu
-                            {
-                                Title = title,
-                                Url = url,
-                                Order = order,
-                                Location = "Header",
-                                IsActive = true,
-                                CreatedAt = DateTime.Now
-                            });
-                        }
-                    }
-                    index++;
-                }
-
-                if (menuItems.Any())
-                {
-                    await _context.TbMenus.AddRangeAsync(menuItems);
+                    _context.Update(tbMenu);
                     await _context.SaveChangesAsync();
                     TempData["Success"] = "Menu đã được cập nhật thành công";
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    TempData["Error"] = "Vui lòng nhập ít nhất một menu item";
+                    if (!TbMenuExists(tbMenu.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["ParentId"] = new SelectList(_context.TbMenus.Where(m => m.Id != id), "Id", "Title", tbMenu.ParentId);
+            return View(tbMenu);
+        }
 
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
+        // GET: Admin/Menu/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
             {
-                TempData["Error"] = "Lỗi khi cập nhật menu: " + ex.Message;
-                return RedirectToAction("Index");
+                return NotFound();
             }
+
+            var tbMenu = await _context.TbMenus
+                .Include(t => t.Parent)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbMenu == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbMenu);
+        }
+
+        // POST: Admin/Menu/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            var tbMenu = await _context.TbMenus.FindAsync(id);
+            if (tbMenu != null)
+            {
+                _context.TbMenus.Remove(tbMenu);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Menu đã được xóa thành công";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TbMenuExists(int id)
+        {
+            return _context.TbMenus.Any(e => e.Id == id);
         }
     }
 }

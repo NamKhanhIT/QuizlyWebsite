@@ -147,10 +147,16 @@ namespace QuizlyWebsite.Controllers
 
             var plans = await _context.TbMembershipPlans.ToListAsync();
             ViewBag.Plans = plans;
+            // Get all approved courses
             var allCourses = await _context.TbCourses
                 .Where(c => c.IsApproved == true)
                 .Include(c => c.TbLessons)
-                    .ThenInclude(l => l.TbLessonProgresses.Where(p => p.UserId == userId))
+                .ToListAsync();
+
+            // Get all lesson progresses for this user
+            var userProgresses = await _context.TbLessonProgresses
+                .Where(p => p.UserId == userId)
+                .Include(p => p.Lesson)
                 .ToListAsync();
 
             var coursesWithProgress = new List<object>();
@@ -159,23 +165,30 @@ namespace QuizlyWebsite.Controllers
                 var courseLessons = course.TbLessons?.ToList() ?? new List<TbLesson>();
                 var nonPreviewLessons = courseLessons.Where(l => l.IsPreview != true).ToList();
                 
-                var hasProgress = nonPreviewLessons.Any(l => 
-                    l.TbLessonProgresses?.Any(p => p.UserId == userId) == true);
+                if (nonPreviewLessons.Count == 0)
+                    continue;
                 
-                if (!hasProgress && nonPreviewLessons.Count > 0)
+                // Check if user has any progress in this course
+                var courseProgresses = userProgresses
+                    .Where(p => nonPreviewLessons.Any(l => l.Id == p.LessonId))
+                    .ToList();
+                
+                // Only show courses where user has started learning (has any progress)
+                if (!courseProgresses.Any())
                     continue;
                 
                 var completedNonPreviewLessons = nonPreviewLessons
-                    .Count(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true);
+                    .Count(l => courseProgresses.Any(p => p.LessonId == l.Id && p.IsCompleted == true));
                 var totalNonPreviewLessons = nonPreviewLessons.Count;
                 var progressPercent = totalNonPreviewLessons > 0 ? (completedNonPreviewLessons * 100 / totalNonPreviewLessons) : 0;
+                
+                // Find current lesson (first incomplete lesson with progress)
                 var currentLesson = nonPreviewLessons.FirstOrDefault(l => 
-                    l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted != true) == true);
+                    courseProgresses.Any(p => p.LessonId == l.Id && p.IsCompleted != true));
                 
                 // Get the last completed lesson date
-                var lastCompletedDate = nonPreviewLessons
-                    .Where(l => l.TbLessonProgresses?.Any(p => p.UserId == userId && p.IsCompleted == true) == true)
-                    .SelectMany(l => l.TbLessonProgresses?.Where(p => p.UserId == userId && p.IsCompleted == true && p.CompletedAt.HasValue) ?? Enumerable.Empty<TbLessonProgress>())
+                var lastCompletedDate = courseProgresses
+                    .Where(p => p.IsCompleted == true && p.CompletedAt.HasValue)
                     .OrderByDescending(p => p.CompletedAt)
                     .FirstOrDefault()?.CompletedAt;
 

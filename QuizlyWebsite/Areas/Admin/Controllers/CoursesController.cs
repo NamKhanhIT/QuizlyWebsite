@@ -216,20 +216,12 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
 
         // GET: /admin/courses/{courseId}/lessons
         [Route("admin/courses/{courseId}/lessons")]
-        public async Task<IActionResult> Lessons(int courseId)
+        public IActionResult Lessons(int courseId)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var course = await _context.TbCourses
-                .Include(c => c.TbLessons)
-                .FirstOrDefaultAsync(c => c.Id == courseId);
-
-            if (course == null)
-                return NotFound();
-
-            ViewData["Course"] = course;
-            return View("~/Areas/Admin/Views/Home/Lessons.cshtml", course.TbLessons.OrderBy(l => l.Id).ToList());
+            return RedirectToAction("Index", "Lessons", new { area = "Admin", courseId = courseId });
         }
 
         // GET: /admin/lesson-form or /admin/lesson-form/{id}

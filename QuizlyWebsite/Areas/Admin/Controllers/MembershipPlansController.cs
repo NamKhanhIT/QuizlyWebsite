@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,104 +17,168 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: /admin/membership-plans
-        [Route("admin/membership-plans")]
-        public async Task<IActionResult> Index(int page = 1)
+        private bool IsAdmin()
         {
-            var plans = await _context.TbMembershipPlans
-                .OrderByDescending(p => p.Id)
-                .Skip((page - 1) * 10)
-                .Take(10)
-                .ToListAsync();
-
-            var total = await _context.TbMembershipPlans.CountAsync();
-            ViewData["TotalPages"] = (total + 9) / 10;
-            ViewData["CurrentPage"] = page;
-
-            return View("~/Areas/Admin/Views/Home/MembershipPlans.cshtml", plans);
+            var role = HttpContext.Session.GetString("Role");
+            return role == "Admin";
         }
 
-        // GET: /admin/membership-plan-form or /admin/membership-plan-form/{id}
-        [Route("admin/membership-plan-form")]
-        [Route("admin/membership-plan-form/{id}")]
-        public async Task<IActionResult> Form(int? id)
+        // GET: Admin/MembershipPlans
+        public async Task<IActionResult> Index()
         {
-            if (id.HasValue)
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            return View(await _context.TbMembershipPlans.OrderBy(m => m.Id).ToListAsync());
+        }
+
+        // GET: Admin/MembershipPlans/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
             {
-                var plan = await _context.TbMembershipPlans.FindAsync(id.Value);
-                if (plan == null) return NotFound();
-                return View("~/Areas/Admin/Views/Home/MembershipPlanForm.cshtml", plan);
+                return NotFound();
             }
 
-            return View("~/Areas/Admin/Views/Home/MembershipPlanForm.cshtml", new TbMembershipPlan());
+            var tbMembershipPlan = await _context.TbMembershipPlans
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbMembershipPlan == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbMembershipPlan);
         }
 
-        // POST: /admin/membership-plan-form or /admin/membership-plan-form/{id}
+        // GET: Admin/MembershipPlans/Create
+        public IActionResult Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            return View();
+        }
+
+        // POST: Admin/MembershipPlans/Create
         [HttpPost]
-        [Route("admin/membership-plan-form")]
-        [Route("admin/membership-plan-form/{id}")]
-        public async Task<IActionResult> FormPost(int? id, string title, decimal price, int durationDays)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("Id,Title,Price,DurationDays")] TbMembershipPlan tbMembershipPlan)
         {
-            if (!ModelState.IsValid)
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (ModelState.IsValid)
             {
-                var model = id.HasValue ? await _context.TbMembershipPlans.FindAsync(id) : new TbMembershipPlan();
-                return View("~/Areas/Admin/Views/Home/MembershipPlanForm.cshtml", model);
+                _context.Add(tbMembershipPlan);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Gói thành viên đã được tạo thành công";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(tbMembershipPlan);
+        }
+
+        // GET: Admin/MembershipPlans/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
             }
 
-            try
+            var tbMembershipPlan = await _context.TbMembershipPlans.FindAsync(id);
+            if (tbMembershipPlan == null)
             {
-                if (id.HasValue && id > 0)
-                {
-                    var plan = await _context.TbMembershipPlans.FindAsync(id.Value);
-                    if (plan == null) return NotFound();
-                    plan.Title = title;
-                    plan.Price = price;
-                    plan.DurationDays = durationDays;
+                return NotFound();
+            }
+            return View(tbMembershipPlan);
+        }
 
-                    _context.TbMembershipPlans.Update(plan);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Gói hội viên đã được cập nhật";
-                }
-                else
+        // POST: Admin/MembershipPlans/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Price,DurationDays")] TbMembershipPlan tbMembershipPlan)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id != tbMembershipPlan.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    var plan = new TbMembershipPlan
+                    _context.Update(tbMembershipPlan);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Gói thành viên đã được cập nhật thành công";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TbMembershipPlanExists(tbMembershipPlan.Id))
                     {
-                        Title = title,
-                        Price = price,
-                        DurationDays = durationDays
-                    };
-
-                    await _context.TbMembershipPlans.AddAsync(plan);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Gói hội viên mới đã được tạo";
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError(string.Empty, "Lỗi: " + ex.Message);
-                var model = id.HasValue ? await _context.TbMembershipPlans.FindAsync(id) : new TbMembershipPlan();
-                return View("~/Areas/Admin/Views/Home/MembershipPlanForm.cshtml", model);
-            }
+            return View(tbMembershipPlan);
         }
 
-        // POST: /admin/delete-membership-plan (used by AJAX)
-        [HttpPost]
-        [Route("admin/delete-membership-plan")]
-        public async Task<IActionResult> Delete([FromBody] DeleteRequest req)
+        // GET: Admin/MembershipPlans/Delete/5
+        public async Task<IActionResult> Delete(int? id)
         {
-            if (req == null) return Json(new { success = false, message = "Invalid request" });
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
 
-            var plan = await _context.TbMembershipPlans.FindAsync(req.Id);
-            if (plan == null) return Json(new { success = false, message = "Gói không tồn tại" });
+            if (id == null)
+            {
+                return NotFound();
+            }
 
-            _context.TbMembershipPlans.Remove(plan);
-            await _context.SaveChangesAsync();
+            var tbMembershipPlan = await _context.TbMembershipPlans
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbMembershipPlan == null)
+            {
+                return NotFound();
+            }
 
-            return Json(new { success = true });
+            return View(tbMembershipPlan);
         }
 
-        public class DeleteRequest { public int Id { get; set; } }
+        // POST: Admin/MembershipPlans/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            var tbMembershipPlan = await _context.TbMembershipPlans.FindAsync(id);
+            if (tbMembershipPlan != null)
+            {
+                _context.TbMembershipPlans.Remove(tbMembershipPlan);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Gói thành viên đã được xóa thành công";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool TbMembershipPlanExists(int id)
+        {
+            return _context.TbMembershipPlans.Any(e => e.Id == id);
+        }
     }
 }

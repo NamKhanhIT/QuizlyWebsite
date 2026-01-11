@@ -55,7 +55,6 @@ namespace QuizlyWebsite.Controllers
                 return View();
             }
 
-            // Validate email format
             if (!email.Contains("@") || !email.Contains("."))
             {
                 ModelState.AddModelError("email", "Email không hợp lệ");

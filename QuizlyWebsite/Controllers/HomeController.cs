@@ -17,7 +17,6 @@ namespace QuizlyWebsite.Controllers
 
         public IActionResult Index()
         {
-            // Lấy testimonials từ database - top 3 reviews có rating cao nhất
             var testimonials = _context.TbExamReviews
                 .Where(r => r.Rating >= 4 && !string.IsNullOrEmpty(r.Comment))
                 .OrderByDescending(r => r.Rating)

@@ -1,0 +1,52 @@
+@model QuizlyWebsite.Models.TbPayment
+
+@{
+    ViewData["Title"] = "Xóa Thanh Toán";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold text-danger">Xóa Thanh Toán</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-2xl">
+    <h3 class="text-xl font-semibold mb-4 text-[#0d141b] dark:text-slate-50">Bạn có chắc chắn muốn xóa thanh toán này?</h3>
+    
+    <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 mb-6">
+        <p class="text-sm text-yellow-800 dark:text-yellow-200">
+            <strong>Cảnh báo:</strong> Hành động này không thể hoàn tác.
+        </p>
+    </div>
+
+    <dl class="space-y-4 mb-6">
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">ID</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Id</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Người Dùng</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.User?.Email</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Số Tiền</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.Amount?.ToString("N0") ?? "0") @(Model.Currency ?? "VND")</dd>
+        </div>
+    </dl>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="flex gap-3">
+            <button type="submit" class="px-6 py-3 bg-danger text-white rounded-lg hover:bg-red-700 transition font-semibold">
+                Xác Nhận Xóa
+            </button>
+            <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>
+

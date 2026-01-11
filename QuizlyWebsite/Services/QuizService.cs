@@ -11,19 +11,12 @@ namespace QuizlyWebsite.Services
         {
             _context = context;
         }
-
-        /// <summary>
-        /// Tính điểm cho bài thi
-        /// </summary>
         public decimal CalculateScore(int correctAnswers, int totalQuestions)
         {
             if (totalQuestions == 0) return 0;
             return (decimal)correctAnswers / totalQuestions * 100;
         }
 
-        /// <summary>
-        /// Kiểm tra xem người dùng đã mua bộ đề này chưa
-        /// </summary>
         public async Task<bool> HasUserPurchased(int userId, int examId)
         {
             var purchase = await _context.TbUserPurchases
@@ -31,16 +24,11 @@ namespace QuizlyWebsite.Services
             
             if (purchase == null) return false;
             
-            // Kiểm tra xem đã hết hạn chưa
             if (purchase.ExpiredAt.HasValue && purchase.ExpiredAt < DateTime.Now)
                 return false;
             
             return true;
         }
-
-        /// <summary>
-        /// Cập nhật đánh giá bộ đề
-        /// </summary>
         public async Task UpdateExamRating(int examId)
         {
             var exam = await _context.TbExams.FindAsync(examId);
@@ -56,10 +44,6 @@ namespace QuizlyWebsite.Services
                 await _context.SaveChangesAsync();
             }
         }
-
-        /// <summary>
-        /// Lấy thống kê của người dùng
-        /// </summary>
         public async Task<Dictionary<string, object>> GetUserStatistics(int userId)
         {
             var results = await _context.TbExamResults

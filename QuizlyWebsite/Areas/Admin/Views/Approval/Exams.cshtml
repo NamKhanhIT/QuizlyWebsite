@@ -1,93 +1,349 @@
 @model List<QuizlyWebsite.Models.TbExam>
+
 @{
-    ViewData["Title"] = "Approve Exams";
+    ViewData["Title"] = "Duyệt Đề Thi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2>Pending Exams Review</h2>
-            <a href="@Url.Action("Index")" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-primary/5 to-primary/10 dark:from-primary/10 dark:to-primary/20 rounded-2xl p-8 mb-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="p-3 bg-primary/10 rounded-xl">
+                <span class="material-symbols-outlined text-3xl text-primary">assignment_turned_in</span>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-1">Duyệt Đề Thi</h1>
+                <p class="text-gray-600 dark:text-gray-400">Quản lý và phê duyệt các đề thi từ người dùng</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Đang chờ duyệt:</span>
+                <span class="text-lg font-bold text-primary ml-1">@Model.Count</span>
+            </div>
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index"
+               class="px-6 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                <span class="material-symbols-outlined">arrow_back</span>
+                Dashboard
             </a>
         </div>
     </div>
+</div>
 
-    @if (Model.Count == 0)
-    {
-        <div class="alert alert-info text-center py-5">
-            <i class="fas fa-check-circle fa-3x mb-3"></i>
-            <h4>No Pending Exams</h4>
-            <p>All exams have been reviewed!</p>
+<!-- Alert Messages -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-6 animate-fade-in">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-green-600">check_circle</span>
+            <p class="font-semibold text-green-800 dark:text-green-200">@TempData["SuccessMessage"]</p>
         </div>
-    }
-    else
-    {
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>Title</th>
-                    <th>Subject</th>
-                    <th>Questions</th>
-                    <th>Duration</th>
-                    <th>Submitted</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var exam in Model)
-                {
-                    <tr>
-                        <td>
-                            <strong>@exam.Title</strong>
-                            <br />
-                            <small class="text-muted">@exam.Difficulty difficulty</small>
-                        </td>
-                        <td>@exam.Subject?.Title</td>
-                        <td>@exam.QuestionCount</td>
-                        <td>@exam.Duration mins</td>
-                        <td>@exam.CreatedAt?.ToString("dd MMM yyyy HH:mm")</td>
-                        <td>
-                            <div class="btn-group" role="group">
-                                <form method="post" action="@Url.Action("ApproveExam")" style="display:inline;">
-                                    <input type="hidden" name="id" value="@exam.Id" />
-                                    <button type="submit" class="btn btn-sm btn-success">
-                                        <i class="fas fa-check"></i> Approve
-                                    </button>
-                                </form>
-                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal@exam.Id">
-                                    <i class="fas fa-times"></i> Reject
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+    </div>
+}
 
-                    <!-- Reject Modal -->
-                    <div class="modal fade" id="rejectModal@exam.Id" tabindex="-1">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Reject Exam</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <form method="post" action="@Url.Action("RejectExam")">
-                                    <input type="hidden" name="id" value="@exam.Id" />
-                                    <div class="modal-body">
-                                        <div class="mb-3">
-                                            <label for="reason" class="form-label">Rejection Reason *</label>
-                                            <textarea class="form-control" name="reason" rows="4" required></textarea>
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6 animate-fade-in">
+        <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-red-600">error</span>
+            <p class="font-semibold text-red-800 dark:text-red-200">@TempData["ErrorMessage"]</p>
+        </div>
+    </div>
+}
+
+@if (Model.Count == 0)
+{
+    <!-- Empty State -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-16 text-center">
+        <div class="max-w-md mx-auto">
+            <div class="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="material-symbols-outlined text-5xl text-green-600 dark:text-green-400">check_circle</span>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-3">Tất cả đề thi đã được duyệt!</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Hiện tại không có đề thi nào đang chờ phê duyệt.</p>
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index"
+               class="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-xl hover:bg-primary-dark transition font-semibold">
+                <span class="material-symbols-outlined">dashboard</span>
+                Quay lại Dashboard
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Exams Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+        <!-- Table Header -->
+        <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Danh sách đề thi chờ duyệt</h2>
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Tổng: @Model.Count đề thi
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Content -->
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-gray-700/50">
+                    <tr>
+                        <th class="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">ID</th>
+                        <th class="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Thông tin đề thi</th>
+                        <th class="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Môn học</th>
+                        <th class="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Cấu trúc</th>
+                        <th class="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Ngày tạo</th>
+                        <th class="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @foreach (var exam in Model)
+                    {
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <!-- ID Column -->
+                            <td class="px-8 py-6">
+                                <div class="text-sm font-mono font-semibold text-gray-900 dark:text-white">#@exam.Id</div>
+                            </td>
+
+                            <!-- Exam Info Column -->
+                            <td class="px-8 py-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <span class="material-symbols-outlined text-primary">description</span>
+                                    </div>
+                                    <div class="min-w-0 flex-1">
+                                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white truncate">@exam.Title</h4>
+                                        <div class="flex items-center gap-4 mt-1">
+                                            <span class="inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                                                <span class="material-symbols-outlined text-xs">school</span>
+                                                @exam.Difficulty
+                                            </span>
                                         </div>
                                     </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        <button type="submit" class="btn btn-danger">Reject</button>
+                                </div>
+                            </td>
+
+                            <!-- Subject Column -->
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-sm text-blue-600 dark:text-blue-400">subject</span>
                                     </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                                    <span class="text-sm font-medium text-gray-900 dark:text-white">@exam.Subject?.Title</span>
+                                </div>
+                            </td>
+
+                            <!-- Structure Column -->
+                            <td class="px-8 py-6">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <span class="material-symbols-outlined text-sm">quiz</span>
+                                        <span>@exam.QuestionCount câu hỏi</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                        <span class="material-symbols-outlined text-sm">schedule</span>
+                                        <span>@exam.Duration phút</span>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Date Column -->
+                            <td class="px-8 py-6">
+                                <div class="text-sm text-gray-900 dark:text-white">@exam.CreatedAt?.ToString("dd/MM/yyyy")</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">@exam.CreatedAt?.ToString("HH:mm")</div>
+                            </td>
+
+                            <!-- Actions Column -->
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-2">
+                                    <!-- Approve Button -->
+                                    <form method="post" action="@Url.Action("ApproveExam")" class="inline">
+                                        <input type="hidden" name="id" value="@exam.Id" />
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-2 px-3 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition font-medium text-sm"
+                                                title="Duyệt đề thi">
+                                            <span class="material-symbols-outlined text-sm">check_circle</span>
+                                            <span class="hidden sm:inline">Duyệt</span>
+                                        </button>
+                                    </form>
+
+                                    <!-- Reject Button -->
+                                    <button type="button"
+                                            class="inline-flex items-center gap-2 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition font-medium text-sm"
+                                            onclick="showRejectReason(@exam.Id, '@exam.Title')"
+                                            title="Từ chối đề thi">
+                                        <span class="material-symbols-outlined text-sm">cancel</span>
+                                        <span class="hidden sm:inline">Từ chối</span>
+                                    </button>
+
+                                    <!-- View Details -->
+                                    <a asp-controller="Exams"
+                                       asp-action="Details"
+                                       asp-route-id="@exam.Id"
+                                       class="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition font-medium text-sm"
+                                       title="Xem chi tiết">
+                                        <span class="material-symbols-outlined text-sm">visibility</span>
+                                        <span class="hidden sm:inline">Chi tiết</span>
+                                    </a>
+
+                                    <!-- Delete Button -->
+                                    <button type="button"
+                                            class="inline-flex items-center gap-2 px-3 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition font-medium text-sm"
+                                            onclick="showDeleteReason(@exam.Id, '@exam.Title')"
+                                            title="Xóa đề thi">
+                                        <span class="material-symbols-outlined text-sm">delete</span>
+                                        <span class="hidden sm:inline">Xóa</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Hidden Forms for Reject and Delete -->
+                        <form method="post" action="@Url.Action("RejectExam")" id="rejectForm@exam.Id" style="display: none;">
+                            <input type="hidden" name="id" value="@exam.Id" />
+                            <input type="hidden" name="reason" id="rejectReason@exam.Id" />
+                        </form>
+                        <form method="post" action="@Url.Action("DeleteExam")" id="deleteForm@exam.Id" style="display: none;">
+                            <input type="hidden" name="id" value="@exam.Id" />
+                            <input type="hidden" name="reason" id="deleteReason@exam.Id" />
+                        </form>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <style>
+        <text>
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom scrollbar for table */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Dark mode scrollbar */
+        .dark .overflow-x-auto::-webkit-scrollbar-track {
+            background: #374151;
+        }
+
+        .dark .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #6b7280;
+        }
+
+        .dark .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Modal backdrop blur */
+        .modal-backdrop {
+            backdrop-filter: blur(4px);
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .modal-dialog {
+                margin: 1rem;
+            }
+
+            .px-8 {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            .py-6 {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+        }
+        </text>
+    </style>
+
+    <script>
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                var alerts = document.querySelectorAll('.animate-fade-in');
+                alerts.forEach(function(alert) {
+                    alert.style.transition = 'opacity 0.5s ease-out';
+                    alert.style.opacity = '0';
+                    setTimeout(function() {
+                        alert.remove();
+                    }, 500);
+                });
+            }, 5000);
+
+            // Add loading state to forms
+            document.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    var submitButton = form.querySelector('button[type="submit"]');
+                    if (submitButton && !submitButton.disabled) {
+                        submitButton.disabled = true;
+                        var originalHtml = submitButton.innerHTML;
+                        submitButton.innerHTML = '<span class="material-symbols-outlined text-sm mr-2 animate-spin">refresh</span>Đang xử lý...';
+                        // Store original HTML for potential restoration
+                        submitButton.setAttribute('data-original-html', originalHtml);
+                    }
+                });
+            });
+        });
+
+        // Function to show reject reason dialog
+        function showRejectReason(examId, examTitle) {
+            var reason = prompt('Vui lòng nhập lý do từ chối đề thi "' + examTitle + '":');
+            if (reason !== null && reason.trim() !== '') {
+                document.getElementById('rejectReason' + examId).value = reason.trim();
+                document.getElementById('rejectForm' + examId).submit();
+            }
+        }
+
+        // Function to show delete reason dialog
+        function showDeleteReason(examId, examTitle) {
+            var reason = prompt('Vui lòng nhập lý do xóa đề thi "' + examTitle + '":\n\nLưu ý: Hành động này không thể hoàn tác!');
+            if (reason !== null && reason.trim() !== '') {
+                if (confirm('Bạn có chắc chắn muốn xóa đề thi "' + examTitle + '"?\n\nTất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn.')) {
+                    document.getElementById('deleteReason' + examId).value = reason.trim();
+                    document.getElementById('deleteForm' + examId).submit();
                 }
-            </tbody>
-        </table>
-    }
-</div>
+            }
+        }
+    </script>
+}

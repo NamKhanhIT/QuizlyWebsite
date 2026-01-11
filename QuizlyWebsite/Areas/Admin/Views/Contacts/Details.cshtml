@@ -1,0 +1,82 @@
+@model QuizlyWebsite.Models.TbContact
+
+@{
+    ViewData["Title"] = "Chi Tiết Liên Hệ";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Liên Hệ</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-3xl space-y-6">
+    <dl class="space-y-4">
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Họ Tên</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Name</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Email</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Email</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Số Điện Thoại</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.Phone ?? "N/A")</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Chủ Đề</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Subject</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Tin Nhắn</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50 whitespace-pre-wrap">@Model.Message</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Ngày Gửi</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</dd>
+        </div>
+        @if (Model.Response != null)
+        {
+            <div>
+                <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Phản Hồi</dt>
+                <dd class="text-lg text-[#0d141b] dark:text-slate-50 whitespace-pre-wrap">@Model.Response</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Ngày Phản Hồi</dt>
+                <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.RespondedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</dd>
+            </div>
+        }
+    </dl>
+
+    <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+        <form asp-action="SendResponse" method="post" class="space-y-4">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <div>
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">Phản Hồi</label>
+                <textarea name="response" rows="4" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">@Model.Response</textarea>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                    Gửi Phản Hồi
+                </button>
+                <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                    Quay Lại
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="flex gap-3 pt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+            Chỉnh Sửa
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="px-6 py-3 bg-danger text-white rounded-lg hover:bg-red-700 transition font-semibold">
+            Xóa
+        </a>
+    </div>
+</div>
+

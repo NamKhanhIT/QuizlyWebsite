@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuizlyWebsite.Models;
@@ -20,67 +23,179 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return role == "Admin";
         }
 
-        // GET: /admin/contacts
-        [Route("admin/contacts")]
-        public async Task<IActionResult> Index(int page = 1, string filter = "all")
+        // GET: Admin/Contacts
+        public async Task<IActionResult> Index(string filter = "all")
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
             var query = _context.TbContacts.AsQueryable();
 
-            // Filter by read status
             if (filter == "unread")
-            {
                 query = query.Where(c => c.IsRead != true);
-            }
             else if (filter == "read")
-            {
                 query = query.Where(c => c.IsRead == true);
-            }
 
-            var total = await query.CountAsync();
-            var contacts = await query
-                .OrderByDescending(c => c.CreatedAt)
-                .Skip((page - 1) * 10)
-                .Take(10)
-                .ToListAsync();
-
-            ViewData["TotalPages"] = (total + 9) / 10;
-            ViewData["CurrentPage"] = page;
             ViewData["Filter"] = filter;
-            ViewData["Total"] = total;
-            ViewData["UnreadCount"] = await _context.TbContacts.CountAsync(c => c.IsRead != true);
-
-            return View("~/Areas/Admin/Views/Home/Contacts.cshtml", contacts);
+            return View(await query.OrderByDescending(c => c.CreatedAt).ToListAsync());
         }
 
-        // GET: /admin/contact-detail/{id}
-        [Route("admin/contact-detail/{id}")]
-        public async Task<IActionResult> Detail(int id)
+        // GET: Admin/Contacts/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var contact = await _context.TbContacts.FindAsync(id);
-            if (contact == null)
-                return NotFound();
-
-            // Mark as read if not read yet
-            if (contact.IsRead != true)
+            if (id == null)
             {
-                contact.IsRead = true;
-                contact.ReadAt = DateTime.UtcNow;
+                return NotFound();
+            }
+
+            var tbContact = await _context.TbContacts
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbContact == null)
+            {
+                return NotFound();
+            }
+
+            // Mark as read when viewing
+            if (tbContact.IsRead != true)
+            {
+                tbContact.IsRead = true;
+                tbContact.ReadAt = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
 
-            return View("~/Areas/Admin/Views/Home/ContactDetail.cshtml", contact);
+            return View(tbContact);
         }
 
-        // POST: /admin/contact-response/{id}
+        // GET: Admin/Contacts/Create
+        public IActionResult Create()
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            return View();
+        }
+
+        // POST: Admin/Contacts/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Route("admin/contact-response/{id}")]
+        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,Subject,Message,CreatedAt,IsRead,ReadAt,Response,RespondedAt")] TbContact tbContact)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (ModelState.IsValid)
+            {
+                tbContact.CreatedAt = DateTime.Now;
+                _context.Add(tbContact);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Liên hệ đã được tạo thành công";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(tbContact);
+        }
+
+        // GET: Admin/Contacts/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tbContact = await _context.TbContacts.FindAsync(id);
+            if (tbContact == null)
+            {
+                return NotFound();
+            }
+            return View(tbContact);
+        }
+
+        // POST: Admin/Contacts/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,Subject,Message,CreatedAt,IsRead,ReadAt,Response,RespondedAt")] TbContact tbContact)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id != tbContact.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(tbContact);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Liên hệ đã được cập nhật thành công";
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!TbContactExists(tbContact.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(tbContact);
+        }
+
+        // GET: Admin/Contacts/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var tbContact = await _context.TbContacts
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (tbContact == null)
+            {
+                return NotFound();
+            }
+
+            return View(tbContact);
+        }
+
+        // POST: Admin/Contacts/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            if (!IsAdmin())
+                return RedirectToAction("Index", "Home", new { area = "" });
+
+            var tbContact = await _context.TbContacts.FindAsync(id);
+            if (tbContact != null)
+            {
+                _context.TbContacts.Remove(tbContact);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Liên hệ đã được xóa thành công";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/Contacts/SendResponse/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SendResponse(int id, string response)
         {
             if (!IsAdmin())
@@ -88,69 +203,25 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
 
             var contact = await _context.TbContacts.FindAsync(id);
             if (contact == null)
+            {
                 return NotFound();
-
-            if (!string.IsNullOrWhiteSpace(response))
-            {
-                contact.Response = response.Trim();
-                contact.RespondedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã lưu phản hồi thành công";
-            }
-            else
-            {
-                TempData["Error"] = "Vui lòng nhập nội dung phản hồi";
             }
 
-            return RedirectToAction("Detail", new { id });
-        }
-
-        // POST: /admin/contact-mark-read/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("admin/contact-mark-read/{id}")]
-        public async Task<IActionResult> MarkAsRead(int id)
-        {
-            if (!IsAdmin())
-                return Json(new { success = false, message = "Unauthorized" });
-
-            var contact = await _context.TbContacts.FindAsync(id);
-            if (contact == null)
-                return Json(new { success = false, message = "Not found" });
-
+            contact.Response = response;
+            contact.RespondedAt = DateTime.Now;
             contact.IsRead = true;
-            contact.ReadAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            if (contact.ReadAt == null)
+                contact.ReadAt = DateTime.Now;
 
-            return Json(new { success = true, message = "Đã đánh dấu đã đọc" });
+            await _context.SaveChangesAsync();
+            TempData["Success"] = "Phản hồi đã được gửi thành công";
+
+            return RedirectToAction(nameof(Details), new { id });
         }
 
-        // POST: /admin/contact-delete/{id}
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("admin/contact-delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        private bool TbContactExists(int id)
         {
-            if (!IsAdmin())
-                return RedirectToAction("Index", "Home", new { area = "" });
-
-            var contact = await _context.TbContacts.FindAsync(id);
-            if (contact == null)
-                return NotFound();
-
-            try
-            {
-                _context.TbContacts.Remove(contact);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Đã xóa liên hệ thành công";
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = $"Lỗi khi xóa: {ex.Message}";
-            }
-
-            return RedirectToAction("Index");
+            return _context.TbContacts.Any(e => e.Id == id);
         }
     }
 }
-

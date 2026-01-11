@@ -1,0 +1,119 @@
+@model QuizlyWebsite.Models.TbMenu
+
+@{
+    ViewData["Title"] = "Chi Tiết Menu";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Menu</h2>
+</div>
+
+<!-- Menu Status Header -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 mb-8">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                <span class="material-symbols-outlined text-white text-2xl">menu</span>
+            </div>
+            <div>
+                <h3 class="text-2xl font-bold text-[#0d141b] dark:text-slate-50">@Model.Title</h3>
+                <p class="text-gray-600 dark:text-gray-400">@Model.Url</p>
+            </div>
+        </div>
+        <div class="text-right">
+            <span class="text-lg font-semibold px-4 py-2 rounded-full @(Model.IsActive == true ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200")">
+                @(Model.IsActive == true ? "Hoạt động" : "Không hoạt động")
+            </span>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                Thứ tự: @(Model.Order ?? 0)
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Chi tiết menu -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h4 class="text-lg font-semibold mb-4 text-[#0d141b] dark:text-slate-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">link</span>
+            Thông Tin Liên Kết
+        </h4>
+        <dl class="space-y-3">
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Tiêu Đề</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50">@Model.Title</dd>
+            </div>
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">URL</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50 break-all">@Model.Url</dd>
+            </div>
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Vị Trí</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50">@(Model.Location ?? "N/A")</dd>
+            </div>
+        </dl>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+        <h4 class="text-lg font-semibold mb-4 text-[#0d141b] dark:text-slate-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary">account_tree</span>
+            Cấu Trúc Menu
+        </h4>
+        <dl class="space-y-3">
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Menu Cha</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50">@(Model.Parent?.Title ?? "Menu gốc")</dd>
+            </div>
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Thứ Tự</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50 font-semibold">@(Model.Order ?? 0)</dd>
+            </div>
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Trạng Thái</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50">
+                    <span class="text-xs font-semibold px-2 py-1 rounded @(Model.IsActive == true ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200")">
+                        @(Model.IsActive == true ? "Hoạt động" : "Không hoạt động")
+                    </span>
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Thông tin hệ thống -->
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+    <h4 class="text-lg font-semibold mb-4 text-[#0d141b] dark:text-slate-50 flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">info</span>
+        Thông Tin Hệ Thống
+    </h4>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <dl class="space-y-3">
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">ID Menu</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50 font-mono">@Model.Id</dd>
+            </div>
+            <div class="flex justify-between items-center">
+                <dt class="text-sm font-medium text-gray-600 dark:text-gray-400">Ngày Tạo</dt>
+                <dd class="text-sm text-[#0d141b] dark:text-slate-50">@(Model.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Action buttons -->
+<div class="flex gap-3 mt-8 justify-center">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+        <span class="material-symbols-outlined text-sm mr-1">edit</span>
+        Chỉnh Sửa
+    </a>
+    <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+        <span class="material-symbols-outlined text-sm mr-1">arrow_back</span>
+        Quay Lại
+    </a>
+</div>
+

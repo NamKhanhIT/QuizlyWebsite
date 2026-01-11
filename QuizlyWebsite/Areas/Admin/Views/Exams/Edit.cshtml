@@ -1,0 +1,216 @@
+@model QuizlyWebsite.Models.TbExam
+
+@{
+    ViewData["Title"] = "Chỉnh Sửa Đề Thi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chỉnh Sửa Đề Thi</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-3xl">
+    <form asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <input type="hidden" asp-for="CreatedBy" />
+        
+        <div class="mb-6">
+            <!-- Category Section -->
+            <div id="category-select-block" class="mb-6">
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Danh Mục
+                </label>
+                <select id="CategoryId" name="CategoryId" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" asp-items="ViewBag.CategoryId"></select>
+                <div class="mt-2 text-sm">
+                    <button type="button" id="show-add-category" class="text-primary hover:underline font-medium">+ Tạo danh mục mới</button>
+                </div>
+            </div>
+
+            <div id="category-input-block" class="mb-6 hidden">
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Danh Mục Mới
+                </label>
+                <input type="text" name="NewCategoryName" placeholder="Nhập tên danh mục mới" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+                <div class="mt-2 text-sm">
+                    <button type="button" id="cancel-add-category" class="text-gray-600 dark:text-gray-400 hover:underline">Hủy</button>
+                </div>
+            </div>
+
+            <!-- Subject Section -->
+            <div id="subject-select-block" class="mb-6">
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Môn Học
+                </label>
+                <select asp-for="SubjectId" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" asp-items="ViewBag.SubjectId"></select>
+                <span asp-validation-for="SubjectId" class="text-danger text-sm"></span>
+                <div class="mt-2 text-sm">
+                    <button type="button" id="show-add-subject" class="text-primary hover:underline font-medium">+ Tạo môn học mới</button>
+                </div>
+            </div>
+
+            <div id="subject-input-block" class="mb-6 hidden">
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Môn Học Mới
+                </label>
+                <input type="text" name="NewSubjectName" placeholder="Nhập tên môn học mới" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition mb-3" />
+                <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Chọn Danh Mục
+                </label>
+                <select name="NewSubjectCategoryId" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" asp-items="ViewBag.CategoryId"></select>
+                <div class="mt-2 text-sm">
+                    <button type="button" id="cancel-add-subject" class="text-gray-600 dark:text-gray-400 hover:underline">Hủy</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="Title" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Tiêu Đề
+            </label>
+            <input asp-for="Title" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+            <span asp-validation-for="Title" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <label asp-for="Difficulty" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Độ Khó
+                </label>
+                <select asp-for="Difficulty" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+                    <option value="">-- Chọn độ khó --</option>
+                    <option value="Dễ">Dễ</option>
+                    <option value="Trung Bình">Trung Bình</option>
+                    <option value="Khó">Khó</option>
+                </select>
+                <span asp-validation-for="Difficulty" class="text-danger text-sm"></span>
+            </div>
+            <div>
+                <label asp-for="Duration" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Thời Gian (Phút)
+                </label>
+                <input asp-for="Duration" type="number" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+                <span asp-validation-for="Duration" class="text-danger text-sm"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div>
+                <label asp-for="QuestionCount" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Số Câu Hỏi
+                </label>
+                <input asp-for="QuestionCount" type="number" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+                <span asp-validation-for="QuestionCount" class="text-danger text-sm"></span>
+            </div>
+            <div>
+                <label asp-for="Price" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                    Giá (VND)
+                </label>
+                <input asp-for="Price" type="number" step="0.01" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+                <span asp-validation-for="Price" class="text-danger text-sm"></span>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label asp-for="ImageUrl" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                URL Hình Ảnh
+            </label>
+            <input asp-for="ImageUrl" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
+            <span asp-validation-for="ImageUrl" class="text-danger text-sm"></span>
+        </div>
+
+        <div class="mb-6">
+            <label class="flex items-center gap-2">
+                <input type="checkbox" name="IsApproved" value="true" @(Model.IsApproved == true ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary" />
+                <span class="text-sm font-semibold text-[#0d141b] dark:text-slate-50">Đã duyệt</span>
+            </label>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-3">Loại đề thi</label>
+            <div class="space-y-3">
+                <div class="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                    <input type="radio" name="examType" value="free" @((!Model.IsPremium.HasValue || Model.IsPremium == false) && (!Model.IsPaid.HasValue || Model.IsPaid == false) ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
+                    <div>
+                        <div class="font-semibold text-[#0d141b] dark:text-slate-50">Đề thi miễn phí</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Người dùng có thể làm đề thi này miễn phí</div>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                    <input type="radio" name="examType" value="membership" @(Model.IsPremium == true ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
+                    <div>
+                        <div class="font-semibold text-[#0d141b] dark:text-slate-50">Đề thi thành viên</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Yêu cầu đăng ký gói thành viên để truy cập</div>
+                    </div>
+                </div>
+                <div class="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+                    <input type="radio" name="examType" value="paid" @(Model.IsPaid == true ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
+                    <div>
+                        <div class="font-semibold text-[#0d141b] dark:text-slate-50">Đề thi trả phí</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Người dùng có thể mua lẻ đề thi này</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3">
+            <button type="submit" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+                Cập Nhật
+            </button>
+            <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                Hủy
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function(){
+            var showCatBtn = document.getElementById('show-add-category');
+            var cancelCatBtn = document.getElementById('cancel-add-category');
+            var catSelectBlock = document.getElementById('category-select-block');
+            var catInputBlock = document.getElementById('category-input-block');
+            
+            var showSubBtn = document.getElementById('show-add-subject');
+            var cancelSubBtn = document.getElementById('cancel-add-subject');
+            var subSelectBlock = document.getElementById('subject-select-block');
+            var subInputBlock = document.getElementById('subject-input-block');
+            
+            if (showCatBtn && catSelectBlock && catInputBlock) {
+                showCatBtn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    catSelectBlock.classList.add('hidden');
+                    catInputBlock.classList.remove('hidden');
+                });
+                cancelCatBtn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    catSelectBlock.classList.remove('hidden');
+                    catInputBlock.classList.add('hidden');
+                    document.querySelector('input[name="NewCategoryName"]').value = '';
+                });
+            }
+            
+            if (showSubBtn && subSelectBlock && subInputBlock) {
+                showSubBtn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    subSelectBlock.classList.add('hidden');
+                    subInputBlock.classList.remove('hidden');
+                });
+                cancelSubBtn.addEventListener('click', function(e){
+                    e.preventDefault();
+                    subSelectBlock.classList.remove('hidden');
+                    subInputBlock.classList.add('hidden');
+                    document.querySelector('input[name="NewSubjectName"]').value = '';
+                });
+            }
+        })();
+    </script>
+}
+

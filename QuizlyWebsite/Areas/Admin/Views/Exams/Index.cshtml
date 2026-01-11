@@ -1,0 +1,132 @@
+@model IEnumerable<QuizlyWebsite.Models.TbExam>
+
+@{
+    ViewData["Title"] = "Quản Lý Đề Thi";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var filter = ViewData["Filter"] as string ?? "all";
+    var pendingCount = ViewData["PendingCount"] as int? ?? 0;
+}
+
+<div class="flex justify-between items-center mb-8">
+    <div>
+        <h2 class="text-3xl font-bold">Quản Lý Đề Thi</h2>
+        @if (pendingCount > 0)
+        {
+            <p class="text-danger mt-2">Có @pendingCount đề thi đang chờ duyệt</p>
+        }
+    </div>
+    <a asp-action="Create" class="px-6 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition flex items-center gap-2">
+        <span class="material-symbols-outlined">add_circle</span>
+        Thêm Đề Thi
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+
+<div class="flex gap-3 mb-6">
+    <a asp-action="Index" asp-route-filter="all" 
+       class="px-4 py-2 rounded-lg font-semibold transition @(filter == "all" ? "bg-primary text-white" : "bg-gray-100 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 hover:bg-gray-200 dark:hover:bg-gray-600")">
+        Tất Cả
+    </a>
+    <a asp-area="Admin" asp-controller="Approval" asp-action="Exams"
+       class="px-4 py-2 rounded-lg font-semibold transition bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-800">
+        Chờ Duyệt (@pendingCount) →
+    </a>
+    <a asp-action="Index" asp-route-filter="approved" 
+       class="px-4 py-2 rounded-lg font-semibold transition @(filter == "approved" ? "bg-primary text-white" : "bg-gray-100 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 hover:bg-gray-200 dark:hover:bg-gray-600")">
+        Đã Duyệt
+    </a>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">ID</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Tiêu Đề</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Môn Học</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Loại</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Câu Hỏi</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Độ Khó</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Thời Gian</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Giá</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Trạng Thái</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Ngày Tạo</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                        <td class="px-4 py-3 font-semibold text-[#0d141b] dark:text-slate-50">@item.Id</td>
+                        <td class="px-4 py-3 font-semibold text-[#0d141b] dark:text-slate-50 max-w-xs truncate" title="@item.Title">@item.Title</td>
+                        <td class="px-4 py-3 text-[#4c739a] dark:text-slate-400">@item.Subject?.Title</td>
+                        <td class="px-4 py-3">
+                            @if (item.IsPremium == true)
+                            {
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">Thành viên</span>
+                            }
+                            else if (item.IsPaid == true)
+                            {
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Trả phí</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Miễn phí</span>
+                            }
+                        </td>
+                        <td class="px-4 py-3 text-center text-[#4c739a] dark:text-slate-400">@(item.QuestionCount ?? 0)</td>
+                        <td class="px-4 py-3 text-[#4c739a] dark:text-slate-400">@(item.Difficulty ?? "N/A")</td>
+                        <td class="px-4 py-3 text-center text-[#4c739a] dark:text-slate-400">@item.Duration phút</td>
+                        <td class="px-4 py-3 text-[#4c739a] dark:text-slate-400">
+                            @(item.IsPaid == true ? (item.Price?.ToString("N0") + "₫") : "Miễn phí")
+                        </td>
+                        <td class="px-4 py-3">
+                            @if (item.IsApproved == true)
+                            {
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-success/20 text-success">Đã duyệt</span>
+                            }
+                            else
+                            {
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full bg-warning/20 text-warning">Chờ duyệt</span>
+                            }
+                        </td>
+                        <td class="px-4 py-3 text-[#4c739a] dark:text-slate-400">@(item.CreatedAt?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-3">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="text-blue-500 hover:text-blue-700 p-1 rounded" title="Chi tiết">
+                                    <span class="material-symbols-outlined text-xl">info</span>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="text-primary hover:text-primary-dark p-1 rounded" title="Chỉnh sửa">
+                                    <span class="material-symbols-outlined text-xl">edit</span>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="text-danger hover:text-red-700 p-1 rounded" title="Xóa">
+                                    <span class="material-symbols-outlined text-xl">delete</span>
+                                </a>
+                                <a asp-controller="Questions" asp-action="Index" asp-route-examId="@item.Id" class="text-green-500 hover:text-green-700 p-1 rounded" title="Câu hỏi">
+                                    <span class="material-symbols-outlined text-xl">help</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-700 mb-4 block">library_books</span>
+        <p class="text-[#4c739a] dark:text-slate-400">Chưa có đề thi nào. <a asp-action="Create" class="text-primary hover:underline">Tạo đề thi mới</a></p>
+    </div>
+}
+

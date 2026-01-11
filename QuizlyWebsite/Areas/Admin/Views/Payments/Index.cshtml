@@ -1,0 +1,178 @@
+@model IEnumerable<QuizlyWebsite.Models.TbPayment>
+
+@{
+    ViewData["Title"] = "Quản Lý Thanh Toán";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="flex justify-between items-center mb-8">
+    <h2 class="text-3xl font-bold">Quản Lý Thanh Toán</h2>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="bg-success/10 border border-success/30 text-success rounded-lg p-4 mb-6">
+        <p class="font-semibold">@TempData["Success"]</p>
+    </div>
+}
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">ID</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Người Dùng</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Đề Thi</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Số Tiền</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Trạng Thái</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Ngày Tạo</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold">Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                        <td class="px-6 py-4 font-semibold text-[#0d141b] dark:text-slate-50">@item.Id</td>
+                        <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@item.User?.Email</td>
+                        <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@(item.Exam?.Title ?? "N/A")</td>
+                        <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@(item.Amount?.ToString("N0") ?? "0") @(item.Currency ?? "VND")</td>
+                        <td class="px-6 py-4">
+                            <select class="status-select text-xs font-semibold px-3 py-1 rounded-full border-0 cursor-pointer"
+                                    data-payment-id="@item.Id"
+                                    data-current-status="@item.Status"
+                                    onchange="updatePaymentStatus(@item.Id, this.value)">
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </td>
+                        <td class="px-6 py-4 text-[#4c739a] dark:text-slate-400">@(item.CreatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
+                        <td class="px-6 py-4">
+                            <div class="flex gap-2">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="text-blue-500 hover:text-blue-700 p-2 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition" title="Xem chi tiết">
+                                    <span class="material-symbols-outlined text-lg">visibility</span>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="text-danger hover:text-red-700 p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition" title="Xóa">
+                                    <span class="material-symbols-outlined text-lg">delete</span>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-700 mb-4 block">payment</span>
+        <p class="text-[#4c739a] dark:text-slate-400">Chưa có thanh toán nào.</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Initialize status selects on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.status-select').forEach(function(select) {
+                const currentStatus = select.getAttribute('data-current-status');
+                if (currentStatus) {
+                    select.value = currentStatus;
+                    // Set initial styling
+                    updateSelectStyling(select, currentStatus);
+                }
+            });
+        });
+
+        function updateSelectStyling(select, status) {
+            let newClass = 'status-select text-xs font-semibold px-3 py-1 rounded-full border-0 cursor-pointer ';
+            if (status === 'Completed' || status === 'Success') {
+                newClass += 'bg-success/20 text-success';
+            } else if (status === 'Failed' || status === 'Cancelled') {
+                newClass += 'bg-danger/20 text-danger';
+            } else {
+                newClass += 'bg-gray-200 text-gray-600';
+            }
+            select.className = newClass;
+        }
+
+        function updatePaymentStatus(paymentId, newStatus) {
+            // Show loading state
+            const select = event.target;
+            const originalClass = select.className;
+            select.disabled = true;
+            select.className = originalClass + ' opacity-50';
+
+            fetch('@Url.Action("UpdateStatus", "Payments")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                },
+                body: 'id=' + paymentId + '&status=' + encodeURIComponent(newStatus)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the select styling based on new status
+                    updateSelectStyling(select, newStatus);
+                    // Update data-current-status
+                    select.setAttribute('data-current-status', newStatus);
+
+                    // Show success message
+                    showToast('Trạng thái thanh toán đã được cập nhật thành công!', 'success');
+                } else {
+                    // Revert selection and show error
+                    const originalStatus = select.getAttribute('data-current-status');
+                    select.value = originalStatus;
+                    updateSelectStyling(select, originalStatus);
+                    showToast('Có lỗi xảy ra khi cập nhật trạng thái!', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Revert selection on error
+                const originalStatus = select.getAttribute('data-current-status');
+                select.value = originalStatus;
+                updateSelectStyling(select, originalStatus);
+                showToast('Có lỗi xảy ra khi cập nhật trạng thái!', 'error');
+            })
+            .finally(() => {
+                select.disabled = false;
+            });
+        }
+
+        function showToast(message, type) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">${type === 'success' ? 'check_circle' : 'error'}</span>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+}

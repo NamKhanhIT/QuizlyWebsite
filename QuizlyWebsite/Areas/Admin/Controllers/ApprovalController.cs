@@ -20,8 +20,8 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         // Check if user is admin
         private bool IsAdmin()
         {
-            var userRole = HttpContext.Session.GetString("UserRole");
-            return userRole == "Admin";
+            var role = HttpContext.Session.GetString("Role");
+            return role == "Admin";
         }
 
         // GET: Admin/Approval/Index
@@ -192,12 +192,34 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             {
                 var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
                 await _approvalService.RejectExamAsync(id, userId, reason ?? "No reason provided");
-                TempData["SuccessMessage"] = "Exam rejected successfully!";
+                TempData["SuccessMessage"] = "Đề thi đã được từ chối thành công!";
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error rejecting exam: {ex.Message}");
-                TempData["ErrorMessage"] = "Error rejecting exam";
+                TempData["ErrorMessage"] = "Lỗi khi từ chối đề thi";
+            }
+
+            return RedirectToAction("Exams");
+        }
+
+        // POST: Admin/Approval/DeleteExam
+        [HttpPost]
+        public async Task<IActionResult> DeleteExam(int id, string reason)
+        {
+            if (!IsAdmin())
+                return Forbid();
+
+            try
+            {
+                var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+                await _approvalService.DeleteExamAsync(id, userId, reason ?? "No reason provided");
+                TempData["SuccessMessage"] = "Đề thi đã được xóa thành công!";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error deleting exam: {ex.Message}");
+                TempData["ErrorMessage"] = "Lỗi khi xóa đề thi";
             }
 
             return RedirectToAction("Exams");

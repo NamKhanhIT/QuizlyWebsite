@@ -1,0 +1,45 @@
+@model QuizlyWebsite.Models.TbSubject
+
+@{
+    ViewData["Title"] = "Chi Tiết Môn Học";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-8">
+    <a asp-action="Index" class="text-primary hover:underline flex items-center gap-2 mb-4">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Quay Lại
+    </a>
+    <h2 class="text-3xl font-bold">Chi Tiết Môn Học</h2>
+</div>
+
+<div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-2xl">
+    <dl class="space-y-4">
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">ID</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Id</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Tên Môn Học</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Title</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Danh Mục</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@Model.Category?.Title</dd>
+        </div>
+        <div>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Mô Tả</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.Description ?? "N/A")</dd>
+        </div>
+    </dl>
+
+    <div class="flex gap-3 mt-8">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+            Chỉnh Sửa
+        </a>
+        <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+            Quay Lại
+        </a>
+    </div>
+</div>
+
