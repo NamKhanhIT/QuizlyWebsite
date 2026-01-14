@@ -57,47 +57,25 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return View(tbPayment);
         }
 
-
-
         // GET: Admin/Payments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public IActionResult Delete(int? id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tbPayment = await _context.TbPayments
-                .Include(t => t.Exam)
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (tbPayment == null)
-            {
-                return NotFound();
-            }
-
-            return View(tbPayment);
+            TempData["Error"] = "Không được phép xóa giao dịch. Chức năng này đã bị vô hiệu hóa vì lý do bảo mật.";
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: Admin/Payments/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            var tbPayment = await _context.TbPayments.FindAsync(id);
-            if (tbPayment != null)
-            {
-                _context.TbPayments.Remove(tbPayment);
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Thanh toán đã được xóa thành công";
-            }
-
+            TempData["Error"] = "Không được phép xóa giao dịch. Chức năng này đã bị vô hiệu hóa vì lý do bảo mật.";
             return RedirectToAction(nameof(Index));
         }
 

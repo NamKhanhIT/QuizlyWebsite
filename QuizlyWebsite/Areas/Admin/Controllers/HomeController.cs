@@ -1,4 +1,4 @@
-﻿using QuizlyWebsite.Models;
+using QuizlyWebsite.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -37,7 +37,10 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 .SumAsync(p => p.Amount ?? 0);
             
             // Pending approvals
-            var pendingExams = await _context.TbExams.Where(e => e.IsApproved == false).CountAsync();
+            // Chỉ đếm đề thi chờ duyệt (IsApproved == false/null) và chưa bị từ chối (RejectionReason == null)
+            var pendingExams = await _context.TbExams
+                .Where(e => (e.IsApproved == false || e.IsApproved == null) && e.RejectionReason == null)
+                .CountAsync();
             var pendingCourses = await _context.TbCourses.Where(c => c.IsApproved == false).CountAsync();
             var pendingLessons = await _context.TbLessons.Where(l => l.IsApproved == false).CountAsync();
 
@@ -205,50 +208,5 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             return View();
         }
 
-        [HttpGet]
-        [Route("admin/reports/export-excel")]
-        public async Task<IActionResult> ExportExcelReport()
-        {
-            if (!IsAdmin())
-                return RedirectToAction("Index", "Home", new { area = "" });
-
-            try
-            {
-                // For now, return a simple success message
-                // TODO: Implement actual Excel export functionality
-                TempData["Success"] = "Tính năng xuất Excel đang được phát triển";
-                return RedirectToAction("Reports");
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "Lỗi khi xuất báo cáo: " + ex.Message;
-                return RedirectToAction("Reports");
-            }
-        }
-
-        [HttpPost]
-        [Route("admin/reports/send-email")]
-        public async Task<IActionResult> SendEmailReport(string email, bool useCurrentEmail)
-        {
-            if (!IsAdmin())
-                return Json(new { success = false, message = "Không có quyền truy cập" });
-
-            try
-            {
-                var adminEmail = HttpContext.Session.GetString("Email");
-                var finalEmail = useCurrentEmail ? adminEmail : email;
-
-                if (string.IsNullOrEmpty(finalEmail))
-                    return Json(new { success = false, message = "Không tìm thấy email" });
-
-                // TODO: Implement email sending logic here
-                // For now, just return success
-                return Json(new { success = true, message = "Báo cáo đã được gửi đến email: " + finalEmail });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Lỗi khi gửi email: " + ex.Message });
-            }
-        }
     }
 }

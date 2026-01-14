@@ -67,26 +67,80 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         }
 
         // GET: Admin/Lessons/Create
-        public IActionResult Create(int? courseId)
+        public async Task<IActionResult> Create(int? courseId)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
             ViewData["CourseId"] = new SelectList(_context.TbCourses, "Id", "Title", courseId);
             ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email");
+
+            // If courseId is provided, load course info for preview logic
+            if (courseId.HasValue)
+            {
+                var course = await _context.TbCourses.FindAsync(courseId.Value);
+                if (course != null)
+                {
+                    ViewData["Course"] = course;
+                    // Count existing lessons for preview logic
+                    var existingLessonsCount = await _context.TbLessons
+                        .Where(l => l.CourseId == courseId.Value)
+                        .CountAsync();
+                    ViewData["ExistingLessonsCount"] = existingLessonsCount;
+                }
+            }
+
             return View();
         }
 
         // POST: Admin/Lessons/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CourseId,Title,Content,CreatedBy,CreatedAt")] TbLesson tbLesson)
+        public async Task<IActionResult> Create()
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            // Xử lý checkbox
-            tbLesson.IsPreview = Request.Form["IsPreview"].ToString() == "true";
+            var tbLesson = new TbLesson();
+
+            // Bind basic fields from form
+            tbLesson.Title = Request.Form["Title"];
+            tbLesson.Content = Request.Form["Content"];
+            if (int.TryParse(Request.Form["CourseId"], out int courseId))
+                tbLesson.CourseId = courseId;
+
+            // Get course information to determine preview logic
+            var course = await _context.TbCourses.FindAsync(tbLesson.CourseId);
+            if (course == null)
+            {
+                ModelState.AddModelError("", "Không tìm thấy khóa học.");
+                ViewData["CourseId"] = new SelectList(_context.TbCourses, "Id", "Title", tbLesson.CourseId);
+                ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email");
+                return View(tbLesson);
+            }
+
+            // Determine IsPreview based on course type and current lessons
+            if (!(course.IsPaid ?? false)) // Free course - all lessons are preview
+            {
+                tbLesson.IsPreview = true;
+            }
+            else // Paid course - check free lesson limit
+            {
+                var existingLessonsCount = await _context.TbLessons
+                    .Where(l => l.CourseId == tbLesson.CourseId)
+                    .CountAsync();
+
+                // If within free lesson limit, allow preview
+                tbLesson.IsPreview = existingLessonsCount < (course.FreeLessonCount ?? 0);
+            }
+
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(tbLesson.Title))
+                ModelState.AddModelError("Title", "Tiêu đề bài học là bắt buộc.");
+            if (string.IsNullOrWhiteSpace(tbLesson.Content))
+                ModelState.AddModelError("Content", "Nội dung bài học là bắt buộc.");
+            if (tbLesson.CourseId == 0)
+                ModelState.AddModelError("CourseId", "Khóa học là bắt buộc.");
 
             if (ModelState.IsValid)
             {
@@ -101,7 +155,8 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index), new { courseId = tbLesson.CourseId });
             }
             ViewData["CourseId"] = new SelectList(_context.TbCourses, "Id", "Title", tbLesson.CourseId);
-            ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email", tbLesson.CreatedBy);
+            ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email");
+            ViewData["Course"] = course; // Pass course info to view
             return View(tbLesson);
         }
 
@@ -121,27 +176,72 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             {
                 return NotFound();
             }
+
             ViewData["CourseId"] = new SelectList(_context.TbCourses, "Id", "Title", tbLesson.CourseId);
             ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email", tbLesson.CreatedBy);
+
+            // Load course info for preview logic
+            var course = await _context.TbCourses.FindAsync(tbLesson.CourseId);
+            if (course != null)
+            {
+                ViewData["Course"] = course;
+            }
+
             return View(tbLesson);
         }
 
         // POST: Admin/Lessons/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,CourseId,Title,Content,CreatedBy,CreatedAt")] TbLesson tbLesson)
+        public async Task<IActionResult> Edit(int id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (id != tbLesson.Id)
+            var tbLesson = await _context.TbLessons.FindAsync(id);
+            if (tbLesson == null)
             {
                 return NotFound();
             }
 
-            // Xử lý checkbox
+            // Bind basic fields from form
+            tbLesson.Title = Request.Form["Title"];
+            tbLesson.Content = Request.Form["Content"];
+
+            // Get course information to determine preview logic
+            var course = await _context.TbCourses.FindAsync(tbLesson.CourseId);
+            if (course == null)
+            {
+                ModelState.AddModelError("", "Không tìm thấy khóa học.");
+                ViewData["CourseId"] = new SelectList(_context.TbCourses, "Id", "Title", tbLesson.CourseId);
+                ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email", tbLesson.CreatedBy);
+                return View(tbLesson);
+            }
+
+            // Determine IsPreview based on course type and position in course
+            if (!(course.IsPaid ?? false)) // Free course - all lessons are preview
+            {
+                tbLesson.IsPreview = true;
+            }
+            else // Paid course - check position against free lesson limit
+            {
+                // Count lessons before this one (by creation order or ID)
+                var lessonsBeforeThis = await _context.TbLessons
+                    .Where(l => l.CourseId == tbLesson.CourseId && l.Id < tbLesson.Id)
+                    .CountAsync();
+
+                // If within free lesson limit, allow preview
+                tbLesson.IsPreview = lessonsBeforeThis < (course.FreeLessonCount ?? 0);
+            }
+
+            // Xử lý checkbox IsApproved (admin can override)
             tbLesson.IsApproved = Request.Form["IsApproved"].ToString() == "true";
-            tbLesson.IsPreview = Request.Form["IsPreview"].ToString() == "true";
+
+            // Validate required fields
+            if (string.IsNullOrWhiteSpace(tbLesson.Title))
+                ModelState.AddModelError("Title", "Tiêu đề bài học là bắt buộc.");
+            if (string.IsNullOrWhiteSpace(tbLesson.Content))
+                ModelState.AddModelError("Content", "Nội dung bài học là bắt buộc.");
 
             if (ModelState.IsValid)
             {
@@ -166,6 +266,7 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
             }
             ViewData["CourseId"] = new SelectList(_context.TbCourses, "Id", "Title", tbLesson.CourseId);
             ViewData["CreatedBy"] = new SelectList(_context.TbUsers, "Id", "Email", tbLesson.CreatedBy);
+            ViewData["Course"] = course; // Pass course info to view
             return View(tbLesson);
         }
 

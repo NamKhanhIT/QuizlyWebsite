@@ -58,7 +58,6 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            // Mark as read when viewing
             if (tbContact.IsRead != true)
             {
                 tbContact.IsRead = true;
@@ -119,14 +118,38 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
         // POST: Admin/Contacts/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,Subject,Message,CreatedAt,IsRead,ReadAt,Response,RespondedAt")] TbContact tbContact)
+        public async Task<IActionResult> Edit(int id)
         {
             if (!IsAdmin())
                 return RedirectToAction("Index", "Home", new { area = "" });
 
-            if (id != tbContact.Id)
+            var tbContact = await _context.TbContacts.FindAsync(id);
+            if (tbContact == null)
             {
                 return NotFound();
+            }
+
+            // Bind fields manually to handle nullable bool
+            tbContact.Name = Request.Form["Name"];
+            tbContact.Email = Request.Form["Email"];
+            tbContact.Phone = Request.Form["Phone"];
+            tbContact.Subject = Request.Form["Subject"];
+            tbContact.Message = Request.Form["Message"];
+            tbContact.Response = Request.Form["Response"];
+
+            // Handle nullable bool checkbox
+            tbContact.IsRead = Request.Form["IsRead"].ToString() == "true";
+
+            // Set response timestamp if response was added and not already set
+            if (!string.IsNullOrEmpty(tbContact.Response) && tbContact.RespondedAt == null)
+            {
+                tbContact.RespondedAt = DateTime.Now;
+            }
+
+            // Set read timestamp if marked as read and not already set
+            if (tbContact.IsRead == true && tbContact.ReadAt == null)
+            {
+                tbContact.ReadAt = DateTime.Now;
             }
 
             if (ModelState.IsValid)

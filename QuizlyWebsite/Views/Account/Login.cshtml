@@ -46,9 +46,14 @@
                         <span class="material-symbols-outlined align-middle mr-1 text-primary">lock</span>
                         Mật Khẩu
                     </label>
-                    <input type="password" name="password" placeholder="Nhập mật khẩu" 
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
-                        required>
+                    <div class="relative">
+                        <input type="password" name="password" id="password" placeholder="Nhập mật khẩu" 
+                            class="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition"
+                            required>
+                        <button type="button" onclick="togglePassword('password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition">
+                            <span class="material-symbols-outlined text-xl" id="password-icon">visibility</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Remember Me -->
@@ -81,7 +86,7 @@
 
             <!-- Forgot Password Link -->
             <div class="text-center mt-4">
-                <a href="#" class="text-sm text-primary hover:underline">Quên mật khẩu?</a>
+                <a href="/forgot-password" class="text-sm text-primary hover:underline">Quên mật khẩu?</a>
             </div>
         </div>
 
@@ -94,6 +99,20 @@
 
 @section Scripts {
     <script>
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + '-icon');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+
         // Add some smooth animations
         document.querySelectorAll('input').forEach(input => {
             input.addEventListener('focus', function() {

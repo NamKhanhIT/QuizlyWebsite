@@ -54,6 +54,7 @@
 
     <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
         <form asp-action="SendResponse" method="post" class="space-y-4">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="id" value="@Model.Id" />
             <div>
                 <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">Phản Hồi</label>

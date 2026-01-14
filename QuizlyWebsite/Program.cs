@@ -3,6 +3,7 @@ using QuizlyWebsite.Models;
 using QuizlyWebsite.Middleware;
 using QuizlyWebsite.Services;
 using QuizlyWebsite.Data;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,8 @@ builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<IAccessControlService, AccessControlService>();
 builder.Services.AddScoped<ILessonPreviewService, LessonPreviewService>();
 builder.Services.AddScoped<IQuestionParserService, QuestionParserService>();
+builder.Services.AddScoped<IChatService, ChatService>();
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IVNPayService>(provider =>
 {
     var config = builder.Configuration;
@@ -40,7 +43,10 @@ builder.Services.AddScoped<IVNPayService>(provider =>
     var baseReturnUrl = $"{config["AppUrl"]}/subscription/vnpay-callback";
     return new VNPayService(tmnCode, hashSecret, paymentUrl, baseReturnUrl);
 });
-builder.Services.AddScoped<QuizlySeeder>();    
+builder.Services.AddScoped<QuizlySeeder>();
+
+// Cấu hình EPPlus License
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;    
 
 var app = builder.Build();
 

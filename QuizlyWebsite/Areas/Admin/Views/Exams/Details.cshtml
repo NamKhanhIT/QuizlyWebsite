@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Chi Tiết Đề Thi";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var fromApproval = ViewData["FromApproval"] as bool? ?? false;
 }
 
 <div class="mb-8">
@@ -13,7 +14,6 @@
     <h2 class="text-3xl font-bold">Chi Tiết Đề Thi</h2>
 </div>
 
-<!-- Thông tin cơ bản -->
 <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 mb-8">
     <h3 class="text-xl font-semibold mb-6 text-[#0d141b] dark:text-slate-50">Thông Tin Cơ Bản</h3>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -63,8 +63,17 @@
             </dd>
         </div>
         <div>
-            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Premium</dt>
-            <dd class="text-lg text-[#0d141b] dark:text-slate-50">@(Model.IsPremium == true ? "Có" : "Không")</dd>
+            <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Loại đề thi</dt>
+            <dd class="text-lg text-[#0d141b] dark:text-slate-50">
+                @if (Model.IsPaid == true)
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Trả phí</span>
+                }
+                else
+                {
+                    <span class="text-xs font-semibold px-3 py-1 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Miễn phí</span>
+                }
+            </dd>
         </div>
         <div>
             <dt class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Ngày Tạo</dt>
@@ -82,22 +91,24 @@
     </div>
 </div>
 
-<!-- Danh sách câu hỏi -->
 @if (Model.TbQuestions != null && Model.TbQuestions.Any())
 {
     <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-semibold text-[#0d141b] dark:text-slate-50">Danh Sách Câu Hỏi (@Model.TbQuestions.Count)</h3>
-            <div class="flex gap-2">
-                <a asp-controller="Questions" asp-action="Create" asp-route-examId="@Model.Id" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm">
-                    <span class="material-symbols-outlined text-sm mr-1">add</span>
-                    Thêm Câu Hỏi
-                </a>
-                <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold text-sm">
-                    <span class="material-symbols-outlined text-sm mr-1">edit</span>
-                    Quản Lý Câu Hỏi
-                </a>
-            </div>
+            @if (!fromApproval)
+            {
+                <div class="flex gap-2">
+                    <a asp-controller="Questions" asp-action="Create" asp-route-examId="@Model.Id" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold text-sm">
+                        <span class="material-symbols-outlined text-sm mr-1">add</span>
+                        Thêm Câu Hỏi
+                    </a>
+                    <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold text-sm">
+                        <span class="material-symbols-outlined text-sm mr-1">edit</span>
+                        Quản Lý Câu Hỏi
+                    </a>
+                </div>
+            }
         </div>
 
         <div class="space-y-6">
@@ -186,26 +197,41 @@ else
         </div>
         <h3 class="text-xl font-semibold text-[#0d141b] dark:text-slate-50 mb-2">Chưa có câu hỏi</h3>
         <p class="text-gray-600 dark:text-gray-400 mb-4">Đề thi này chưa có câu hỏi nào được thêm vào.</p>
-        <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold">
-            <span class="material-symbols-outlined text-sm mr-1">add</span>
-            Thêm Câu Hỏi
-        </a>
+        @if (!fromApproval)
+        {
+            <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition font-semibold">
+                <span class="material-symbols-outlined text-sm mr-1">add</span>
+                Thêm Câu Hỏi
+            </a>
+        }
     </div>
 }
 
 <!-- Action buttons -->
 <div class="flex gap-3 mt-8 justify-center">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
-        <span class="material-symbols-outlined text-sm mr-1">edit</span>
-        Chỉnh Sửa
-    </a>
-    <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold">
-        <span class="material-symbols-outlined text-sm mr-1">quiz</span>
-        Quản Lý Câu Hỏi
-    </a>
-    <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
-        <span class="material-symbols-outlined text-sm mr-1">arrow_back</span>
-        Quay Lại
-    </a>
+    @if (!fromApproval)
+    {
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-dark transition font-semibold">
+            <span class="material-symbols-outlined text-sm mr-1">edit</span>
+            Chỉnh Sửa
+        </a>
+        <a asp-controller="Questions" asp-action="Index" asp-route-examId="@Model.Id" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition font-semibold">
+            <span class="material-symbols-outlined text-sm mr-1">quiz</span>
+            Quản Lý Câu Hỏi
+        </a>
+    }
+    @if (fromApproval)
+    {
+        <a asp-controller="Approval" asp-action="Exams" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+            <span class="material-symbols-outlined text-sm mr-1">arrow_back</span>
+            Quay Lại
+        </a>
+    }
+    else
+    {
+        <a asp-action="Index" class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-[#0d141b] dark:text-slate-50 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+            <span class="material-symbols-outlined text-sm mr-1">arrow_back</span>
+            Quay Lại
+        </a>
+    }
 </div>
-

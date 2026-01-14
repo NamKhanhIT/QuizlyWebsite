@@ -14,12 +14,12 @@
 </div>
 
 <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-3xl">
-    <form asp-action="Edit" method="post">
+    <form asp-action="Edit" method="post" enctype="multipart/form-data">
         <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
         <input type="hidden" asp-for="CreatedBy" />
-        
+
         <div class="mb-6">
             <!-- Category Section -->
             <div id="category-select-block" class="mb-6">
@@ -117,11 +117,26 @@
         </div>
 
         <div class="mb-6">
-            <label asp-for="ImageUrl" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
-                URL Hình Ảnh
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+                Hình Ảnh Đề Thi
             </label>
-            <input asp-for="ImageUrl" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
-            <span asp-validation-for="ImageUrl" class="text-danger text-sm"></span>
+
+            <!-- Current image preview -->
+            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+            {
+                <div class="mb-3">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Ảnh hiện tại:</p>
+                    <img src="@Model.ImageUrl" alt="Ảnh đề thi hiện tại" class="w-32 h-24 object-cover rounded-lg border border-gray-200 dark:border-gray-600" />
+                </div>
+            }
+
+            <!-- File upload -->
+            <input type="file" name="ImageFile" accept="image/*" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-dark" />
+
+            <!-- Hidden field for current URL (in case no new file is uploaded) -->
+            <input type="hidden" name="CurrentImageUrl" value="@Model.ImageUrl" />
+
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Chọn file ảnh từ máy tính (JPG, PNG, GIF). Kích thước tối đa 5MB.</p>
         </div>
 
         <div class="mb-6">
@@ -135,24 +150,17 @@
             <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-3">Loại đề thi</label>
             <div class="space-y-3">
                 <div class="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
-                    <input type="radio" name="examType" value="free" @((!Model.IsPremium.HasValue || Model.IsPremium == false) && (!Model.IsPaid.HasValue || Model.IsPaid == false) ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
+                    <input type="radio" name="examType" value="free" @((!Model.IsPaid.HasValue || Model.IsPaid == false) ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
                     <div>
                         <div class="font-semibold text-[#0d141b] dark:text-slate-50">Đề thi miễn phí</div>
                         <div class="text-sm text-gray-600 dark:text-gray-400">Người dùng có thể làm đề thi này miễn phí</div>
                     </div>
                 </div>
                 <div class="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
-                    <input type="radio" name="examType" value="membership" @(Model.IsPremium == true ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
-                    <div>
-                        <div class="font-semibold text-[#0d141b] dark:text-slate-50">Đề thi thành viên</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Yêu cầu đăng ký gói thành viên để truy cập</div>
-                    </div>
-                </div>
-                <div class="flex items-start gap-3 p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
                     <input type="radio" name="examType" value="paid" @(Model.IsPaid == true ? "checked" : "") class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary mt-0.5" />
                     <div>
                         <div class="font-semibold text-[#0d141b] dark:text-slate-50">Đề thi trả phí</div>
-                        <div class="text-sm text-gray-600 dark:text-gray-400">Người dùng có thể mua lẻ đề thi này</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">Người dùng có thể mua lẻ đề thi này. Vui lòng nhập giá ở trên.</div>
                     </div>
                 </div>
             </div>
@@ -170,19 +178,21 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
         (function(){
             var showCatBtn = document.getElementById('show-add-category');
             var cancelCatBtn = document.getElementById('cancel-add-category');
             var catSelectBlock = document.getElementById('category-select-block');
             var catInputBlock = document.getElementById('category-input-block');
-            
+
             var showSubBtn = document.getElementById('show-add-subject');
             var cancelSubBtn = document.getElementById('cancel-add-subject');
             var subSelectBlock = document.getElementById('subject-select-block');
             var subInputBlock = document.getElementById('subject-input-block');
-            
+
             if (showCatBtn && catSelectBlock && catInputBlock) {
                 showCatBtn.addEventListener('click', function(e){
                     e.preventDefault();
@@ -196,7 +206,7 @@
                     document.querySelector('input[name="NewCategoryName"]').value = '';
                 });
             }
-            
+
             if (showSubBtn && subSelectBlock && subInputBlock) {
                 showSubBtn.addEventListener('click', function(e){
                     e.preventDefault();
@@ -213,4 +223,3 @@
         })();
     </script>
 }
-

@@ -183,21 +183,39 @@ namespace QuizlyWebsite.Areas.Admin.Controllers
 
         // POST: Admin/Approval/RejectExam
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectExam(int id, string reason)
         {
+            _logger.LogInformation("POST RejectExam called with ID: {Id}", id);
+
             if (!IsAdmin())
+            {
+                _logger.LogWarning("POST RejectExam: User is not admin");
                 return Forbid();
+            }
+
+            // Validate reason bắt buộc
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                _logger.LogWarning("POST RejectExam: Reason is null or empty");
+                TempData["ErrorMessage"] = "Vui lòng nhập lý do từ chối. Lý do từ chối là bắt buộc.";
+                return RedirectToAction("Exams");
+            }
 
             try
             {
                 var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
-                await _approvalService.RejectExamAsync(id, userId, reason ?? "No reason provided");
+                _logger.LogInformation("Rejecting exam ID {Id} by user {UserId} with reason: {Reason}", id, userId, reason);
+
+                await _approvalService.RejectExamAsync(id, userId, reason.Trim());
+                
+                _logger.LogInformation("Exam ID {Id} rejected successfully", id);
                 TempData["SuccessMessage"] = "Đề thi đã được từ chối thành công!";
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error rejecting exam: {ex.Message}");
-                TempData["ErrorMessage"] = "Lỗi khi từ chối đề thi";
+                _logger.LogError(ex, "Error rejecting exam ID {Id}: {Message}", id, ex.Message);
+                TempData["ErrorMessage"] = $"Lỗi khi từ chối đề thi: {ex.Message}";
             }
 
             return RedirectToAction("Exams");

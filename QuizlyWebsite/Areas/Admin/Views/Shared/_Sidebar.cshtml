@@ -39,6 +39,12 @@
                 <span class="font-medium">Thanh Toán</span>
             </a>
 
+            <!-- Quản Lý Gói Thành Viên -->
+            <a asp-area="Admin" asp-controller="MembershipPlans" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "MembershipPlans" ? "bg-primary/10 border-l-4 border-primary" : "")">
+                <span class="material-symbols-outlined">workspace_premium</span>
+                <span class="font-medium">Quản Lý Gói Thành Viên</span>
+            </a>
+
             <!-- Quản Lý Liên Hệ -->
             <a asp-area="Admin" asp-controller="Contacts" asp-action="Index" class="flex items-center gap-3 px-4 py-3 rounded-lg text-[#0d141b] dark:text-slate-50 hover:bg-primary/10 transition @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contacts" ? "bg-primary/10 border-l-4 border-primary" : "")">
                 <span class="material-symbols-outlined">mail</span>

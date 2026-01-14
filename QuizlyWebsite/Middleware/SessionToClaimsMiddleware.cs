@@ -13,7 +13,6 @@ namespace QuizlyWebsite.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // Try to get UserId from session
             var userId = context.Session.GetInt32("UserId");
             var username = context.Session.GetString("Username");
             var role = context.Session.GetString("Role");

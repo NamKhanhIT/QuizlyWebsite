@@ -171,7 +171,7 @@ else
                                     <!-- Reject Button -->
                                     <button type="button"
                                             class="inline-flex items-center gap-2 px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition font-medium text-sm"
-                                            onclick="showRejectReason(@exam.Id, '@exam.Title')"
+                                            onclick="showRejectModal(@exam.Id, '@Html.Raw(exam.Title.Replace("'", "\\'"))')"
                                             title="Từ chối đề thi">
                                         <span class="material-symbols-outlined text-sm">cancel</span>
                                         <span class="hidden sm:inline">Từ chối</span>
@@ -181,33 +181,16 @@ else
                                     <a asp-controller="Exams"
                                        asp-action="Details"
                                        asp-route-id="@exam.Id"
+                                       asp-route-fromApproval="true"
                                        class="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-900/50 transition font-medium text-sm"
                                        title="Xem chi tiết">
                                         <span class="material-symbols-outlined text-sm">visibility</span>
                                         <span class="hidden sm:inline">Chi tiết</span>
                                     </a>
-
-                                    <!-- Delete Button -->
-                                    <button type="button"
-                                            class="inline-flex items-center gap-2 px-3 py-2 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition font-medium text-sm"
-                                            onclick="showDeleteReason(@exam.Id, '@exam.Title')"
-                                            title="Xóa đề thi">
-                                        <span class="material-symbols-outlined text-sm">delete</span>
-                                        <span class="hidden sm:inline">Xóa</span>
-                                    </button>
                                 </div>
                             </td>
                         </tr>
 
-                        <!-- Hidden Forms for Reject and Delete -->
-                        <form method="post" action="@Url.Action("RejectExam")" id="rejectForm@exam.Id" style="display: none;">
-                            <input type="hidden" name="id" value="@exam.Id" />
-                            <input type="hidden" name="reason" id="rejectReason@exam.Id" />
-                        </form>
-                        <form method="post" action="@Url.Action("DeleteExam")" id="deleteForm@exam.Id" style="display: none;">
-                            <input type="hidden" name="id" value="@exam.Id" />
-                            <input type="hidden" name="reason" id="deleteReason@exam.Id" />
-                        </form>
                     }
                 </tbody>
             </table>
@@ -326,24 +309,99 @@ else
             });
         });
 
-        // Function to show reject reason dialog
-        function showRejectReason(examId, examTitle) {
-            var reason = prompt('Vui lòng nhập lý do từ chối đề thi "' + examTitle + '":');
-            if (reason !== null && reason.trim() !== '') {
-                document.getElementById('rejectReason' + examId).value = reason.trim();
-                document.getElementById('rejectForm' + examId).submit();
+        // Reject Modal
+        let currentRejectExamId = null;
+
+        function showRejectModal(examId, examTitle) {
+            currentRejectExamId = examId;
+            
+            // Create modal HTML
+            const modalHTML = `
+                <div id="rejectModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop" onclick="closeRejectModal()">
+                    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xl max-w-md w-full mx-4" onclick="event.stopPropagation()">
+                        <div class="border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center">
+                            <h5 class="text-xl font-bold text-gray-900 dark:text-white">Từ chối đề thi</h5>
+                            <button type="button" onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                <span class="material-symbols-outlined">close</span>
+                            </button>
+                        </div>
+                        <form method="post" action="@Url.Action("RejectExam")" id="rejectForm" onsubmit="return validateRejectReason()">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" id="rejectExamId" />
+                            <div class="px-6 py-4">
+                                <div class="mb-4">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                        <strong class="text-gray-900 dark:text-white">Đề thi:</strong> <span id="rejectExamTitle"></span>
+                                    </p>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="rejectReason" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                                        Lý do từ chối <span class="text-red-600">*</span>
+                                    </label>
+                                    <textarea name="reason" 
+                                              id="rejectReason" 
+                                              rows="4" 
+                                              class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 dark:text-slate-50 transition" 
+                                              placeholder="Vui lòng nhập lý do từ chối đề thi này..."
+                                              required></textarea>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Lý do từ chối sẽ được gửi cho người tạo đề thi</p>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex gap-3 justify-end">
+                                <button type="button" 
+                                        onclick="closeRejectModal()"
+                                        class="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-semibold">
+                                    Hủy
+                                </button>
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold">
+                                    Xác nhận từ chối
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('rejectModal');
+            if (existingModal) {
+                existingModal.remove();
             }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            // Set values
+            document.getElementById('rejectExamId').value = examId;
+            document.getElementById('rejectExamTitle').textContent = examTitle;
+            document.getElementById('rejectReason').focus();
         }
 
-        // Function to show delete reason dialog
-        function showDeleteReason(examId, examTitle) {
-            var reason = prompt('Vui lòng nhập lý do xóa đề thi "' + examTitle + '":\n\nLưu ý: Hành động này không thể hoàn tác!');
-            if (reason !== null && reason.trim() !== '') {
-                if (confirm('Bạn có chắc chắn muốn xóa đề thi "' + examTitle + '"?\n\nTất cả dữ liệu liên quan sẽ bị xóa vĩnh viễn.')) {
-                    document.getElementById('deleteReason' + examId).value = reason.trim();
-                    document.getElementById('deleteForm' + examId).submit();
-                }
+        function closeRejectModal() {
+            const modal = document.getElementById('rejectModal');
+            if (modal) {
+                modal.remove();
             }
+            currentRejectExamId = null;
         }
+
+        function validateRejectReason() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) {
+                alert('Vui lòng nhập lý do từ chối. Lý do từ chối là bắt buộc.');
+                document.getElementById('rejectReason').focus();
+                return false;
+            }
+            return true;
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && currentRejectExamId !== null) {
+                closeRejectModal();
+            }
+        });
+
     </script>
 }

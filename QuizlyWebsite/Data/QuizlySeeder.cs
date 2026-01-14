@@ -38,44 +38,44 @@ namespace QuizlyWebsite.Data
                     CourseId = course.Id,
                     Title = "Giới Thiệu HTML",
                     Content = @"<!-- YOUTUBE: https://www.youtube.com/watch?v=UB1O30fR-EE -->
-<h2>Giới Thiệu HTML</h2>
-<p>HTML (HyperText Markup Language) là ngôn ngữ đánh dấu tiêu chuẩn để tạo trang web. Đây là nền tảng của mọi website trên internet.</p>
+                        <h2>Giới Thiệu HTML</h2>
+                        <p>HTML (HyperText Markup Language) là ngôn ngữ đánh dấu tiêu chuẩn để tạo trang web. Đây là nền tảng của mọi website trên internet.</p>
 
-<h3>🎯 Mục tiêu bài học</h3>
-<ul>
-    <li>Hiểu được HTML là gì và vai trò của nó</li>
-    <li>Nắm vững cấu trúc cơ bản của một tài liệu HTML</li>
-    <li>Biết cách sử dụng các thẻ HTML phổ biến</li>
-</ul>
+                        <h3>🎯 Mục tiêu bài học</h3>
+                        <ul>
+                            <li>Hiểu được HTML là gì và vai trò của nó</li>
+                            <li>Nắm vững cấu trúc cơ bản của một tài liệu HTML</li>
+                            <li>Biết cách sử dụng các thẻ HTML phổ biến</li>
+                        </ul>
 
-<h3>📚 Các Thẻ Cơ Bản</h3>
-<div class=""bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg my-4"">
-    <p class=""font-semibold mb-2"">Cấu trúc HTML cơ bản:</p>
-    <ul class=""space-y-1"">
-        <li><code>&lt;html&gt;</code> - Thẻ gốc, bao bọc toàn bộ tài liệu</li>
-        <li><code>&lt;head&gt;</code> - Phần đầu, chứa metadata</li>
-        <li><code>&lt;body&gt;</code> - Phần thân, chứa nội dung hiển thị</li>
-        <li><code>&lt;h1&gt;</code> đến <code>&lt;h6&gt;</code> - Tiêu đề (heading)</li>
-        <li><code>&lt;p&gt;</code> - Đoạn văn (paragraph)</li>
-        <li><code>&lt;a&gt;</code> - Liên kết (anchor)</li>
-        <li><code>&lt;img&gt;</code> - Hình ảnh (image)</li>
-    </ul>
-</div>
+                        <h3>📚 Các Thẻ Cơ Bản</h3>
+                        <div class=""bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg my-4"">
+                            <p class=""font-semibold mb-2"">Cấu trúc HTML cơ bản:</p>
+                            <ul class=""space-y-1"">
+                                <li><code>&lt;html&gt;</code> - Thẻ gốc, bao bọc toàn bộ tài liệu</li>
+                                <li><code>&lt;head&gt;</code> - Phần đầu, chứa metadata</li>
+                                <li><code>&lt;body&gt;</code> - Phần thân, chứa nội dung hiển thị</li>
+                                <li><code>&lt;h1&gt;</code> đến <code>&lt;h6&gt;</code> - Tiêu đề (heading)</li>
+                                <li><code>&lt;p&gt;</code> - Đoạn văn (paragraph)</li>
+                                <li><code>&lt;a&gt;</code> - Liên kết (anchor)</li>
+                                <li><code>&lt;img&gt;</code> - Hình ảnh (image)</li>
+                            </ul>
+                        </div>
 
-<h3>💡 Ví dụ thực hành</h3>
-<pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>&lt;!DOCTYPE html&gt;
-&lt;html&gt;
-&lt;head&gt;
-    &lt;title&gt;Trang Web Đầu Tiên&lt;/title&gt;
-&lt;/head&gt;
-&lt;body&gt;
-    &lt;h1&gt;Chào mừng đến với HTML!&lt;/h1&gt;
-    &lt;p&gt;Đây là đoạn văn đầu tiên của bạn.&lt;/p&gt;
-&lt;/body&gt;
-&lt;/html&gt;</code></pre>
+                        <h3>💡 Ví dụ thực hành</h3>
+                        <pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>&lt;!DOCTYPE html&gt;
+                        &lt;html&gt;
+                        &lt;head&gt;
+                            &lt;title&gt;Trang Web Đầu Tiên&lt;/title&gt;
+                        &lt;/head&gt;
+                        &lt;body&gt;
+                            &lt;h1&gt;Chào mừng đến với HTML!&lt;/h1&gt;
+                            &lt;p&gt;Đây là đoạn văn đầu tiên của bạn.&lt;/p&gt;
+                        &lt;/body&gt;
+                        &lt;/html&gt;</code></pre>
 
-<h3>✅ Bài tập</h3>
-<p>Tạo một trang HTML đơn giản với tiêu đề và 3 đoạn văn về bản thân bạn.</p>",
+                        <h3>✅ Bài tập</h3>
+                        <p>Tạo một trang HTML đơn giản với tiêu đề và 3 đoạn văn về bản thân bạn.</p>",
                     CreatedBy = createdBy,
                     CreatedAt = DateTime.Now,
                     IsApproved = course.IsApproved == true,
@@ -86,84 +86,84 @@ namespace QuizlyWebsite.Data
                     CourseId = course.Id,
                     Title = "CSS Cơ Bản",
                     Content = @"<!-- YOUTUBE: https://www.youtube.com/watch?v=1Rs2ND1ryYc -->
-<h2>CSS (Cascading Style Sheets)</h2>
-<p>CSS được sử dụng để định dạng và bố cục trang web. Với CSS, bạn có thể biến một trang web đơn giản thành một tác phẩm nghệ thuật!</p>
+                        <h2>CSS (Cascading Style Sheets)</h2>
+                        <p>CSS được sử dụng để định dạng và bố cục trang web. Với CSS, bạn có thể biến một trang web đơn giản thành một tác phẩm nghệ thuật!</p>
 
-<h3>🎨 Tại sao cần CSS?</h3>
-<ul>
-    <li>Tách biệt nội dung và giao diện</li>
-    <li>Dễ dàng bảo trì và cập nhật</li>
-    <li>Tạo giao diện đẹp mắt và chuyên nghiệp</li>
-    <li>Responsive design cho mọi thiết bị</li>
-</ul>
+                        <h3>🎨 Tại sao cần CSS?</h3>
+                        <ul>
+                            <li>Tách biệt nội dung và giao diện</li>
+                            <li>Dễ dàng bảo trì và cập nhật</li>
+                            <li>Tạo giao diện đẹp mắt và chuyên nghiệp</li>
+                            <li>Responsive design cho mọi thiết bị</li>
+                        </ul>
 
-<h3>🔍 Selectors (Bộ chọn)</h3>
-<div class=""bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg my-4"">
-    <p class=""font-semibold mb-2"">Các loại selector phổ biến:</p>
-    <ul class=""space-y-2"">
-        <li><strong>Element Selectors</strong> - Chọn theo tên thẻ: <code>p { color: blue; }</code></li>
-        <li><strong>Class Selectors</strong> - Chọn theo class: <code>.my-class { font-size: 16px; }</code></li>
-        <li><strong>ID Selectors</strong> - Chọn theo ID: <code>#my-id { background: red; }</code></li>
-        <li><strong>Descendant Selectors</strong> - Chọn phần tử con: <code>div p { margin: 10px; }</code></li>
-    </ul>
-</div>
+                        <h3>🔍 Selectors (Bộ chọn)</h3>
+                        <div class=""bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg my-4"">
+                            <p class=""font-semibold mb-2"">Các loại selector phổ biến:</p>
+                            <ul class=""space-y-2"">
+                                <li><strong>Element Selectors</strong> - Chọn theo tên thẻ: <code>p { color: blue; }</code></li>
+                                <li><strong>Class Selectors</strong> - Chọn theo class: <code>.my-class { font-size: 16px; }</code></li>
+                                <li><strong>ID Selectors</strong> - Chọn theo ID: <code>#my-id { background: red; }</code></li>
+                                <li><strong>Descendant Selectors</strong> - Chọn phần tử con: <code>div p { margin: 10px; }</code></li>
+                            </ul>
+                        </div>
 
-<h3>🎯 Properties (Thuộc tính) quan trọng</h3>
-<table class=""w-full border-collapse border border-gray-300 dark:border-gray-600 my-4"">
-    <thead>
-        <tr class=""bg-gray-100 dark:bg-gray-800"">
-            <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Property</th>
-            <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Mô tả</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>color</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2"">Màu chữ</td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>background-color</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2"">Màu nền</td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>font-size</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2"">Kích thước chữ</td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>margin</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2"">Khoảng cách bên ngoài</td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>padding</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2"">Khoảng cách bên trong</td>
-        </tr>
-    </tbody>
-</table>
+                        <h3>🎯 Properties (Thuộc tính) quan trọng</h3>
+                        <table class=""w-full border-collapse border border-gray-300 dark:border-gray-600 my-4"">
+                            <thead>
+                                <tr class=""bg-gray-100 dark:bg-gray-800"">
+                                    <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Property</th>
+                                    <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Mô tả</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>color</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2"">Màu chữ</td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>background-color</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2"">Màu nền</td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>font-size</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2"">Kích thước chữ</td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>margin</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2"">Khoảng cách bên ngoài</td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>padding</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2"">Khoảng cách bên trong</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-<h3>💡 Ví dụ thực hành</h3>
-<pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>/* Style cho tiêu đề */
-h1 {
-    color: #2b8cee;
-    font-size: 2rem;
-    text-align: center;
-}
+                        <h3>💡 Ví dụ thực hành</h3>
+                        <pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>/* Style cho tiêu đề */
+                        h1 {
+                            color: #2b8cee;
+                            font-size: 2rem;
+                            text-align: center;
+                        }
 
-/* Style cho đoạn văn */
-p {
-    color: #333;
-    line-height: 1.6;
-    margin: 1rem 0;
-}
+                        /* Style cho đoạn văn */
+                        p {
+                            color: #333;
+                            line-height: 1.6;
+                            margin: 1rem 0;
+                        }
 
-/* Style cho class highlight */
-.highlight {
-    background-color: yellow;
-    padding: 2px 4px;
-    font-weight: bold;
-}</code></pre>
+                        /* Style cho class highlight */
+                        .highlight {
+                            background-color: yellow;
+                            padding: 2px 4px;
+                            font-weight: bold;
+                        }</code></pre>
 
-<h3>✅ Bài tập</h3>
-<p>Tạo một file CSS để style trang HTML bạn đã tạo ở bài trước. Thêm màu sắc, font chữ và spacing phù hợp.</p>",
+                        <h3>✅ Bài tập</h3>
+                        <p>Tạo một file CSS để style trang HTML bạn đã tạo ở bài trước. Thêm màu sắc, font chữ và spacing phù hợp.</p>",
                     CreatedBy = createdBy,
                     CreatedAt = DateTime.Now,
                     IsApproved = course.IsApproved == true,
@@ -187,81 +187,81 @@ p {
                     CourseId = course.Id,
                     Title = "JavaScript Cơ Bản",
                     Content = @"<!-- YOUTUBE: https://www.youtube.com/watch?v=W6NZfCO5SIk -->
-<h2>JavaScript Cơ Bản</h2>
-<p>JavaScript là ngôn ngữ lập trình phía client để tạo tương tác cho trang web. Đây là ngôn ngữ phổ biến nhất trên thế giới!</p>
+                        <h2>JavaScript Cơ Bản</h2>
+                        <p>JavaScript là ngôn ngữ lập trình phía client để tạo tương tác cho trang web. Đây là ngôn ngữ phổ biến nhất trên thế giới!</p>
 
-<h3>🚀 Tại sao học JavaScript?</h3>
-<ul>
-    <li>Ngôn ngữ duy nhất chạy trên trình duyệt</li>
-    <li>Có thể làm việc cả frontend và backend (Node.js)</li>
-    <li>Hệ sinh thái thư viện phong phú</li>
-    <li>Cơ hội việc làm cao</li>
-</ul>
+                        <h3>🚀 Tại sao học JavaScript?</h3>
+                        <ul>
+                            <li>Ngôn ngữ duy nhất chạy trên trình duyệt</li>
+                            <li>Có thể làm việc cả frontend và backend (Node.js)</li>
+                            <li>Hệ sinh thái thư viện phong phú</li>
+                            <li>Cơ hội việc làm cao</li>
+                        </ul>
 
-<h3>📦 Biến và Kiểu Dữ Liệu</h3>
-<div class=""bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg my-4"">
-    <p class=""font-semibold mb-2"">Cách khai báo biến:</p>
-    <ul class=""space-y-1"">
-        <li><code>var</code> - Khai báo biến (ES5, không nên dùng)</li>
-        <li><code>let</code> - Khai báo biến có thể thay đổi (ES6+)</li>
-        <li><code>const</code> - Khai báo hằng số (ES6+)</li>
-    </ul>
-</div>
+                        <h3>📦 Biến và Kiểu Dữ Liệu</h3>
+                        <div class=""bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg my-4"">
+                            <p class=""font-semibold mb-2"">Cách khai báo biến:</p>
+                            <ul class=""space-y-1"">
+                                <li><code>var</code> - Khai báo biến (ES5, không nên dùng)</li>
+                                <li><code>let</code> - Khai báo biến có thể thay đổi (ES6+)</li>
+                                <li><code>const</code> - Khai báo hằng số (ES6+)</li>
+                            </ul>
+                        </div>
 
-<h3>🔢 Kiểu Dữ Liệu</h3>
-<table class=""w-full border-collapse border border-gray-300 dark:border-gray-600 my-4"">
-    <thead>
-        <tr class=""bg-gray-100 dark:bg-gray-800"">
-            <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Kiểu</th>
-            <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Ví dụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Number</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>42, 3.14</code></td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>String</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>""Hello"", 'World'</code></td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Boolean</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>true, false</code></td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Array</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>[1, 2, 3]</code></td>
-        </tr>
-        <tr>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Object</code></td>
-            <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>{name: ""John""}</code></td>
-        </tr>
-    </tbody>
-</table>
+                        <h3>🔢 Kiểu Dữ Liệu</h3>
+                        <table class=""w-full border-collapse border border-gray-300 dark:border-gray-600 my-4"">
+                            <thead>
+                                <tr class=""bg-gray-100 dark:bg-gray-800"">
+                                    <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Kiểu</th>
+                                    <th class=""border border-gray-300 dark:border-gray-600 p-2 text-left"">Ví dụ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Number</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>42, 3.14</code></td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>String</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>""Hello"", 'World'</code></td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Boolean</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>true, false</code></td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Array</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>[1, 2, 3]</code></td>
+                                </tr>
+                                <tr>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>Object</code></td>
+                                    <td class=""border border-gray-300 dark:border-gray-600 p-2""><code>{name: ""John""}</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
 
-<h3>💡 Ví dụ thực hành</h3>
-<pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>// Khai báo biến
-let userName = ""Nguyễn Văn A"";
-const age = 25;
-let isActive = true;
+                        <h3>💡 Ví dụ thực hành</h3>
+                        <pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>// Khai báo biến
+                        let userName = ""Nguyễn Văn A"";
+                        const age = 25;
+                        let isActive = true;
 
-// Mảng
-let fruits = [""Táo"", ""Chuối"", ""Cam""];
+                        // Mảng
+                        let fruits = [""Táo"", ""Chuối"", ""Cam""];
 
-// Object
-let person = {
-    name: ""Nguyễn Văn A"",
-    age: 25,
-    city: ""Hà Nội""
-};
+                        // Object
+                        let person = {
+                            name: ""Nguyễn Văn A"",
+                            age: 25,
+                            city: ""Hà Nội""
+                        };
 
-// In ra console
-console.log(""Xin chào "", userName);
-console.log(""Tuổi:"", age);</code></pre>
+                        // In ra console
+                        console.log(""Xin chào "", userName);
+                        console.log(""Tuổi:"", age);</code></pre>
 
-<h3>✅ Bài tập</h3>
-<p>Tạo các biến để lưu thông tin của bạn (tên, tuổi, thành phố) và in ra console.</p>",
+                        <h3>✅ Bài tập</h3>
+                        <p>Tạo các biến để lưu thông tin của bạn (tên, tuổi, thành phố) và in ra console.</p>",
                     CreatedBy = createdBy,
                     CreatedAt = DateTime.Now,
                     IsApproved = course.IsApproved == true,
@@ -337,42 +337,42 @@ console.log(""Tuổi:"", age);</code></pre>
                     CourseId = course.Id,
                     Title = "Giới Thiệu C#",
                     Content = @"<!-- YOUTUBE: https://www.youtube.com/watch?v=GhQdlIFylQ8 -->
-<h2>Giới Thiệu C#</h2>
-<p>C# là ngôn ngữ lập trình hướng đối tượng mạnh mẽ của Microsoft. Được thiết kế để xây dựng các ứng dụng Windows, web và mobile.</p>
+                        <h2>Giới Thiệu C#</h2>
+                        <p>C# là ngôn ngữ lập trình hướng đối tượng mạnh mẽ của Microsoft. Được thiết kế để xây dựng các ứng dụng Windows, web và mobile.</p>
 
-<h3>💪 Điểm mạnh của C#</h3>
-<ul>
-    <li>Type-safe và memory-safe</li>
-    <li>Hỗ trợ đầy đủ OOP</li>
-    <li>Ecosystem phong phú (.NET)</li>
-    <li>Hiệu suất cao</li>
-</ul>
+                        <h3>💪 Điểm mạnh của C#</h3>
+                        <ul>
+                            <li>Type-safe và memory-safe</li>
+                            <li>Hỗ trợ đầy đủ OOP</li>
+                            <li>Ecosystem phong phú (.NET)</li>
+                            <li>Hiệu suất cao</li>
+                        </ul>
 
-<h3>📝 Cú Pháp Cơ Bản</h3>
-<div class=""bg-green-50 dark:bg-green-900/20 p-4 rounded-lg my-4"">
-    <p class=""font-semibold mb-2"">Các khái niệm cơ bản:</p>
-    <ul class=""space-y-1"">
-        <li><strong>Khai báo biến:</strong> <code>int age = 25;</code>, <code>string name = ""John"";</code></li>
-        <li><strong>Vòng lặp:</strong> <code>for</code>, <code>while</code>, <code>foreach</code></li>
-        <li><strong>Điều kiện:</strong> <code>if</code>, <code>else</code>, <code>switch</code></li>
-        <li><strong>Hàm:</strong> <code>public void MyMethod() { }</code></li>
-    </ul>
-</div>
+                        <h3>📝 Cú Pháp Cơ Bản</h3>
+                        <div class=""bg-green-50 dark:bg-green-900/20 p-4 rounded-lg my-4"">
+                            <p class=""font-semibold mb-2"">Các khái niệm cơ bản:</p>
+                            <ul class=""space-y-1"">
+                                <li><strong>Khai báo biến:</strong> <code>int age = 25;</code>, <code>string name = ""John"";</code></li>
+                                <li><strong>Vòng lặp:</strong> <code>for</code>, <code>while</code>, <code>foreach</code></li>
+                                <li><strong>Điều kiện:</strong> <code>if</code>, <code>else</code>, <code>switch</code></li>
+                                <li><strong>Hàm:</strong> <code>public void MyMethod() { }</code></li>
+                            </ul>
+                        </div>
 
-<h3>💡 Ví dụ Hello World</h3>
-<pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>using System;
+                        <h3>💡 Ví dụ Hello World</h3>
+                        <pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>using System;
 
-class Program
-{
-    static void Main()
-    {
-        Console.WriteLine(""Xin chào, thế giới!"");
-        Console.WriteLine(""Chào mừng đến với C#!"");
-    }
-}</code></pre>
+                        class Program
+                        {
+                            static void Main()
+                            {
+                                Console.WriteLine(""Xin chào, thế giới!"");
+                                Console.WriteLine(""Chào mừng đến với C#!"");
+                            }
+                        }</code></pre>
 
-<h3>✅ Bài tập</h3>
-<p>Tạo chương trình C# in ra tên và tuổi của bạn.</p>",
+                        <h3>✅ Bài tập</h3>
+                        <p>Tạo chương trình C# in ra tên và tuổi của bạn.</p>",
                     CreatedBy = createdBy,
                     CreatedAt = DateTime.Now,
                     IsApproved = course.IsApproved == true,
@@ -383,55 +383,55 @@ class Program
                     CourseId = course.Id,
                     Title = "Lập Trình Hướng Đối Tượng",
                     Content = @"<!-- YOUTUBE: https://www.youtube.com/watch?v=ZqgPoEkTZgY -->
-<h2>OOP trong C#</h2>
-<p>Lập trình hướng đối tượng (OOP) là phương pháp lập trình dựa trên khái niệm ""đối tượng"". C# hỗ trợ đầy đủ 4 nguyên lý của OOP.</p>
+                        <h2>OOP trong C#</h2>
+                        <p>Lập trình hướng đối tượng (OOP) là phương pháp lập trình dựa trên khái niệm ""đối tượng"". C# hỗ trợ đầy đủ 4 nguyên lý của OOP.</p>
 
-<h3>🏛️ 4 Nguyên Lý OOP</h3>
-<div class=""grid grid-cols-1 md:grid-cols-2 gap-4 my-4"">
-    <div class=""bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg"">
-        <h4 class=""font-bold text-blue-700 dark:text-blue-300 mb-2"">1. Encapsulation (Đóng gói)</h4>
-        <p class=""text-sm"">Ẩn chi tiết triển khai, chỉ expose những gì cần thiết.</p>
-    </div>
-    <div class=""bg-green-50 dark:bg-green-900/20 p-4 rounded-lg"">
-        <h4 class=""font-bold text-green-700 dark:text-green-300 mb-2"">2. Inheritance (Kế thừa)</h4>
-        <p class=""text-sm"">Class con kế thừa thuộc tính và phương thức từ class cha.</p>
-    </div>
-    <div class=""bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg"">
-        <h4 class=""font-bold text-purple-700 dark:text-purple-300 mb-2"">3. Polymorphism (Đa hình)</h4>
-        <p class=""text-sm"">Một interface có nhiều cách triển khai khác nhau.</p>
-    </div>
-    <div class=""bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg"">
-        <h4 class=""font-bold text-orange-700 dark:text-orange-300 mb-2"">4. Abstraction (Trừu tượng)</h4>
-        <p class=""text-sm"">Tập trung vào những gì đối tượng làm, không phải cách làm.</p>
-    </div>
-</div>
+                        <h3>🏛️ 4 Nguyên Lý OOP</h3>
+                        <div class=""grid grid-cols-1 md:grid-cols-2 gap-4 my-4"">
+                            <div class=""bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg"">
+                                <h4 class=""font-bold text-blue-700 dark:text-blue-300 mb-2"">1. Encapsulation (Đóng gói)</h4>
+                                <p class=""text-sm"">Ẩn chi tiết triển khai, chỉ expose những gì cần thiết.</p>
+                            </div>
+                            <div class=""bg-green-50 dark:bg-green-900/20 p-4 rounded-lg"">
+                                <h4 class=""font-bold text-green-700 dark:text-green-300 mb-2"">2. Inheritance (Kế thừa)</h4>
+                                <p class=""text-sm"">Class con kế thừa thuộc tính và phương thức từ class cha.</p>
+                            </div>
+                            <div class=""bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg"">
+                                <h4 class=""font-bold text-purple-700 dark:text-purple-300 mb-2"">3. Polymorphism (Đa hình)</h4>
+                                <p class=""text-sm"">Một interface có nhiều cách triển khai khác nhau.</p>
+                            </div>
+                            <div class=""bg-orange-50 dark:bg-orange-900/20 p-4 rounded-lg"">
+                                <h4 class=""font-bold text-orange-700 dark:text-orange-300 mb-2"">4. Abstraction (Trừu tượng)</h4>
+                                <p class=""text-sm"">Tập trung vào những gì đối tượng làm, không phải cách làm.</p>
+                            </div>
+                        </div>
 
-<h3>💡 Ví dụ Class và Object</h3>
-<pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>// Định nghĩa class
-public class Person
-{
-    // Properties
-    public string Name { get; set; }
-    public int Age { get; set; }
+                        <h3>💡 Ví dụ Class và Object</h3>
+                        <pre class=""bg-gray-100 dark:bg-gray-800 p-4 rounded-lg overflow-x-auto""><code>// Định nghĩa class
+                        public class Person
+                        {
+                            // Properties
+                            public string Name { get; set; }
+                            public int Age { get; set; }
     
-    // Method
-    public void Introduce()
-    {
-        Console.WriteLine($""Tôi là {Name}, {Age} tuổi."");
-    }
-}
+                            // Method
+                            public void Introduce()
+                            {
+                                Console.WriteLine($""Tôi là {Name}, {Age} tuổi."");
+                            }
+                        }
 
-// Tạo object
-Person person = new Person
-{
-    Name = ""Nguyễn Văn A"",
-    Age = 25
-};
+                        // Tạo object
+                        Person person = new Person
+                        {
+                            Name = ""Nguyễn Văn A"",
+                            Age = 25
+                        };
 
-person.Introduce();</code></pre>
+                        person.Introduce();</code></pre>
 
-<h3>✅ Bài tập</h3>
-<p>Tạo class <code>Student</code> với các thuộc tính: Name, Age, Grade và method để hiển thị thông tin.</p>",
+                        <h3>✅ Bài tập</h3>
+                        <p>Tạo class <code>Student</code> với các thuộc tính: Name, Age, Grade và method để hiển thị thông tin.</p>",
                     CreatedBy = createdBy,
                     CreatedAt = DateTime.Now,
                     IsApproved = course.IsApproved == true,

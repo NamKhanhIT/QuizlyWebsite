@@ -1,0 +1,46 @@
+@model IEnumerable<QuizlyWebsite.Models.TbMenu>
+
+@if (Model != null && Model.Any())
+{
+    <div class="hidden md:flex flex-1 justify-center gap-6 mx-8">
+        @foreach (var menu in Model)
+        {
+            var hasChildren = menu.InverseParent != null && menu.InverseParent.Any();
+            var currentPath = Context.Request.Path.Value?.ToLower() ?? "";
+            var menuUrl = menu.Url?.ToLower() ?? "";
+            var isActive = currentPath == menuUrl || currentPath.StartsWith(menuUrl + "/");
+            
+            @if (hasChildren)
+            {
+                <div class="relative group">
+                    <a href="@menu.Url" 
+                       class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(isActive ? "text-primary font-semibold" : "")">
+                        @menu.Title
+                        <span class="material-symbols-outlined text-xs align-middle ml-1">arrow_drop_down</span>
+                    </a>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="hidden group-hover:block absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                        @foreach (var child in menu.InverseParent.OrderBy(c => c.Order ?? 0).ThenBy(c => c.Id))
+                        {
+                            var childUrl = child.Url?.ToLower() ?? "";
+                            var childIsActive = currentPath == childUrl || currentPath.StartsWith(childUrl + "/");
+                            
+                            <a href="@child.Url" 
+                               class="block px-4 py-2 text-sm text-[#0d141b] dark:text-slate-50 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition-colors @(childIsActive ? "text-primary font-semibold bg-gray-100 dark:bg-gray-700" : "")">
+                                @child.Title
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <a href="@menu.Url" 
+                   class="nav-link text-[#0d141b] dark:text-slate-50 text-sm font-medium hover:text-primary transition-colors @(isActive ? "text-primary font-semibold" : "")">
+                    @menu.Title
+                </a>
+            }
+        }
+    </div>
+}

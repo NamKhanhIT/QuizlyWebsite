@@ -3,8 +3,63 @@
 @{
     ViewData["Title"] = "Thêm Câu Hỏi Mới";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
-    var examId = ViewContext.HttpContext.Request.Query["examId"].ToString();
+    var examId = Model?.ExamId ?? 0;
 }
+
+<style>
+    .import-section {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+
+    .import-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .import-tab-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .import-tab-content {
+        display: none;
+    }
+
+    .import-status {
+        margin-top: 10px;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .import-status.success {
+        background: #e8f5e9;
+        border: 1px solid #4caf50;
+        color: #2e7d32;
+    }
+
+    .import-status.error {
+        background: #ffebee;
+        border: 1px solid #f44336;
+        color: #c62828;
+    }
+
+    .import-status.info {
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        color: #1565c0;
+    }
+</style>
 
 <div class="mb-8">
     <a asp-action="Index" asp-route-examId="@examId" class="text-primary hover:underline flex items-center gap-2 mb-4">
@@ -15,15 +70,18 @@
 </div>
 
 <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-8 max-w-3xl">
-    <form asp-action="Create" method="post">
-        <div asp-validation-summary="ModelOnly" class="text-danger mb-4"></div>
+    <form asp-action="Create" asp-area="Admin" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger mb-4"></div>
         
+        <input type="hidden" asp-for="ExamId" />
         <div class="mb-6">
-            <label asp-for="ExamId" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
+            <label class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
                 Đề Thi
             </label>
-            <select asp-for="ExamId" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" asp-items="ViewBag.ExamId"></select>
-            <span asp-validation-for="ExamId" class="text-danger text-sm"></span>
+            <div class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 rounded-lg dark:text-slate-50">
+                @(ViewBag.ExamTitle as string ?? "Đề thi #" + examId)
+            </div>
         </div>
 
         <div class="mb-6">
@@ -69,7 +127,7 @@
             <label asp-for="CorrectOption" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
                 Đáp Án Đúng
             </label>
-            <select asp-for="CorrectOption" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition">
+            <select asp-for="CorrectOption" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" required>
                 <option value="">-- Chọn đáp án đúng --</option>
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -80,11 +138,11 @@
         </div>
 
         <div class="mb-6">
-            <label asp-for="Marks" class="block text-sm font-semibold text-[#0d141b] dark:text-slate-50 mb-2">
-                Điểm
-            </label>
-            <input asp-for="Marks" type="number" step="0.01" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-slate-50 transition" />
-            <span asp-validation-for="Marks" class="text-danger text-sm"></span>
+            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                <p class="text-sm text-blue-800 dark:text-blue-200">
+                    <strong>Lưu ý:</strong> Điểm số sẽ tự động được phân bổ đều để tổng điểm của đề thi là 10 điểm. Bạn không cần nhập điểm số.
+                </p>
+            </div>
         </div>
 
         <div class="flex gap-3">

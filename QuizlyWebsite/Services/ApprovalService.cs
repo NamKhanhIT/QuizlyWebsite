@@ -50,8 +50,9 @@ namespace QuizlyWebsite.Services
 
         public async Task<List<TbExam>> GetPendingExamsAsync()
         {
+            // Chỉ lấy đề thi chờ duyệt (IsApproved == false hoặc null) và chưa bị từ chối (RejectionReason == null)
             return await _context.TbExams
-                .Where(e => e.IsApproved == false)
+                .Where(e => (e.IsApproved == false || e.IsApproved == null) && e.RejectionReason == null)
                 .OrderByDescending(e => e.CreatedAt)
                 .Include(e => e.Subject)
                 .ToListAsync();
@@ -121,17 +122,23 @@ namespace QuizlyWebsite.Services
 
         public async Task RejectExamAsync(int examId, int approvedBy, string reason)
         {
+            if (string.IsNullOrWhiteSpace(reason))
+                throw new ArgumentException("Rejection reason is required", nameof(reason));
+
             var exam = await _context.TbExams.FindAsync(examId);
             if (exam == null)
                 throw new Exception("Exam not found");
 
+            // Set trạng thái từ chối
             exam.IsApproved = false;
-            exam.ApprovedBy = approvedBy;
-            exam.ApprovedAt = DateTime.Now;
-            exam.RejectionReason = reason;
+            exam.RejectionReason = reason.Trim();
+            
+            // Clear thông tin duyệt (nếu có)
+            exam.ApprovedBy = null;
+            exam.ApprovedAt = null;
 
             await _context.SaveChangesAsync();
-            _logger.LogInformation($"Exam {examId} rejected by user {approvedBy}");
+            _logger.LogInformation($"Exam {examId} rejected by user {approvedBy} with reason: {reason}");
         }
 
         public async Task DeleteExamAsync(int examId, int deletedBy, string reason)

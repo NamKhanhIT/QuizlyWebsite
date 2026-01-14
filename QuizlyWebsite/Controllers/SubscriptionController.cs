@@ -30,13 +30,10 @@ namespace QuizlyWebsite.Controllers
         public async Task<IActionResult> Pricing()
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            
-            // Load plans first (no dependency on user)
             var plans = await _context.TbMembershipPlans.ToListAsync();
             ViewBag.Plans = plans;
             ViewBag.UserId = userId;
             
-            // Only check subscription if user is logged in
             if (userId.HasValue)
             {
                 var subscription = await _subscriptionService.GetActiveSubscriptionAsync(userId.Value);
@@ -65,7 +62,6 @@ namespace QuizlyWebsite.Controllers
             if (!userId.HasValue)
                 return RedirectToAction("Login", "Auth");
 
-            // Validate plan type
             var validPlans = new[] { "PLUS", "PREMIUM", "VIP", "BASIC" };
             if (!validPlans.Contains(planType.ToUpper()))
             {
@@ -73,7 +69,6 @@ namespace QuizlyWebsite.Controllers
                 return RedirectToAction(nameof(Pricing));
             }
 
-            // Determine subscription duration (in days) based on plan
             var daysValid = planType switch
             {
                 "BASIC" => 30,
@@ -444,16 +439,13 @@ namespace QuizlyWebsite.Controllers
                     return RedirectToAction("Index", "Profile", new { tab = "membership" });
                 }
 
-                // Tính toán số tiền hoàn lại dựa trên số ngày còn lại
                 var now = DateTime.UtcNow;
                 var totalDays = (subscription.EndDate - subscription.StartDate).TotalDays;
                 var remainingDays = (subscription.EndDate - now).TotalDays;
                 
-                // Chỉ hoàn tiền nếu còn ít nhất 1 ngày
                 decimal refundAmount = 0;
                 if (remainingDays > 0 && totalDays > 0 && subscription.Plan != null && subscription.Plan.Price.HasValue)
                 {
-                    // Tính số tiền hoàn lại theo tỷ lệ số ngày còn lại
                     var originalPrice = subscription.Plan.Price.Value;
                     refundAmount = originalPrice * (decimal)(remainingDays / totalDays);
                     

@@ -243,7 +243,7 @@ namespace QuizlyWebsite.Controllers
                     UserId = userId.Value,
                     ExamId = id,
                     PurchasedAt = DateTime.UtcNow,
-                    ExpiredAt = null // Mua một lần, không hết hạn
+                    ExpiredAt = null
                 };
 
                 _context.TbUserPurchases.Add(purchase);
@@ -295,7 +295,7 @@ namespace QuizlyWebsite.Controllers
                     var canAccess = await _accessControlService.CanAccessExamAsync(userId.Value, exam);
                     if (!canAccess)
                     {
-                        TempData["ErrorMessage"] = "Bạn cần đăng ký gói hội viên để làm đề thi này.";
+                        TempData["ErrorMessage"] = "Bạn cần mua đề thi này hoặc đăng ký gói hội viên để làm đề thi này.";
                         return RedirectToAction("Detail", new { id = id });
                     }
                 }
@@ -325,7 +325,6 @@ namespace QuizlyWebsite.Controllers
 
             HttpContext.Session.SetInt32("SessionId", session.Id);
 
-            // Pass penalty rules to view
             ViewBag.PenaltyRules = exam.TbPenaltyRules?.ToList() ?? new List<TbPenaltyRule>();
             ViewBag.SessionId = session.Id;
             ViewBag.LessonId = lessonId;
@@ -386,26 +385,21 @@ namespace QuizlyWebsite.Controllers
                         .Where(p => p.ExamId == examId && p.Reason == "TabSwitch")
                         .FirstOrDefaultAsync();
 
-                    // Default to 0.5 points per violation if no rule found
                     decimal penaltyPerViolation = 0.5m;
                     if (penaltyRule != null && penaltyRule.PenaltyPercent.HasValue)
                     {
-                        // PenaltyPercent is stored as percentage (0-100), convert to points
-                        // If PenaltyPercent is 50, it means 0.5 points (50% of 1 point)
+
                         penaltyPerViolation = penaltyRule.PenaltyPercent.Value / 100m;
                     }
 
-                    // Apply penalty: 0.5 points per violation
                     penaltyPoints = penaltyPerViolation * violationCount;
                 }
             }
 
-            // Calculate score
             int correctAnswers = 0;
             decimal totalScore = 0;
             var resultDetails = new List<TbExamResultDetail>();
 
-            // Calculate total possible points (sum of all question marks, or default to 10 if no marks set)
             decimal totalPossiblePoints = 0;
             foreach (var question in exam.TbQuestions)
             {
@@ -454,13 +448,11 @@ namespace QuizlyWebsite.Controllers
                 });
             }
 
-            // Apply penalty (subtract points from score)
             var score = Math.Max(0, totalScore - penaltyPoints);
 
             // Get actual start time from session
             var startedAt = session?.StartedAt ?? DateTime.Now.AddMinutes(-exam.Duration);
 
-            // Calculate percentage score for lesson quiz check
             var percentageScore = exam.TbQuestions.Count > 0
                 ? (decimal)correctAnswers / exam.TbQuestions.Count * 100
                 : 0;
@@ -499,7 +491,6 @@ namespace QuizlyWebsite.Controllers
 
             HttpContext.Session.Remove("SessionId");
 
-            // If this is a lesson quiz, redirect back to lesson page
             if (lessonId.HasValue && courseId.HasValue)
             {
                 if (score >= 8m)
@@ -588,7 +579,6 @@ namespace QuizlyWebsite.Controllers
                 return Json(new { success = true, cancelled = true, message = "Bài thi đã bị hủy." });
             }
 
-            // Check violation count
             var violationCount = session.TbExamViolations?.Count ?? 0;
 
             // If already 3+ violations, cancel exam and save result
@@ -737,16 +727,16 @@ namespace QuizlyWebsite.Controllers
             }
 
             TempData["SuccessMessage"] = "Cảm ơn bạn đã đánh giá đề thi!";
-            
+
             // Redirect back to result page if we have resultId
             var result = await _context.TbExamResults
                 .FirstOrDefaultAsync(r => r.UserId == userId.Value && r.ExamId == examId && r.FinishedAt != null);
-            
+
             if (result != null)
             {
                 return RedirectToAction("Result", new { resultId = result.Id });
             }
-            
+
             return RedirectToAction("Detail", new { id = examId });
         }
 
@@ -1004,6 +994,7 @@ namespace QuizlyWebsite.Controllers
                 var questions = new List<QuestionViewModel>();
                 var questionIndices = new List<int>();
 
+                _logger.LogInformation("Extracting questions from form...");
                 foreach (var key in form.Keys)
                 {
                     if (key.StartsWith("Questions[") && key.Contains("].Content"))
@@ -1019,6 +1010,7 @@ namespace QuizlyWebsite.Controllers
                         }
                     }
                 }
+                _logger.LogInformation($"Found {questionIndices.Count} question indices: {string.Join(", ", questionIndices)}");
 
                 foreach (var index in questionIndices)
                 {
@@ -1146,22 +1138,22 @@ namespace QuizlyWebsite.Controllers
                 return;
 
             int questionCount = questions.Count;
-            
+
             // Calculate equal marks per question: 10 / questionCount
             // Round to 2 decimal places
             decimal baseMarks = Math.Round(10m / questionCount, 2, MidpointRounding.AwayFromZero);
-            
+
             // Distribute base marks to all questions
             for (int i = 0; i < questions.Count; i++)
             {
                 questions[i].Marks = baseMarks;
             }
-            
+
             // Adjust the last question to ensure total exactly equals 10
             // Calculate what the total would be with base marks
             decimal currentTotal = baseMarks * questionCount;
             decimal difference = 10m - currentTotal;
-            
+
             // Add the difference to the last question to make total exactly 10
             if (questions.Count > 0)
             {
@@ -1252,50 +1244,61 @@ namespace QuizlyWebsite.Controllers
         // POST: /quiz/edit/{id} - Save edited exam
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(
-            int id,
-            string Title,
-            int? CategoryId,
-            string? NewCategoryTitle,
-            int? SubjectId,
-            string? NewSubjectTitle,
-            string? NewSubjectDescription,
-            int Duration,
-            string Difficulty,
-            IFormCollection form)
+        public async Task<IActionResult> Edit(int id, [FromForm] ExamEditViewModel model, IFormCollection form)
         {
+            _logger.LogInformation($"Edit action called for exam {id} with model: Title='{model?.Title}', Duration={model?.Duration}, Questions={model?.Questions?.Count}");
+
             var userId = HttpContext.Session.GetInt32("UserId");
             if (userId == null)
+            {
+                _logger.LogWarning($"Edit exam {id}: User not logged in");
                 return RedirectToAction("Login", "Account");
+            }
 
             var existingExam = await _context.TbExams
                 .Include(e => e.TbQuestions)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (existingExam == null)
+            {
+                _logger.LogWarning($"Edit exam {id}: Exam not found");
                 return NotFound();
+            }
 
             // Only creator can edit
             if (existingExam.CreatedBy != userId.Value)
+            {
+                _logger.LogWarning($"Edit exam {id}: User {userId} is not the creator ({existingExam.CreatedBy})");
                 return Forbid();
+            }
 
+            _logger.LogInformation($"Starting edit for exam {id} by user {userId}");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Debug form data
+                _logger.LogInformation($"Form keys: {string.Join(", ", form.Keys)}");
+                foreach (var key in form.Keys)
+                {
+                    _logger.LogInformation($"Form[{key}]: {form[key]}");
+                }
+
                 // Validate required fields
-                if (string.IsNullOrWhiteSpace(Title))
+                if (string.IsNullOrWhiteSpace(model.Title))
                 {
                     ModelState.AddModelError("", "Tên đề thi không được để trống");
                 }
 
-                if (Duration < 5 || Duration > 300)
+                if (model.Duration < 5 || model.Duration > 300)
                 {
                     ModelState.AddModelError("", "Thời gian phải từ 5 đến 300 phút");
                 }
 
                 // Handle Category
                 int finalCategoryId = 0;
-                var useNewCategoryValue = form["UseNewCategory"].ToString();
-                bool useNewCategory = useNewCategoryValue == "true";
+                bool useNewCategory = model.UseNewCategory;
+                _logger.LogInformation($"UseNewCategory: {useNewCategory}");
 
                 if (!useNewCategory)
                 {
@@ -1305,7 +1308,7 @@ namespace QuizlyWebsite.Controllers
                 if (useNewCategory)
                 {
                     // Validate new category title
-                    if (string.IsNullOrWhiteSpace(NewCategoryTitle))
+                    if (string.IsNullOrWhiteSpace(model.NewCategoryTitle))
                     {
                         ModelState.AddModelError("NewCategoryTitle", "Vui lòng nhập tên danh mục mới");
                     }
@@ -1314,7 +1317,7 @@ namespace QuizlyWebsite.Controllers
                         // Create new category
                         var newCategory = new TbCategory
                         {
-                            Title = NewCategoryTitle.Trim(),
+                            Title = model.NewCategoryTitle.Trim(),
                             CreatedAt = DateTime.Now
                         };
                         _context.TbCategories.Add(newCategory);
@@ -1322,9 +1325,9 @@ namespace QuizlyWebsite.Controllers
                         finalCategoryId = newCategory.Id;
                     }
                 }
-                else if (CategoryId.HasValue && CategoryId.Value > 0)
+                else if (model.CategoryId.HasValue && model.CategoryId.Value > 0)
                 {
-                    finalCategoryId = CategoryId.Value;
+                    finalCategoryId = model.CategoryId.Value;
                 }
                 else
                 {
@@ -1344,8 +1347,8 @@ namespace QuizlyWebsite.Controllers
 
                 // Handle Subject
                 int finalSubjectId = 0;
-                var useNewSubjectValue = form["UseNewSubject"].ToString();
-                bool useNewSubject = useNewSubjectValue == "true";
+                bool useNewSubject = model.UseNewSubject;
+                _logger.LogInformation($"UseNewSubject: {useNewSubject}");
 
                 // Clear validation errors for these fields if not using new subject
                 if (!useNewSubject)
@@ -1357,7 +1360,7 @@ namespace QuizlyWebsite.Controllers
                 if (useNewSubject)
                 {
                     // Validate new subject title
-                    if (string.IsNullOrWhiteSpace(NewSubjectTitle))
+                    if (string.IsNullOrWhiteSpace(model.NewSubjectTitle))
                     {
                         ModelState.AddModelError("NewSubjectTitle", "Vui lòng nhập tên môn học mới");
                     }
@@ -1370,8 +1373,8 @@ namespace QuizlyWebsite.Controllers
                         // Create new subject
                         var newSubject = new TbSubject
                         {
-                            Title = NewSubjectTitle.Trim(),
-                            Description = NewSubjectDescription?.Trim(),
+                            Title = model.NewSubjectTitle.Trim(),
+                            Description = model.NewSubjectDescription?.Trim(),
                             CategoryId = finalCategoryId
                         };
                         _context.TbSubjects.Add(newSubject);
@@ -1379,90 +1382,29 @@ namespace QuizlyWebsite.Controllers
                         finalSubjectId = newSubject.Id;
                     }
                 }
-                else if (SubjectId.HasValue && SubjectId.Value > 0)
+                else if (model.SubjectId.HasValue && model.SubjectId.Value > 0)
                 {
-                    finalSubjectId = SubjectId.Value;
+                    finalSubjectId = model.SubjectId.Value;
                 }
                 else
                 {
                     finalSubjectId = existingExam.SubjectId;
                 }
 
-                // Extract questions from form
-                var questions = new List<QuestionViewModel>();
-                var questionIndices = new List<int>();
+                // Use questions from model binding
+                var questions = model.Questions?.Where(q =>
+                    !string.IsNullOrWhiteSpace(q.Content) &&
+                    !string.IsNullOrWhiteSpace(q.OptionA) &&
+                    !string.IsNullOrWhiteSpace(q.OptionB) &&
+                    !string.IsNullOrWhiteSpace(q.OptionC) &&
+                    !string.IsNullOrWhiteSpace(q.OptionD) &&
+                    !string.IsNullOrWhiteSpace(q.CorrectOption)
+                ).ToList() ?? new List<QuestionEditViewModel>();
 
-                foreach (var key in form.Keys)
-                {
-                    if (key.StartsWith("Questions[") && key.Contains("].Content"))
-                    {
-                        var match = System.Text.RegularExpressions.Regex.Match(key, @"Questions\[(\d+)\]");
-                        if (match.Success)
-                        {
-                            int index = int.Parse(match.Groups[1].Value);
-                            if (!questionIndices.Contains(index))
-                            {
-                                questionIndices.Add(index);
-                            }
-                        }
-                    }
-                }
-
-                foreach (var index in questionIndices)
-                {
-                    var questionIdStr = form[$"Questions[{index}].Id"].ToString();
-                    int questionId = 0;
-                    int.TryParse(questionIdStr, out questionId);
-
-                    var content = form[$"Questions[{index}].Content"].ToString();
-                    var optionA = form[$"Questions[{index}].OptionA"].ToString();
-                    var optionB = form[$"Questions[{index}].OptionB"].ToString();
-                    var optionC = form[$"Questions[{index}].OptionC"].ToString();
-                    var optionD = form[$"Questions[{index}].OptionD"].ToString();
-                    var correctOption = form[$"Questions[{index}].CorrectOption"].ToString();
-                    var marksStr = form[$"Questions[{index}].Marks"].ToString();
-
-                    if (!string.IsNullOrWhiteSpace(content) &&
-                        !string.IsNullOrWhiteSpace(optionA) &&
-                        !string.IsNullOrWhiteSpace(optionB) &&
-                        !string.IsNullOrWhiteSpace(optionC) &&
-                        !string.IsNullOrWhiteSpace(optionD) &&
-                        !string.IsNullOrWhiteSpace(correctOption))
-                    {
-                        decimal marks = 1m;
-                        if (!string.IsNullOrWhiteSpace(marksStr) && decimal.TryParse(marksStr, out decimal parsedMarks))
-                        {
-                            marks = parsedMarks;
-                        }
-
-                        questions.Add(new QuestionViewModel
-                        {
-                            Id = questionId,
-                            Content = content,
-                            OptionA = optionA,
-                            OptionB = optionB,
-                            OptionC = optionC,
-                            OptionD = optionD,
-                            CorrectOption = correctOption,
-                            Marks = marks
-                        });
-                    }
-                }
+                _logger.LogInformation($"Using {questions.Count} questions from model binding");
 
                 // Check for questions to delete
-                var questionsToDelete = new List<int>();
-                foreach (var key in form.Keys)
-                {
-                    if (key.StartsWith("QuestionsToDelete["))
-                    {
-                        var match = System.Text.RegularExpressions.Regex.Match(key, @"QuestionsToDelete\[(\d+)\]");
-                        if (match.Success)
-                        {
-                            int questionId = int.Parse(match.Groups[1].Value);
-                            questionsToDelete.Add(questionId);
-                        }
-                    }
-                }
+                var questionsToDelete = model.QuestionsToDelete ?? new List<int>();
 
                 if (questions.Count == 0)
                 {
@@ -1471,34 +1413,42 @@ namespace QuizlyWebsite.Controllers
 
                 if (!ModelState.IsValid)
                 {
+                    await transaction.RollbackAsync();
+                    _logger.LogWarning($"ModelState is invalid for exam {id}. Errors:");
+                    foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        _logger.LogWarning($"- {error.ErrorMessage}");
+                    }
                     ViewData["Subjects"] = await _context.TbSubjects.Include(s => s.Category).ToListAsync();
                     ViewData["Categories"] = await _context.TbCategories.ToListAsync();
                     ViewData["Questions"] = existingExam.TbQuestions?.OrderBy(q => q.Id).ToList() ?? new List<TbQuestion>();
                     return View(existingExam);
                 }
 
-                // Update exam
-                existingExam.Title = Title.Trim();
+                // Update exam basic info
+                _logger.LogInformation($"Updating exam {id}: Title='{model.Title}', SubjectId={finalSubjectId}, Duration={model.Duration}, Difficulty='{model.Difficulty}', Questions={questions.Count}");
+                existingExam.Title = model.Title.Trim();
                 existingExam.SubjectId = finalSubjectId;
-                existingExam.Duration = Duration;
-                existingExam.Difficulty = Difficulty;
+                existingExam.Duration = model.Duration;
+                existingExam.Difficulty = model.Difficulty;
                 existingExam.QuestionCount = questions.Count;
-                // Reset approval if exam was approved
-                if (existingExam.IsApproved == true)
-                {
-                    existingExam.IsApproved = false;
-                }
-
+                existingExam.IsApproved = false; // Reset to pending approval when edited
                 _context.Update(existingExam);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Exam {id} updated successfully, IsApproved set to false");
 
                 // Delete removed questions
-                foreach (var questionId in questionsToDelete)
+                if (questionsToDelete.Count > 0)
                 {
-                    var questionToDelete = await _context.TbQuestions.FindAsync(questionId);
-                    if (questionToDelete != null && questionToDelete.ExamId == id)
+                    foreach (var questionId in questionsToDelete)
                     {
-                        _context.TbQuestions.Remove(questionToDelete);
+                        var questionToDelete = await _context.TbQuestions.FindAsync(questionId);
+                        if (questionToDelete != null && questionToDelete.ExamId == id)
+                        {
+                            _context.TbQuestions.Remove(questionToDelete);
+                        }
                     }
+                    await _context.SaveChangesAsync();
                 }
 
                 // Update or create questions
@@ -1537,29 +1487,38 @@ namespace QuizlyWebsite.Controllers
                         _context.TbQuestions.Add(newQuestion);
                     }
                 }
-
                 await _context.SaveChangesAsync();
 
                 // Normalize marks to ensure total = 10
                 await NormalizeExamMarksAsync(id);
 
-                TempData["SuccessMessage"] = $"Đề thi đã được cập nhật thành công với {questions.Count} câu hỏi! Điểm số đã được tự động điều chỉnh để tổng = 10 điểm.";
+                await transaction.CommitAsync();
+                _logger.LogInformation($"Exam {id} updated successfully and transaction committed");
+
+                TempData["SuccessMessage"] = $"Đề thi đã được cập nhật thành công!";
                 return RedirectToAction("Index", "Profile", new { tab = "my-exams" });
             }
             catch (DbUpdateConcurrencyException)
             {
+                await transaction.RollbackAsync();
                 if (!_context.TbExams.Any(e => e.Id == id))
                     return NotFound();
                 throw;
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Lỗi khi cập nhật đề thi: " + ex.Message);
+                await transaction.RollbackAsync();
+                _logger.LogError($"Error updating exam: {ex.Message}");
+                ModelState.AddModelError("", "Lỗi khi cập nhật đề thi. Vui lòng thử lại.");
             }
 
+            // Reload data for form on error
+            existingExam = await _context.TbExams
+                .Include(e => e.TbQuestions)
+                .FirstOrDefaultAsync(e => e.Id == id);
             ViewData["Subjects"] = await _context.TbSubjects.Include(s => s.Category).ToListAsync();
             ViewData["Categories"] = await _context.TbCategories.ToListAsync();
-            ViewData["Questions"] = existingExam.TbQuestions?.OrderBy(q => q.Id).ToList() ?? new List<TbQuestion>();
+            ViewData["Questions"] = existingExam?.TbQuestions?.OrderBy(q => q.Id).ToList() ?? new List<TbQuestion>();
             return View(existingExam);
         }
 
@@ -1725,5 +1684,33 @@ namespace QuizlyWebsite.Controllers
     public class ParseTextRequest
     {
         public string Text { get; set; } = string.Empty;
+    }
+
+    public class ExamEditViewModel
+    {
+        public string Title { get; set; } = null!;
+        public int? CategoryId { get; set; }
+        public string? NewCategoryTitle { get; set; }
+        public bool UseNewCategory { get; set; }
+        public int? SubjectId { get; set; }
+        public string? NewSubjectTitle { get; set; }
+        public string? NewSubjectDescription { get; set; }
+        public bool UseNewSubject { get; set; }
+        public int Duration { get; set; }
+        public string Difficulty { get; set; } = null!;
+        public List<QuestionEditViewModel> Questions { get; set; } = new();
+        public List<int> QuestionsToDelete { get; set; } = new();
+    }
+
+    public class QuestionEditViewModel
+    {
+        public int Id { get; set; }
+        public string Content { get; set; } = null!;
+        public string OptionA { get; set; } = null!;
+        public string OptionB { get; set; } = null!;
+        public string OptionC { get; set; } = null!;
+        public string OptionD { get; set; } = null!;
+        public string CorrectOption { get; set; } = null!;
+        public decimal Marks { get; set; }
     }
 }
