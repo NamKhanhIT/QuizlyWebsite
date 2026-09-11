@@ -138,6 +138,14 @@ _TeamCity*
 # DotCover is a Code Coverage Tool
 *.dotCover
 
+# Local environment and sensitive config files
+.env
+.env.*
+QuizlyWebsite/appsettings.json
+QuizlyWebsite/appsettings.Development.json
+QuizlyWebsite/appsettings.*.json
+!QuizlyWebsite/appsettings.example.json
+
 # AxoCover is a Code Coverage Tool
 .axoCover/*
 !.axoCover/settings.json

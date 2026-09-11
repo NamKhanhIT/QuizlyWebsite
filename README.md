@@ -99,8 +99,12 @@ cd QuizlyWebsite
 ```
 
 ### Bước 2: Cấu Hình Database
-1. Mở `appsettings.json`
-2. Cập nhật connection string:
+1. Tạo file cấu hình local từ template:
+```bash
+cp QuizlyWebsite/appsettings.example.json QuizlyWebsite/appsettings.json
+```
+2. Mở `QuizlyWebsite/appsettings.json`
+3. Cập nhật connection string và các khóa nhạy cảm:
 ```json
 "ConnectionStrings": {
   "DefaultConnection": "Server=.;Database=QuizlyDB;Trusted_Connection=true;TrustServerCertificate=true;Encrypt=false;"
